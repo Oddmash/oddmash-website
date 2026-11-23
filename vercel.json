@@ -1,1 +1,1 @@
-{"framework":"astro","buildCommand":"npm run build","outputDirectory":"build"}
+{"framework":"astro","installCommand":"pnpm install --frozen-lockfile --ignore-scripts","buildCommand":"pnpm run build","outputDirectory":"build"}
