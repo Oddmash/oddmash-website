@@ -1,17 +1,19 @@
 ---
-import { copy, type Locale } from '../content';
+import { copy, labels, type Locale } from '../content';
 const {locale} = Astro.props as {locale:Locale};
 const t = copy[locale];
+const l = labels[locale];
 const sample = '팀의 모든 문서를 한곳에서 관리하고 더 자연스럽게 읽을 수 있습니다.';
 ---
 <section class="section demo" aria-labelledby="demo-title">
   <p class="eyebrow">Kowrap / Live</p><h2 id="demo-title">{t.demo}</h2><p>{t.demoNote}</p>
-  <label class="width-control" for="demo-width">{locale==='ko'?'너비':locale==='ja'?'幅':locale==='zh-CN'?'宽度':'Width'} <output id="width-value">220 px</output><input id="demo-width" type="range" min="160" max="320" step="10" value="220" /></label>
-  <div class="demo-pair" id="demo-pair">
+  <p id="demo-fallback">{l.demoFallback}</p>
+  <label class="width-control" for="demo-width" id="demo-control" hidden>{l.width} <output id="width-value" for="demo-width">220 px</output><input id="demo-width" type="range" min="160" max="320" step="10" value="220" /></label>
+  <div class="demo-pair" id="demo-pair" hidden>
     <div><p class="tag">{t.before}</p><p class="sample" lang="ko">{sample}</p></div>
     <div><p class="tag">{t.after}</p><p id="optimized-wrap" class="sample" lang="ko">{sample}</p></div>
   </div>
-  <p id="demo-status" role="status" data-failure={locale==='ko'?'Kowrap을 사용할 수 없습니다. 체험 페이지를 열어 주세요.':locale==='ja'?'Kowrapを利用できません。体験ページをご覧ください。':locale==='zh-CN'?'Kowrap 暂不可用。请访问体验页面。':'Kowrap unavailable. Visit the playground.'}></p>
+  <p id="demo-status" role="status" data-failure={l.demoFailure}></p>
   <a class="text-link" href="https://oddmash.github.io/kowrap/#playground">{t.live}</a>
 </section>
 <script>
@@ -20,11 +22,30 @@ const range = document.querySelector<HTMLInputElement>('#demo-width');
 const pair = document.querySelector<HTMLElement>('#demo-pair');
 const value = document.querySelector<HTMLOutputElement>('#width-value');
 const title = document.querySelector<HTMLElement>('#optimized-wrap');
-if (range && pair && value && title) {
+const control = document.querySelector<HTMLElement>('#demo-control');
+const fallback = document.querySelector<HTMLElement>('#demo-fallback');
+const status = document.querySelector<HTMLElement>('#demo-status');
+if (range && pair && value && title && control && fallback && status) {
+  pair.hidden = false;
+  const updateLimit = () => {
+    const widths = Array.from(pair.children, panel => {
+      const style = getComputedStyle(panel);
+      return panel.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    });
+    const max = Math.max(160, Math.min(320, Math.floor(Math.min(...widths) / 10) * 10));
+    range.max = String(max);
+  };
   const update = () => { pair.style.setProperty('--sample-width', range.value+'px'); value.value = range.value+' px'; };
-  range.addEventListener('input', update);
-  update();
-  try { mountKowrap(title, {text:title.textContent ?? ''}); }
-  catch { const status = document.querySelector<HTMLElement>('#demo-status'); if(status) status.textContent = status.dataset.failure ?? ''; }
+  try {
+    updateLimit();
+    update();
+    const controller = mountKowrap(title, {text:title.textContent ?? ''});
+    control.hidden = false;
+    fallback.hidden = true;
+    range.addEventListener('input', update);
+    const observer = new ResizeObserver(() => { updateLimit(); update(); });
+    for (const panel of pair.children) observer.observe(panel);
+    window.addEventListener('pagehide', event => { if (!event.persisted) { observer.disconnect(); controller.destroy(); } }, {once:true});
+  } catch { pair.hidden = true; control.hidden = true; fallback.hidden = true; status.textContent = status.dataset.failure ?? ''; }
 }
 </script>

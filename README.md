@@ -12,5 +12,6 @@ A localized showcase of Oddmash's public projects, philosophy and contribution p
 - [Oddmash UI](https://github.com/Oddmash/oddmash-ui)
 - [Interaction Inspector](https://github.com/Oddmash/interaction-inspector)
 - [Vertactics](https://github.com/Oddmash/Vertactics)
+- [Boundra](https://github.com/Oddmash/boundra)
 
 This repository remains a private preview. See [development and launch checks](CONTRIBUTING.md).
