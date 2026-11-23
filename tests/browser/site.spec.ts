@@ -74,6 +74,10 @@ test('progressive rendering without JavaScript',async ({browser})=>{
   const context=await browser.newContext({javaScriptEnabled:false});
   const page=await context.newPage();
   try{
+    await page.goto('http://127.0.0.1:4322/privacy.html?lang=ko');
+    await expect(page).toHaveURL(/\/privacy\/$/);
+    await page.getByRole('link',{name:'한국어'}).click();
+    await expect(page).toHaveURL(/\/ko\/privacy\/$/);
     await page.goto('http://127.0.0.1:4322/ko/');
     await expect(page.locator('.project:visible')).toHaveCount(5);
     await expect(page.locator('#filters')).toBeHidden();

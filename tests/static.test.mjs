@@ -27,5 +27,6 @@ test('preview robots and sitemap never reveal public routes',()=>{
   assert.ok(existsSync('build/404.html'));
   assert.ok(existsSync('build/privacy.html'));
   const legacy=readFileSync('build/privacy.html','utf8');
+  assert.match(legacy,/<noscript><meta http-equiv="refresh" content="0; url=\/privacy\/">/);
   for(const prefix of prefixes) assert.match(legacy,new RegExp(`href="/${prefix}privacy/"`));
 });
