@@ -11,13 +11,16 @@ const mock = (dataset = {}, textContent = '') => ({dataset,textContent,hidden:fa
 const texts = [...html.matchAll(/data-t="([^"]+)"[^>]*>([^<]*)/g)].map(m=>mock({t:m[1]},m[2]));
 const filters = ['all','tools','web'].map(filter=>mock({filter}));
 const projects = ['tools','tools','tools','web'].map(category=>mock({category}));
-const elements = Object.fromEntries(['#locale','#filter-status','#share-status','#share'].map(id=>[id,mock()]));
+const elements = Object.fromEntries(['#locale','#filter-status','#share-status','#share','#copyright-year'].map(id=>[id,mock()]));
 const document = {documentElement:{},querySelectorAll(s){return {'[data-t]':texts,'[data-alt]':[],'[data-filter]':filters,'[data-category]':projects}[s];},querySelector(s){return elements[s];}};
 let location = {href:'https://example.test/?lang=ko',search:'?lang=ko'};
 let copied = '';
 const context = {document,location,URL,URLSearchParams,history:{replaceState(_,__,url){location.href=url.href;}},navigator:{clipboard:{async writeText(value){copied=value;}}}};
 runInNewContext(script,context);
 assert.equal(document.documentElement.lang,'ko');
+assert.equal(elements['#copyright-year'].textContent, String(new Date().getFullYear()));
+assert.ok(!html.includes('chatgpt.site'));
+assert.match(html, /name="robots" content="noindex, nofollow"/);
 assert.equal(texts.find(n=>n.dataset.t==='headline1').textContent,'작은 아이디어.');
 filters[2].events.click();
 assert.equal(projects.filter(p=>!p.hidden).length,1);
