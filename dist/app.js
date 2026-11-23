@@ -22,4 +22,5 @@ function applyLanguage(next){language=next;document.documentElement.lang=next;lo
 locale.addEventListener('change',()=>applyLanguage(locale.value));
 filters.forEach(button=>button.addEventListener('click',()=>applyFilter(button.dataset.filter)));
 document.querySelector('#share').addEventListener('click',async()=>{try{const url=new URL(location.href);url.hash='';await navigator.clipboard.writeText(url.href);shareStatus.textContent=strings().copied;}catch{shareStatus.textContent=strings().copyFailed;}});
+document.querySelector('#copyright-year').textContent = String(new Date().getFullYear());
 applyLanguage(language);
