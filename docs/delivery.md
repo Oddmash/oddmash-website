@@ -15,3 +15,5 @@ Astro static rendering replaces manually duplicated HTML and runtime locale swit
 | Accounts / uploads / payments / user records | Not applicable: informational site |
 
 Tests: `pnpm install --frozen-lockfile --ignore-scripts`, `pnpm run check` (typecheck, static build, metadata and path tests, synthetic public launch gate) and `pnpm run test:browser` (Chromium, Firefox and WebKit; 320px, keyboard, all locales, filters, clipboard success/fallback, JavaScript disabled, light/dark captures and actual wrapping width). Real-device, screen-reader, production origin, live social preview and actual hosting policy are not certified by automated checks. Do not launch publicly with unresolved required evidence.
+
+The Vercel install and build commands invoke Corepack to use the exact packageManager pin instead of inferring a pnpm version from the lockfile format. Verify the selected pnpm version in the authorized hosting build logs before launch. If provider-side auto-detection is needed, enable `ENABLE_EXPERIMENTAL_COREPACK=1` only in the approved hosting project.
