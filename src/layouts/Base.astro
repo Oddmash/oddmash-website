@@ -1,0 +1,58 @@
+---
+import '../styles/site.scss';
+import { copy, locales, languageNames, url, type Locale } from '../content';
+import { absolute, indexable } from '../site';
+interface Props { locale:Locale; path:string; title:string; description:string; image?:string; noIndex?:boolean }
+const {locale,path,title,description,image='/assets/social.png',noIndex=false} = Astro.props;
+const t = copy[locale];
+const home = url(locale);
+const canonical = noIndex ? undefined : absolute(url(locale,path));
+---
+<!doctype html>
+<html lang={locale}>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#fafafa" />
+<title>{title} | Oddmash</title>
+<meta name="description" content={description} />
+<meta name="robots" content={indexable && !noIndex ? 'index, follow' : 'noindex, nofollow'} />
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title + ' | Oddmash'} />
+<meta property="og:description" content={description} />
+{canonical && <link rel="canonical" href={canonical} />}
+{canonical && <meta property="og:url" content={canonical} />}
+{canonical && <meta property="og:image" content={absolute(image)} />}
+{canonical && locales.map(lang=><link rel="alternate" hreflang={lang} href={absolute(url(lang,path))} />)}
+{canonical && <link rel="alternate" hreflang="x-default" href={absolute(url('en',path))} />}
+<link rel="icon" href="/assets/oddmash-logo.png" />
+</head>
+<body>
+<a class="skip" href="#main">{t.skip}</a>
+<header class="shell header">
+  <a class="brand" href={home} aria-label="Oddmash"><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
+  <nav aria-label={t.nav[0]}><a href={home+'#work'}>{t.nav[0]}</a><a href={url(locale,'studio')}>{t.nav[1]}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
+  <nav class="languages" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined}>{languageNames[lang]}</a>)}</nav>
+</header>
+<main id="main" class="shell"><slot /></main>
+<footer class="shell footer">
+  <a class="brand" href={home}><img src="/assets/oddmash-logo.png" width="30" height="30" alt="" /><span>oddmash.</span></a>
+  <p>© {new Date().getFullYear()} Oddmash</p>
+  <nav aria-label={t.privacy}><a href={url(locale,'privacy')}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a><button id="share" hidden type="button" data-success={t.copied} data-failure={t.copyFailed}>{t.share}</button></nav>
+  <p id="share-status" role="status" aria-live="polite"></p>
+</footer>
+<script>
+const share = document.querySelector<HTMLButtonElement>('#share');
+const status = document.querySelector<HTMLElement>('#share-status');
+if (share && status) {
+  share.hidden = false;
+  share.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(new URL(location.pathname, location.origin).href);
+      status.textContent = share.dataset.success ?? '';
+    } catch { status.textContent = share.dataset.failure ?? ''; }
+  });
+}
+</script>
+</body>
+</html>
