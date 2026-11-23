@@ -31,6 +31,10 @@ html[lang=ko]{word-break:keep-all;overflow-wrap:anywhere}
 .footer #share-fallback{width:100%;min-height:44px;border:1px solid var(--om-semantic-color-border);border-radius:var(--om-semantic-radius-sm);background:var(--paper);padding:10px 14px;color:var(--ink)}
 .footer #share-status:empty{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .skip:focus{top:8px;left:8px}
+@media(min-width:951px){
+  .projects:not(:has(.project[hidden]))>.project:last-child:nth-child(odd){grid-column:1/-1;grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .projects:not(:has(.project[hidden]))>.project:last-child:nth-child(odd) .project-body{justify-content:center;padding:clamp(24px,4vw,56px)}
+}
 @media(prefers-color-scheme:dark){
   :root{color-scheme:dark;--bg:var(--om-primitive-color-night);--paper:var(--om-primitive-color-surface);--ink:var(--om-primitive-color-bright);--muted:var(--om-primitive-color-dim);--line:var(--om-primitive-color-dark-soft-line);--focus:var(--om-primitive-color-focus-blue-dark);--media-surface:#242424;--hover-surface:#303030;--om-semantic-color-border:var(--om-primitive-color-dark-line);--om-semantic-color-action:var(--om-primitive-color-bright);--om-semantic-color-on-action:var(--om-primitive-color-night);--om-semantic-color-action-hover:var(--om-primitive-color-light-action-hover)}
   .project[data-category=web] .project-image{background:var(--media-surface)}

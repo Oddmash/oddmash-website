@@ -16,7 +16,7 @@ const details=project ? t.projects[project.id as ProjectId] : undefined;
 const title=project ? project.name : path==='studio' ? t.nav[1] : path==='privacy' ? t.privacy : t.eyebrow;
 const description=details?.description ?? (path==='privacy' ? t.privacyText[0] : t.intro);
 ---
-<Base locale={locale} path={path} title={title} description={description} image={project?.image} imageAlt={details?.alt}>
+<Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
   <section class="hero">
     <div class="hero-copy"><p class="eyebrow"><span class="line"></span>{t.eyebrow}</p><h1>{t.headline[0]}<br />{t.headline[1]}</h1><p class="lead">{t.intro}</p><div class="actions"><a class="button primary" href="#work">{t.explore}</a><a class="button secondary" href="https://github.com/Oddmash">{t.github}</a></div></div>

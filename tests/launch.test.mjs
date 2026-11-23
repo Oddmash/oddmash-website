@@ -26,6 +26,7 @@ test('launch metadata only uses an explicitly enabled valid HTTPS origin',()=>{
     assert.match(page,/rel="canonical" href="https:\/\/studio\.example\.test\/ko\/projects\/kowrap\/"/);
     assert.match(page,/property="og:image" content="https:\/\/studio\.example\.test\/assets\/kowrap-live\.jpg"/);
     assert.match(page,/property="og:image:alt"/);
+    assert.match(read('projects/boundra/index.html'),/property="og:image" content="https:\/\/studio\.example\.test\/assets\/social\.png"/);
     assert.equal((page.match(/rel="alternate" hreflang=/g)??[]).length,5);
     assert.equal((read('sitemap.xml').match(/<loc>/g)??[]).length,32);
     assert.match(read('robots.txt'),/Sitemap: https:\/\/studio\.example\.test\/sitemap\.xml/);
