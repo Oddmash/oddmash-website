@@ -1,7 +1,7 @@
 name: Oddmash issue label catalog
 on:
   push:
-    branches: [develop, main]
+    branches: [main]
     paths:
       - '.github/workflows/oddmash-issue-labels.yml'
   workflow_dispatch:

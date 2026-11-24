@@ -7,3 +7,5 @@ The default build is a private preview: noindex, no canonical host and empty sit
 The migrated lockfile retains `@oddmash/kowrap@0.3.0` and its exact original integrity. Remove the temporary exact-version minimum-release-age exception when that release satisfies the default maturity window.
 
 Follow the [organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md) and the shared skills. See [delivery evidence](docs/delivery.md) and [asset register](docs/assets.md).
+
+Create topic branches from `main` and open issue-linked pull requests directly against `main`. There is no integration branch; GitHub Pages deploys after verified main merges.
