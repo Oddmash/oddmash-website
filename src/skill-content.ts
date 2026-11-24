@@ -460,7 +460,7 @@ export const skillSummary = (skill: typeof skills[number], locale: Locale) => lo
 export const skillGroups = ['planning','design','motion','engineering','quality','delivery','growth'];
 export const skillCopy = {
  en:{title:'Oddmash Skills',nav:'Skills',intro:'Reusable guidance for developers and coding assistants. Choose the relevant skill for the task, follow its checks, and verify the actual result.',back:'All skills',reference:'Complete public reference',source:'Versioned source',usage:'When to use this skill',groups:['Planning','Design','Motion','Engineering','Quality and review','Delivery and operations','Growth']},
- ko:{title:'Oddmash 스킬 문서',nav:'스킬',intro:'개발자와 코딩 에이전트가 작업에 필요한 지침을 선택하는 카탈로그입니다. 각 스킬의 목적, 활용 방법, 검증 기준과 공식 내용을 이 사이트에서 읽을 수 있습니다.',back:'전체 스킬',reference:'공식 지침 전문 (영어)',source:'버전이 고정된 원본',usage:'이 스킬을 사용하는 방법',groups:['제품 기획','디자인','모션','엔지니어링','품질 및 리뷰','배포 및 운영','성장']},
+ ko:{title:'Oddmash 스킬 문서',nav:'스킬',intro:'개발자와 코딩 에이전트가 작업에 필요한 지침을 선택하는 카탈로그입니다. 각 스킬의 목적과 동작 방식, 기대 결과를 확인하고 직접 설치할 수 있습니다.',back:'전체 스킬',reference:'공식 지침 전문 (영어)',source:'버전이 고정된 원본',usage:'이 스킬을 사용하는 방법',groups:['제품 기획','디자인','모션','엔지니어링','품질 및 리뷰','배포 및 운영','성장']},
  ja:{title:'Oddmash スキル',nav:'スキル',intro:'開発者とコーディングエージェント向けのガイドです。目的に合ったスキルを選び、実際の結果を検証します。',back:'すべてのスキル',reference:'公式ガイド（英語）',source:'バージョン付きソース',usage:'利用する場面',groups:['企画','デザイン','モーション','エンジニアリング','品質とレビュー','配信と運用','成長']},
  'zh-CN':{title:'Oddmash 技能文档',nav:'技能',intro:'面向开发者与编程智能体的可复用指南。选择适合任务的技能并验证实际结果。',back:'全部技能',reference:'完整官方指南（英语）',source:'版本化源文件',usage:'使用场景',groups:['规划','设计','动效','工程','质量与审查','交付与运维','增长']},
 } satisfies Record<Locale, { title:string; nav:string; intro:string; back:string; reference:string; source:string; usage:string; groups:string[] }>;

@@ -13,7 +13,7 @@ const leftName = left?.name ?? (index === 5 ? c.checks : c.developer);
 const rightName = right?.name ?? (index === 2 ? c.checks : c.maintainer);
 ---
 <div class="scene-art" data-stage={scene.id} style={'--scene-accent:' + scene.color + ';--scene-light:color-mix(in srgb, ' + scene.color + ' 17%, #121212)'}>
-  <div class="scene-caption"><span>{c.exampleLabel}</span><span>{String(index + 1).padStart(2, '0')} / {scenes.length}</span></div>
+  <div class="scene-caption"><span>{c.exampleLabel}</span></div>
   <div class="scene-track">
     <span class="scene-connection" aria-hidden="true"><i></i><i></i></span>
     <div class="scene-node scene-endpoint" data-endpoint="left">

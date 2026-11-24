@@ -289,7 +289,7 @@ test('cinematic workflow repeats automatically with only a pause control',async 
   await expect(workflow.locator('.film-step')).toHaveCount(6);
   await expect(workflow.locator('.film-player')).toBeVisible();
   await expect(workflow.locator('.film-controls button')).toHaveCount(1);
-  await expect(workflow.locator('progress, .film-timeline')).toHaveCount(0);
+  await expect(workflow.locator('progress, .film-timeline, .film-step-number')).toHaveCount(0);
   await workflow.locator('.film-screen').scrollIntoViewIfNeeded();
   await expect(workflow).toHaveAttribute('data-playing','true');
   await expect(workflow).toHaveAttribute('data-active-scene','1',{timeout:15000});
@@ -599,6 +599,8 @@ test('localized agent pages describe official roles and preserve individual char
       const card=page.locator('#agents .agent-profile-link').nth(index);
       await card.hover();
       expect(await card.locator('.agent-gesture').evaluate(el=>getComputedStyle(el).animationName)).toBe(name);
+      if(name==='qa-inspect') expect(await card.locator('.gesture-glint').evaluate(el=>getComputedStyle(el).animationName)).toBe('qa-glint');
+      if(name==='release-launch') expect(await card.locator('.gesture-prop').evaluate(el=>{const box=el.getBoundingClientRect();const badge=el.closest('[data-agent-role]')!.getBoundingClientRect();return box.left>badge.left+badge.width*.7;})).toBe(true);
     }
     await page.mouse.move(1,1);
   }
@@ -643,11 +645,34 @@ test('skills are documented natively and localized routes remain usable',async (
     await page.setViewportSize({width:320,height:900});
     await page.goto('/'+prefix+'skills/');
     await expect(page.locator('.skill-item')).toHaveCount(30);
+    await expect(page.locator('[data-stage-panel]:visible')).toHaveCount(1);
+    await page.locator('[data-stage-select="quality"]').click();
+    await expect(page.locator('[data-stage-select="quality"]')).toHaveAttribute('aria-pressed','true');
+    await expect(page.locator('[data-stage-panel="quality"]')).toBeVisible();
     await page.locator('a[href="/'+prefix+'skills/accessibility/"]').click();
     await expect(page.locator('.skill-reference')).toBeVisible();
-    expect(await page.locator('.skill-reference li').count()).toBeGreaterThan(3);
+    await expect(page.locator('.skill-reference h2')).toHaveCount(3);
+    await expect(page.locator('[data-copy="markdown"]')).toBeVisible();
+    await expect(page.locator('a[href="#skill-install"]')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang',language);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
     if(language==='ko') await expect(page.locator('.skill-doc .lead')).toHaveAttribute('data-kowrap-applied','true');
   }
+});
+
+
+test('skill copy and install affordances provide actionable content',async ({page})=>{
+  await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async(text:string)=>{document.documentElement.dataset.copiedSkill=text;}}}));
+  await page.goto('/ko/skills/');
+  const quality=page.locator('[data-stage-select="quality"]');
+  await quality.focus();
+  await expect(page.locator('[data-stage-panel="quality"]')).toBeVisible();
+  await page.locator('a[href="/ko/skills/accessibility/"]').click();
+  await page.locator('[data-copy="markdown"]').click();
+  await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/^---\nname: oddmash-accessibility/);
+  await expect(page.locator('.skill-actions [data-copy-status]')).toHaveText('복사했습니다');
+  await page.locator('a[href="#skill-install"]').click();
+  await expect(page).toHaveURL(/#skill-install$/);
+  await page.locator('[data-copy="commands"]').click();
+  await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/oddmash-accessibility\/SKILL\.md/);
 });

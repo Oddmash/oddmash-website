@@ -501,40 +501,40 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .scene-artifact {
-    animation: om-film-artifact .85s cubic-bezier(.22, .72, .18, 1) both;
+    animation: om-film-artifact .48s cubic-bezier(.22, .72, .18, 1) both;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .scene-endpoint {
-    animation: om-film-node .65s .25s ease-out both;
+    animation: om-film-node .42s .08s ease-out both;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .scene-connection i {
-    animation: om-film-packet 1.5s .48s ease-in-out 2 both;
+    animation: om-film-packet .9s .2s ease-in-out 2 both;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .scene-connection i + i {
     animation-direction: reverse;
-    animation-delay: 1.05s;
+    animation-delay: .5s;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .artifact-lines > span {
-    animation: om-film-line .7s .65s ease-out both;
+    animation: om-film-line .4s .28s ease-out both;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) :is(.artifact-checks, .artifact-comments, .artifact-deployment) > span,
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .artifact-merge {
-    animation: om-film-evidence .6s .7s ease-out both;
+    animation: om-film-evidence .4s .3s ease-out both;
   }
 
-  .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) :is(.artifact-lines, .artifact-checks, .artifact-comments, .artifact-deployment) > span:nth-child(2) { animation-delay: 1s; }
-  .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) :is(.artifact-lines, .artifact-checks) > span:nth-child(3) { animation-delay: 1.35s; }
+  .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) :is(.artifact-lines, .artifact-checks, .artifact-comments, .artifact-deployment) > span:nth-child(2) { animation-delay: .45s; }
+  .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) :is(.artifact-lines, .artifact-checks) > span:nth-child(3) { animation-delay: .6s; }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .scene-signal {
-    animation: om-film-signal .75s 1.2s ease-out both;
+    animation: om-film-signal .4s .75s ease-out both;
   }
 
   .lab-workflow[data-film-animate='true'] .film-visual:not([hidden]) .film-step-copy {
-    animation: om-film-evidence .7s .2s ease-out both;
+    animation: om-film-evidence .4s .1s ease-out both;
   }
 
   .lab-workflow[data-film-animate='true'][data-playing='false'] .film-visual:not([hidden]) * {
@@ -618,3 +618,6 @@
   .lab-workflow .film-timeline button { border-color: CanvasText; }
   .lab-workflow .film-timeline button[aria-pressed='true'] { border: 2px solid Highlight; }
 }
+
+@media(prefers-reduced-motion:no-preference){.lab-workflow[data-film-animate='true'] .film-visual:not([hidden]){animation:film-scene-enter .24s ease-out both;} .lab-workflow[data-playing='false'] .film-visual:not([hidden]){animation-play-state:paused;}}
+@keyframes film-scene-enter{from{opacity:.55;transform:translateY(3px)}to{opacity:1;transform:none}}
