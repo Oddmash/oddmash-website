@@ -49,3 +49,6 @@ html[lang=ko]{word-break:keep-all;overflow-wrap:anywhere}
 }
 
 .demo-pair>div{border-radius:12px}.package code{border-radius:8px}
+
+.button,.filters button{border-radius:12px}.project,.detail-image{border-radius:20px}.demo-pair>div{border-radius:16px}.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media(max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}}
