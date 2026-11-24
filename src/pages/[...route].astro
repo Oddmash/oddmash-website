@@ -5,6 +5,9 @@ import ProjectImage from '../components/ProjectImage.astro';
 import PlatformLinks from '../components/PlatformLinks.astro';
 import WrapDemo from '../components/WrapDemo.astro';
 import LabStory from '../components/LabStory.astro';
+import AgentDocs from '../components/agent-docs.astro';
+import { agentDocsCopy, findAgentRole } from '../agent-content';
+import { ecosystemCopy } from '../ecosystem-content';
 import { labCopy } from '../lab-content';
 import { editorial, projectLinks } from '../localized';
 import { copy, projects, staticPages, url, type Locale, type ProjectId } from '../content';
@@ -17,13 +20,15 @@ const {locale,path}=Astro.props as {locale:Locale;path:string};
 const t=copy[locale];
 const e=editorial[locale];
 const lab=labCopy[locale];
+const ecosystem=ecosystemCopy[locale];
 const contributionUrl='https://github.com/search?q=org%3AOddmash+is%3Aissue+is%3Aopen&type=issues';
 const home=url(locale);
 const project=projects.find(p=>path==='projects/'+p.id);
 const details=project ? t.projects[project.id as ProjectId] : undefined;
 const links=project ? projectLinks(project.id,locale) : undefined;
-const title=project ? project.name : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
-const description=details?.description ?? (path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
+const agentPage=path==='agents'||path.startsWith('agents/');
+const title=agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
+const description=agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findAgentRole(path)!.id] : agentDocsCopy[locale].intro) : details?.description ?? (path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
 ---
 <Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
@@ -47,6 +52,7 @@ const description=details?.description ?? (path==='projects' ? t.workIntro : pat
   <LabStory locale={locale} />
   <section class="section contribute closing-cta" id="contribute"><div><h2>{t.contribute}</h2><p>{t.contributeText}</p></div><div class="actions"><a class="button primary" href={contributionUrl}>{e.contributeAction}</a><a class="button secondary" href={url(locale,'studio')}>{t.nav[1]}</a></div></section>
 </>}
+{agentPage && <AgentDocs locale={locale} path={path} />}
 {path==='projects' && <>
   <section class="detail-head"><p class="eyebrow">Oddmash</p><h1>{t.work}</h1><p class="lead">{t.workIntro}</p></section>
   <section class="section catalog-projects" aria-label={t.work}>
@@ -58,6 +64,13 @@ const description=details?.description ?? (path==='projects' ? t.workIntro : pat
         <div class="catalog-description"><p>{detail.description}</p><h3>{e.exampleHeading}</h3><p>{e.examples[item.id]}</p><a class="text-link" href={destinations.docs}>{item.name} {t.docs}</a></div>
       </article>;
     })}
+  </section>
+  <section class="section ecosystem-section" aria-labelledby="ecosystem-title">
+    <div class="section-title"><h2 id="ecosystem-title">{ecosystem.title}</h2><p>{ecosystem.intro}</p></div>
+    <div class="ecosystem-grid">
+      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><a class="text-link" href="https://github.com/Oddmash/oddmash-skills">{ecosystem.skillsLink}</a></article>
+      <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><div class="actions"><a class="text-link" href={url(locale,'agents')}>{ecosystem.agentDocs}</a><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" /></div></article>
+    </div>
   </section>
 </>}
 {project && details && links && <>

@@ -1,11 +1,14 @@
 ---
 import type { Locale } from '../content';
-import { agents, labCopy, scenes } from '../lab-content';
-import FilmScene from './FilmScene.astro';
+import { ecosystemCopy } from '../ecosystem-content';
+import { labCopy } from '../lab-content';
+import AgentRoster from './agent-roster.astro';
+import WorkflowPlayer from './workflow-player.astro';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const c = labCopy[locale];
+const ecosystem = ecosystemCopy[locale];
 ---
 <section class="section lab-method" id="method" aria-labelledby="method-title">
   <div class="section-title">
@@ -19,85 +22,7 @@ const c = labCopy[locale];
       <p>{method.body}</p>
     </li>)}
   </ol>
+  <a class="text-link ecosystem-method-link" href="https://github.com/Oddmash/oddmash-skills">{ecosystem.skillsLink}</a>
 </section>
-<section class="section lab-agents" id="agents" aria-labelledby="agents-title">
-  <div class="section-title">
-    <h2 id="agents-title">{c.agentsTitle}</h2>
-    <p>{c.agentsLead}</p>
-  </div>
-  <ul class="agent-roster" role="list">
-    {agents.map(agent => <li class="agent-profile">
-      <img src={`/assets/agents/${agent.id}.svg`} width="96" height="96" alt="" loading="lazy" />
-      <div class="agent-caption">
-        <h3>{agent.name}</h3>
-        <p>{c.agentDescriptions[agent.id]}</p>
-      </div>
-      <small class="agent-mode">{agent.id === 'lead' ? c.reviewMode : agent.id === 'triage' ? c.issueMode : c.advisoryMode}</small>
-    </li>)}
-  </ul>
-</section>
-<section class="section lab-workflow" id="workflow" aria-labelledby="workflow-title">
-  <div class="section-title">
-    <h2 id="workflow-title">{c.workflowTitle}</h2>
-    <p>{c.workflowLead}</p>
-  </div>
-  <div class="film-layout">
-    <aside class="film-screen" aria-hidden="true">
-      {scenes.map((_, index) => <div class="film-visual" data-film-visual={index}><FilmScene locale={locale} index={index} /></div>)}
-    </aside>
-    <ol class="film-steps" role="list">
-      {c.steps.map((step, index) => <li class="film-step" id={`workflow-step-${index + 1}`} data-film-step={index}>
-        <div class="film-step-copy">
-          <span class="film-step-number" aria-hidden="true">{String(index + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}</span>
-          <h3>{step.title}</h3>
-          <p>{step.body}</p>
-          <span class="sr">{step.artifact}: {step.signal}</span>
-        </div>
-        <div class="film-inline" aria-hidden="true"><FilmScene locale={locale} index={index} /></div>
-      </li>)}
-    </ol>
-  </div>
-</section>
-<script>
-const workflow = document.querySelector<HTMLElement>('#workflow');
-if(workflow) {
-  const steps = [...workflow.querySelectorAll<HTMLElement>('[data-film-step]')];
-  const desktopMotion = matchMedia('(min-width: 960px) and (min-height: 701px) and (prefers-reduced-motion: no-preference)');
-  let frame = 0;
-  const updateScene = () => {
-    frame = 0;
-    if(!desktopMotion.matches || steps.length === 0) return;
-    const midpoint = innerHeight / 2;
-    let nearest = 0;
-    let distance = Infinity;
-    for(const [index, step] of steps.entries()) {
-      const rect = step.getBoundingClientRect();
-      const next = Math.abs(rect.top + rect.height / 2 - midpoint);
-      if(next < distance) {
-        nearest = index;
-        distance = next;
-      }
-    }
-    const active = String(nearest);
-    if(workflow.dataset.activeScene !== active) workflow.dataset.activeScene = active;
-  };
-  const requestScene = () => {
-    if(!frame && desktopMotion.matches) frame = requestAnimationFrame(updateScene);
-  };
-  const syncMode = () => {
-    if(!desktopMotion.matches) {
-      delete workflow.dataset.filmReady;
-      delete workflow.dataset.activeScene;
-      return;
-    }
-    workflow.dataset.activeScene ??= '0';
-    workflow.dataset.filmReady = 'true';
-    requestScene();
-  };
-  addEventListener('scroll', requestScene, { passive: true });
-  addEventListener('resize', syncMode, { passive: true });
-  addEventListener('pageshow', syncMode);
-  desktopMotion.addEventListener('change', syncMode);
-  syncMode();
-}
-</script>
+<AgentRoster locale={locale} compact={true} />
+<WorkflowPlayer locale={locale} />

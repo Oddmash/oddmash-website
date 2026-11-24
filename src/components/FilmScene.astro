@@ -12,20 +12,38 @@ const right = agents.find(agent => agent.id === scene.right);
 const leftName = left?.name ?? (index === 5 ? c.checks : c.developer);
 const rightName = right?.name ?? (index === 2 ? c.checks : c.maintainer);
 ---
-<div class="scene-art" data-stage={scene.id} style={`--scene-light: color-mix(in srgb, ${scene.color} 13%, #121212)`}>
+<div class="scene-art" data-stage={scene.id} style={'--scene-accent:' + scene.color + ';--scene-light:color-mix(in srgb, ' + scene.color + ' 17%, #121212)'}>
   <div class="scene-caption"><span>{c.exampleLabel}</span><span>{String(index + 1).padStart(2, '0')} / {scenes.length}</span></div>
   <div class="scene-track">
-    <div class="scene-node">
-      {left ? <img class="scene-person" src={`/assets/agents/${left.id}.svg`} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 5 ? '✓' : '⌘'}</span>}
+    <span class="scene-connection" aria-hidden="true"><i></i><i></i></span>
+    <div class="scene-node scene-endpoint" data-endpoint="left">
+      {left ? <img class="scene-person" src={'/assets/agents/' + left.id + '.svg'} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 5 ? '✓' : '⌘'}</span>}
       <span>{leftName}</span>
     </div>
     <div class="scene-node scene-artifact">
-      <span class="artifact-glyph">{scene.glyph}</span>
-      <strong class="artifact-title">{step.artifact}</strong>
-      <span class="artifact-lines"><span></span><span></span><span></span></span>
+      <div class="artifact-header"><span class="artifact-glyph">{scene.glyph}</span><strong class="artifact-title">{step.artifact}</strong></div>
+      {scene.id === 'checks' && <div class="artifact-checks" aria-hidden="true">
+        {[0, 1, 2].map(() => <span><b>✓</b><i></i></span>)}
+      </div>}
+      {scene.id === 'review' && <div class="artifact-comments" aria-hidden="true">
+        {[0, 1].map(() => <span><b></b><i></i><i></i></span>)}
+      </div>}
+      {scene.id === 'decision' && <div class="artifact-merge" aria-hidden="true">
+        <svg viewBox="0 0 160 46" width="160" height="46" fill="none">
+          <path d="M9 13H67C94 13 92 35 119 35H151M9 35H151" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="9" cy="13" r="4" stroke="currentColor" stroke-width="2"/>
+          <circle cx="9" cy="35" r="4" stroke="currentColor" stroke-width="2"/>
+          <circle cx="151" cy="35" r="4" fill="currentColor"/>
+        </svg>
+      </div>}
+      {scene.id === 'deploy' && <div class="artifact-deployment" aria-hidden="true">
+        <span><i></i><i></i><i></i></span>
+        <span><b>✓</b><i></i></span>
+      </div>}
+      {(scene.id === 'issue' || scene.id === 'build') && <span class="artifact-lines" aria-hidden="true"><span></span><span></span><span></span></span>}
     </div>
-    <div class="scene-node">
-      {right ? <img class="scene-person" src={`/assets/agents/${right.id}.svg`} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 2 ? '✓' : '○'}</span>}
+    <div class="scene-node scene-endpoint" data-endpoint="right">
+      {right ? <img class="scene-person" src={'/assets/agents/' + right.id + '.svg'} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 2 ? '✓' : '○'}</span>}
       <span>{rightName}</span>
     </div>
   </div>

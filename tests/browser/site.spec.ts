@@ -21,10 +21,11 @@ test('project catalog, detail navigation, locale and legacy query', async ({page
   await expect(page.locator('html')).toHaveAttribute('lang','ja');
 });
 test('all localized pages reflow, load images and retain keyboard focus', async ({page})=>{
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
+  await page.emulateMedia({reducedMotion:'reduce'});
   await page.setViewportSize({width:320,height:740});
   const prefixes=['','ko/','ja/','zh-cn/'];
-  const paths=['','projects/','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+  const paths=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
   const unexpected:string[]=[];
   page.on('pageerror',error=>unexpected.push(error.message));
   page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4322/')&&!request.url().startsWith('data:'))unexpected.push('Unexpected external request');});
@@ -160,12 +161,13 @@ test('Kowrap demo pauses and resumes across cached page transitions', async ({pa
 });
 
 
-test('Korean editorial text uses Kowrap across viewport sizes and preserves content', async ({page, browser})=>{
-  const plain = await browser.newContext({javaScriptEnabled:false});
+test('Korean editorial wrapping preserves content and links across viewport sizes', async ({page, browser})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const plain = await browser.newContext({javaScriptEnabled:false,reducedMotion:'reduce'});
   const fallback = await plain.newPage();
   const normalize = (value:string) => value.replace(/\s+/g,'');
   try {
-    for(const route of ['/ko/','/ko/projects/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
+    for(const route of ['/ko/','/ko/projects/','/ko/agents/','/ko/agents/lead/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
       await fallback.goto('http://127.0.0.1:4322'+route);
       await page.goto(route);
       await expect(page.locator('[data-kowrap-applied]').first()).toBeVisible();
@@ -174,15 +176,16 @@ test('Korean editorial text uses Kowrap across viewport sizes and preserves cont
         await expect.poll(()=>page.locator('[data-kowrap-applied]').evaluateAll(nodes=>nodes.every(el=>el.scrollWidth<=el.clientWidth+1))).toBe(true);
         expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       }
-      const original = await fallback.locator('main h1, main h2, main h3, main p, main li, main figcaption').allTextContents();
+      const original = await fallback.locator('main h1, main h2, main h3, main h4, main h5, main h6, main p, main li, main figcaption, main dt, main dd, main blockquote').allTextContents();
       const applied = await page.locator('[data-kowrap-applied]').allTextContents();
       expect(applied.length).toBeGreaterThan(0);
       for(const text of applied) expect(original.map(normalize)).toContain(normalize(text));
-      await expect(page.locator('.agent-profile')).toHaveCount(route==='/ko/'?7:0);
+      expect(await page.locator('main a[href]').count()).toBe(await fallback.locator('main a[href]').count());
     }
     await page.setViewportSize({width:320,height:900});
     await page.goto('/ko/');
-    await expect.poll(()=>page.locator('#hero-title br').count()).toBeGreaterThan(0);
+    await expect(page.locator('#hero-title')).toHaveAttribute('data-kowrap-applied','true');
+    expect(await page.locator('#hero-title').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
     await expect(fallback.locator('[data-kowrap-applied]')).toHaveCount(0);
   } finally { await plain.close(); }
 });
@@ -223,7 +226,7 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
 
 
 test('Oddmash UI custom dropdown preserves localized route identity', async ({page})=>{
-  for(const original of ['/','/projects/','/studio/','/projects/boundra/','/privacy/']){
+  for(const original of ['/','/projects/','/agents/','/agents/qa/','/studio/','/projects/boundra/','/privacy/']){
     await page.goto(original);
     const select=page.locator('#language-select');
     await expect(select).toBeVisible();
@@ -276,68 +279,51 @@ test('custom language menu supports keyboard, chevron and narrow viewport', asyn
   await expect(list).toBeHidden();
 });
 
-test('desktop workflow follows native scrolling in both directions without snapping', async ({page},testInfo)=>{
-  test.setTimeout(60_000);
-  await page.emulateMedia({reducedMotion:'no-preference'});
+test('cinematic workflow auto plays in view and supports manual playback',async ({page},testInfo)=>{
+  test.setTimeout(45_000);
   await page.setViewportSize({width:1440,height:900});
+  await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/');
   const workflow=page.locator('#workflow');
-  const steps=workflow.locator('.film-step');
-  const stage=workflow.locator('.film-screen');
   await expect(workflow).toHaveAttribute('data-film-ready','true');
-  await expect(steps).toHaveCount(6);
-  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
-  expect(await stage.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
-  const show=async(index:number)=>{
-    const step=steps.nth(index);
-    await expect(step).toHaveAttribute('id','workflow-step-'+(index+1));
-    await expect(step).toHaveAttribute('data-film-step',String(index));
-    await step.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
-    await expect(workflow).toHaveAttribute('data-active-scene',String(index));
-    await expect(step.locator('h3')).toBeVisible();
-    const visual=stage.locator('[data-film-visual="'+index+'"]');
-    await expect.poll(()=>visual.evaluate(el=>Number(getComputedStyle(el).opacity))).toBeGreaterThan(.95);
-    const inactive=stage.locator('[data-film-visual="'+((index+1)%6)+'"]');
-    await expect.poll(()=>inactive.evaluate(el=>Number(getComputedStyle(el).opacity))).toBeLessThan(.05);
-    return (await stage.boundingBox())!.y;
-  };
-  await show(0);
-  const firstY=await show(1);
-  const secondY=await show(2);
-  expect(Math.abs(firstY-secondY)).toBeLessThan(8);
-  await show(3);
-  await page.evaluate(()=>document.fonts.ready);
+  await expect(workflow).toHaveAttribute('data-active-scene','0');
+  await expect(workflow.locator('.film-step')).toHaveCount(6);
+  await expect(workflow.locator('.film-player')).toBeVisible();
+  await workflow.locator('.film-screen').scrollIntoViewIfNeeded();
+  await expect(workflow).toHaveAttribute('data-playing','true');
+  await expect(workflow).toHaveAttribute('data-active-scene','1',{timeout:15000});
+  await workflow.locator('[data-film-toggle]').click();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await workflow.locator('[data-film-select="3"]').click();
+  await expect(workflow).toHaveAttribute('data-active-scene','3');
+  await expect(workflow.locator('[data-film-visual="3"]')).toBeVisible();
+  await workflow.locator('[data-film-next]').click();
+  await expect(workflow).toHaveAttribute('data-active-scene','4');
+  await workflow.locator('[data-film-prev]').click();
+  await expect(workflow).toHaveAttribute('data-active-scene','3');
   await page.screenshot({path:testInfo.outputPath('desktop-workflow-scene.png')});
-  await show(4);
-  await show(5);
-  await show(3);
-  await show(1);
-  await show(0);
-  const before=await page.evaluate(()=>window.scrollY);
-  await page.mouse.move(720,450);
-  await page.mouse.wheel(0,140);
-  await expect.poll(()=>page.evaluate(start=>window.scrollY-start,before),{intervals:[100,150,250]}).toBeGreaterThan(30);
-  await expect.poll(()=>page.evaluate(start=>window.scrollY-start,before)).toBeLessThan(250);
+  await workflow.locator('[data-film-replay]').click();
+  await expect(workflow).toHaveAttribute('data-active-scene','0');
+  await expect(workflow).toHaveAttribute('data-playing','true');
+  await page.locator('h1').scrollIntoViewIfNeeded();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
 });
 
-test('workflow preserves inline scenes on narrow viewports and reduced motion',async ({page})=>{
-  for(const [width,reducedMotion] of [[390,'no-preference'],[1440,'reduce']] as const){
-    await page.setViewportSize({width,height:900});
-    await page.emulateMedia({reducedMotion});
-    await page.goto('/ko/');
-    const workflow=page.locator('#workflow');
-    const steps=workflow.locator('.film-step');
-    await expect(steps).toHaveCount(6);
-    await expect(workflow).not.toHaveAttribute('data-film-ready','true');
-    await expect(workflow.locator('.film-inline:visible')).toHaveCount(6);
-    for(const step of await steps.all()){
-      await step.scrollIntoViewIfNeeded();
-      await expect(step.locator('h3')).toBeVisible();
-      await expect(step.locator('.film-inline')).toBeVisible();
-      expect(await step.locator('.film-inline').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
-    }
-    expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+test('workflow preserves inline scenes under reduced motion and fits narrow screens',async ({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/ko/');
+  const workflow=page.locator('#workflow');
+  await expect(workflow.locator('.film-player')).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect(workflow.locator('.film-player')).toBeHidden();
+  await expect(workflow.locator('.film-step')).toHaveCount(6);
+  await expect(workflow.locator('.film-inline:visible')).toHaveCount(6);
+  for(const step of await workflow.locator('.film-step').all()){
+    await expect(step.locator('h3')).toBeVisible();
+    expect(await step.locator('.film-inline').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   }
 });
 
@@ -566,5 +552,77 @@ test('localized Juliya links follow upstream language routes',async ({page})=>{
     const live='https://oddmash.github.io/kowrap/'+suffix;
     await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
     await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
+  }
+});
+
+
+test('home section headings and method cards align at desktop and mobile sizes',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for(const width of [1440,320]){
+    await page.setViewportSize({width,height:900});
+    await page.goto('/ko/');
+    for(const id of ['work','method','agents','workflow']){
+      const section=page.locator('#'+id);
+      const title=section.locator('.section-title h2');
+      const box=await section.boundingBox();
+      const heading=await title.boundingBox();
+      expect(Math.abs(box!.x+box!.width/2-heading!.x-heading!.width/2)).toBeLessThan(3);
+    }
+    const cards=page.locator('.method-item');
+    const first=await cards.nth(0).boundingBox();
+    const second=await cards.nth(1).boundingBox();
+    if(width===1440) expect(Math.abs(first!.y-second!.y)).toBeLessThan(3);
+    else expect(Math.abs(first!.x-second!.x)).toBeLessThan(3);
+    const h=await cards.first().locator('h3').boundingBox();
+    const p=await cards.first().locator('p').boundingBox();
+    expect(Math.abs(h!.x-p!.x)).toBeLessThan(3);
+  }
+});
+
+
+test('localized agent pages describe official roles and preserve waving character interaction',async ({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/ko/');
+  const agent=page.locator('#agents .agent-profile-link').first();
+  const hand=agent.locator('.agent-wave-arm');
+  await agent.scrollIntoViewIfNeeded();
+  if(await page.evaluate(()=>matchMedia('(hover: hover) and (pointer: fine)').matches)){
+    await agent.hover();
+    expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('agent-wave');
+    expect(await hand.evaluate(el=>getComputedStyle(el).animationIterationCount)).toBe('1');
+    await page.mouse.move(1,1);
+  }
+  await page.keyboard.press('Tab');
+  await agent.focus();
+  await expect(agent).toBeFocused();
+  expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('agent-wave');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  await page.locator('#agents .agent-roster-cta').click();
+  await expect(page).toHaveURL(/\/ko\/agents\/$/);
+  await expect(page.locator('.agent-profile')).toHaveCount(7);
+  await expect(page.locator('a[href="https://github.com/Oddmash/oddmash-agents"]')).toHaveCount(1);
+  await expect(page.locator('a[href="https://github.com/Oddmash/oddmash-skills"]')).toHaveCount(1);
+  await page.locator('a[href="/ko/agents/triage/"]').click();
+  await expect(page.locator('h1')).toHaveText('Triage');
+  await expect(page.locator('.agent-command-card code')).toHaveText('/triage');
+  await chooseLanguage(page,'ja');
+  await expect(page).toHaveURL(/\/ja\/agents\/triage\/$/);
+  await expect(page.locator('h1')).toHaveText('Triage');
+});
+
+test('visible workflow stages use Korean enhancement and other locales use native typography',async ({page})=>{
+  await page.setViewportSize({width:1200,height:900});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/ko/');
+  const player=page.locator('#workflow .film-player');
+  await player.locator('[data-film-select="3"]').click();
+  await expect(player.locator('[data-film-visual="3"] h3')).toHaveAttribute('data-kowrap-applied','true');
+  await expect(player.locator('[data-film-visual]:is([hidden]) [data-kowrap-applied]')).toHaveCount(0);
+  for(const path of ['/ja/','/zh-cn/']){
+    await page.goto(path);
+    expect(await page.locator('main').evaluate(el=>getComputedStyle(el).lineBreak)).toBe('strict');
+    await expect(page.locator('[data-kowrap-applied]')).toHaveCount(0);
   }
 });

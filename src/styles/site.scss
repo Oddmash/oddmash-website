@@ -449,3 +449,141 @@ html[lang=ko] .opening-scene h1 {
     mask-image: none;
   }
 }
+
+main > :is(.projects-overview, .lab-method, .lab-agents, .agent-section, .lab-workflow) {
+  padding-block: clamp(48px, 6vw, 88px);
+}
+
+main > :is(.projects-overview, .lab-method, .lab-agents, .agent-section, .lab-workflow) .section-title {
+  display: grid;
+  justify-content: stretch;
+  justify-items: center;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto clamp(32px, 4.5vw, 54px);
+  text-align: center;
+}
+
+main > :is(.projects-overview, .lab-method, .lab-agents, .agent-section, .lab-workflow) .section-title h2 {
+  width: 100%;
+  max-width: 48rem;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.16;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+main > :is(.projects-overview, .lab-method, .lab-agents, .agent-section, .lab-workflow) .section-title p {
+  width: 100%;
+  max-width: 42rem;
+  font-size: clamp(.975rem, 1.6vw, 1.125rem);
+  line-height: 1.7;
+}
+
+main > .lab-method .method-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+  width: 100%;
+  max-width: 66rem;
+  margin-inline: auto;
+  border: 0;
+}
+
+main > .lab-method .method-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  gap: 14px 18px;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+}
+
+main > .lab-method .method-number {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+
+main > .lab-method .method-item h3 {
+  grid-column: 2;
+  min-width: 0;
+  max-width: 100%;
+  font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+  line-height: 1.25;
+  letter-spacing: -.035em;
+}
+
+main > .lab-method .method-item p {
+  grid-column: 2;
+  min-width: 0;
+  max-width: 100%;
+  font-size: clamp(.95rem, 1.35vw, 1.05rem);
+  line-height: 1.7;
+}
+
+main > .lab-method .method-tags {
+  grid-column: 2;
+  min-width: 0;
+}
+
+main > .projects-overview .catalog-cta {
+  display: flex;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+main > .closing-cta {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 24px;
+  padding-block: clamp(48px, 6vw, 88px);
+}
+
+main > .closing-cta .actions {
+  margin-top: 0;
+  justify-content: center;
+}
+
+@media (max-width: 760px) {
+  main > .lab-method .method-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main > .lab-method .method-item {
+    gap: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  main > :is(.projects-overview, .lab-method, .lab-agents, .agent-section, .lab-workflow) .section-title {
+    gap: 12px;
+  }
+
+  main > .closing-cta .actions {
+    width: 100%;
+  }
+
+  main > .closing-cta .actions > .button {
+    flex: 1 1 100%;
+  }
+}
+
+
+.ecosystem-method-link { display: flex; width: fit-content; margin: 24px auto 0; text-align: center; }
+.ecosystem-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.ecosystem-grid article { min-width: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: clamp(20px,3vw,32px); }
+.ecosystem-grid article p { margin-top: 12px; color: var(--muted); line-height: 1.7; }
+.ecosystem-grid article .text-link { margin-top: 12px; }
+@media(max-width:760px){.ecosystem-grid{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:650px){
+  .header nav:not(.language-fallback){display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 8px;justify-items:center;text-align:center;}
+  .header nav.language-fallback{order:4;width:100%;justify-content:center;border:0;}
+  .header nav:not(.language-fallback) a{min-width:0;justify-content:center;overflow-wrap:anywhere;}
+}
+@media(max-width:480px){.header nav:not(.language-fallback){grid-template-columns:repeat(2,minmax(0,1fr));}}
