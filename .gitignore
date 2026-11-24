@@ -1,3 +1,7 @@
 .DS_Store
 node_modules/
 .openai/
+.astro/
+build/
+test-results/
+playwright-report/

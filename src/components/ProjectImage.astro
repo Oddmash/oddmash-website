@@ -1,0 +1,8 @@
+---
+import { projects } from '../content';
+const {project,alt,lazy=false}=Astro.props as {project:typeof projects[number];alt:string;lazy?:boolean};
+---
+<picture>
+  {project.darkImage && <source media="(prefers-color-scheme: dark)" srcset={project.darkImage} />}
+  <img src={project.image} width={project.width} height={project.height} alt={alt} loading={lazy?'lazy':'eager'} decoding="async" />
+</picture>

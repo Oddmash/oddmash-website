@@ -1,9 +1,7 @@
 # Development
 
-The site is static HTML, CSS, and JavaScript with no runtime dependencies. Serve `dist/` with a local static HTTP server, for example `python3 -m http.server 8080 --directory dist`.
+Astro renders all routes as static HTML. Node 24, npm, TypeScript and SCSS are used. Run `npm ci --ignore-scripts` with the committed lockfile, then `npm run dev`. For verification run `npm run check` and `npx playwright install chromium firefox webkit && npm run test:browser`. `npm run build` writes `build/`; serve via `npm run preview`. Source files are under `src/`, approved local media under `public/`. The old query-language links and `/privacy.html` redirect to the equivalent locale path. Browser tests use an isolated foreground preview on port 4322 and capture representative screens under `test-results/`.
 
-Run `node verify.mjs` and `node --check dist/app.js` before opening a pull request. The verifier tests local references and interaction logic using synthetic browser objects; it is not a substitute for browser, device, or accessibility QA.
+The default build is a private preview: noindex, no canonical host and empty sitemap. Do not publish until approval, hosting access, asset rights and actual device/accessibility testing are verified. After explicit approval configure the verified HTTPS origin and `ODDMASH_PUBLIC_LAUNCH=true` in the build environment; review the rendered canonical, alternate links, sitemap and privacy notice. No tracking, auth, storage or runtime service is added.
 
-Before public deployment, configure the verified canonical origin and absolute Open Graph image URL, replace the preview-only indexing directives, review the privacy notice against the actual hosting environment, and verify the real deployed page. Keep private project names and internal operational details out of public copy. Do not publish without maintainer approval.
-
-Follow the [Oddmash organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md). Public project assets shown here come from the Oddmash UI repository; illustrative diagrams are labeled in the interface.
+Follow the [organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md) and the shared skills. See [delivery evidence](docs/delivery.md) and [asset register](docs/assets.md).
