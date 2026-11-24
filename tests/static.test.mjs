@@ -37,3 +37,19 @@ test('excluded project has no public pages or image',()=>{
   }
   assert.ok(!existsSync('build/assets/vertactics.jpg'));
 });
+
+test('the public workflow contains only local agent artwork and no private repository links',()=>{
+  for(const prefix of prefixes){
+    const html=readFileSync('build/'+prefix+'index.html','utf8');
+    assert.doesNotMatch(html,/github\.com\/Oddmash\/oddmash-(agents|skills)(?:[\/"?#]|$)/i);
+    assert.doesNotMatch(html,/id="project-index"/);
+    assert.equal([...html.matchAll(/data-film-step="[0-5]"/g)].length,6);
+    for(const agent of ['lead','impact','triage','qa','docs','architect','release']){
+      assert.ok(html.includes('/assets/agents/'+agent+'.svg'),agent);
+    }
+  }
+  for(const agent of ['lead','impact','triage','qa','docs','architect','release']){
+    const svg=readFileSync('build/assets/agents/'+agent+'.svg','utf8');
+    assert.doesNotMatch(svg,/<(?:script|foreignObject)\b|\b(?:href|onload|onclick)\s*=/i);
+  }
+});

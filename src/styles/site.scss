@@ -197,51 +197,6 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
   from { transform: translateY(20px) scale(.91); opacity: .35; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
-#work { padding-top: clamp(58px, 8vw, 106px); }
-#work > .section-title { margin-bottom: clamp(24px, 4vw, 52px); }
-#work > .section-title h2 { font-size: clamp(2.65rem, 5vw, 4.8rem); }
-.project-sequence {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-.project-sequence .project {
-  min-height: clamp(320px, 39vw, 520px);
-  display: grid;
-  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
-  gap: clamp(24px, 5vw, 78px);
-  align-items: center;
-  background: transparent;
-  border: 0;
-  border-top: 1px solid var(--line);
-  border-radius: 0;
-  overflow: visible;
-  padding-block: clamp(32px, 6vw, 84px);
-}
-.project-sequence .project:nth-child(even) {
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
-}
-.project-sequence .project:nth-child(even) .project-image { order: -1; }
-.project-sequence .project-body { padding: 0; gap: 16px; }
-.project-sequence .project-body h3 { font-size: clamp(2.2rem, 3.8vw, 4.25rem); line-height: 1.05; letter-spacing: -.045em; }
-.project-sequence .project-body p:not(.tag) { margin-top: 20px; font-size: clamp(1.05rem, 1.5vw, 1.25rem); max-width: 32rem; line-height: 1.65; }
-.project-sequence .project-image {
-  aspect-ratio: 16/10;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: radial-gradient(ellipse at 50% 50%, #252525, #111);
-  padding: clamp(14px, 2vw, 25px);
-}
-.project-sequence .project-image picture { overflow: hidden; border-radius: 7px; }
-.closing-scene {
-  grid-template-columns: 1fr;
-  gap: 18px;
-  text-align: center;
-  padding-block: clamp(70px, 12vw, 174px);
-  background: radial-gradient(ellipse at center, #181818 0%, transparent 66%);
-}
-.closing-scene h2 { font-size: clamp(2.55rem, 5.8vw, 5.5rem); }
-.closing-scene .lead { margin-inline: auto; max-width: 44rem; }
 .closing-cta { padding-block: clamp(54px, 7vw, 92px); }
 @media (max-width: 900px) {
   .opening-scene { grid-template-columns: minmax(0,1fr) minmax(0,.7fr); min-height: 0; }
@@ -255,11 +210,6 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
   html[lang=ko] .opening-scene h1 { font-size: clamp(2.5rem, 10vw, 3.8rem); }
   .opening-scene .lead { margin-top: 20px; }
   .opening-scene .actions { margin-top: 24px; }
-  .project-sequence .project, .project-sequence .project:nth-child(even) { grid-template-columns: minmax(0,1fr); gap: 24px; min-height: 0; padding-block: 38px; }
-  .project-sequence .project:nth-child(even) .project-image { order: initial; }
-  .project-sequence .project-image { border-radius: 14px; }
-  .closing-scene { padding-block: 64px; }
-  .closing-scene .lead { text-align: start; }
 }
 @media (prefers-reduced-motion: reduce) {
   .opening-scene .brand-art img { animation: none !important; }
@@ -332,30 +282,6 @@ html[lang=ko] .opening-scene h1 {
   align-items: center;
 }
 .language-fallback a[aria-current=page] { text-decoration: underline; text-underline-offset: 4px; }
-
-#work { padding-block-start: 0; }
-#work > .section-title {
-  margin-block: 36px 18px;
-}
-.project-sequence .project,
-.project-sequence .project:nth-child(even) {
-  min-height: min(690px, calc(100svh - 80px));
-  padding-block: clamp(38px, 6vh, 76px);
-}
-.project-sequence .project-image {
-  align-self: center;
-  max-height: min(510px, 65svh);
-  aspect-ratio: 16/10;
-}
-.project-sequence .project-image picture {
-  min-height: 0;
-}
-.project-sequence .project-body h3 {
-  font-size: clamp(2.3rem, 4.3vw, 4.8rem);
-}
-.project-sequence .project-body p:not(.tag) {
-  max-width: 35rem;
-}
 
 .detail-hero {
   display: grid;
@@ -466,10 +392,9 @@ html[lang=ko] .opening-scene h1 {
   font-size: clamp(2.25rem, 4.1vw, 4rem);
 }
 
-@media (min-width: 960px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 960px) and (min-height: 701px) {
   html[data-page=home] {
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 80px;
+    scroll-padding-top: 100px;
   }
   html[data-page=home] body > .header {
     position: sticky;
@@ -478,27 +403,6 @@ html[lang=ko] .opening-scene h1 {
     min-height: 80px;
     background: var(--bg);
   }
-  .opening-scene,
-  .project-sequence .project,
-  .closing-scene,
-  .closing-cta {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  .project-sequence .project,
-  .project-sequence .project:nth-child(even) {
-    min-height: calc(100svh - 80px);
-  }
-  .closing-scene {
-    min-height: calc(100svh - 80px);
-    align-content: center;
-  }
-  .closing-cta {
-    min-height: min(56vh, 480px);
-  }
-  html[data-page=home] body > .footer {
-    scroll-snap-align: end;
-  }
 }
 @media (max-width: 900px), (max-height: 699px) {
   .opening-scene {
@@ -506,12 +410,6 @@ html[lang=ko] .opening-scene h1 {
     padding-block: clamp(36px, 6vw, 75px);
   }
   .opening-scene h1 { font-size: clamp(2.9rem, 7vw, 5rem); }
-  .project-sequence .project,
-  .project-sequence .project:nth-child(even) {
-    min-height: 0;
-    padding-block: 44px;
-  }
-  .project-sequence .project-image { max-height: none; }
 }
 @media (max-width: 760px) {
   .detail-hero {
@@ -521,7 +419,6 @@ html[lang=ko] .opening-scene h1 {
   }
   .detail-hero h1 { font-size: clamp(2.7rem, 8vw, 4rem); }
   .detail-hero figure.detail-image { border-radius: 14px; }
-  .about-projects { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 650px) {
   .opening-scene { gap: 18px; }
@@ -540,11 +437,8 @@ html[lang=ko] .opening-scene h1 {
   .opening-scene .lead { margin-top: 20px; }
   .header .brand { font-size: 1.35rem; gap: 8px; }
   .header .brand img { width: 32px; height: 32px; }
-  .project-sequence .project-body h3 { font-size: clamp(2.1rem, 9vw, 3rem); }
-  .project-sequence .project-image { max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html[data-page=home] { scroll-snap-type: none; }
   .opening-scene .brand-art img {
     animation: none !important;
   }

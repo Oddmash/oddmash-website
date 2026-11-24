@@ -11,8 +11,8 @@ const links = projectLinks(project.id, locale);
 ---
 <article class="project" data-category={project.category} data-project={project.id}>
   <div class="project-body">
-    <div><p class="tag">{item.type}</p><h3><a class="project-destination" href={url(locale,'projects/'+project.id)} aria-label={project.name+' '+t.details}>{project.name}<span class="project-arrow" aria-hidden="true">→</span></a></h3><p>{item.summary}</p></div>
+    <div><p class="tag">{item.type}</p><h3><a class="project-destination" href={url(locale,'projects/'+project.id)} aria-label={project.name+' '+t.details}>{project.name}</a></h3><p>{item.summary}</p></div>
     <PlatformLinks name={project.name} github={links.readme} npm={project.package} />
   </div>
-  <div class="project-image"><ProjectImage project={project} alt={item.alt} lazy />{project.id==='boundra' && <span class="diagram-label">{locale==='ko'?'설명용 도식':locale==='ja'?'説明図':locale==='zh-CN'?'示意图':'Illustrative diagram'}</span>}</div>
+  <div class="project-image"><ProjectImage project={project} alt={item.alt} lazy />{project.id==='boundra' && <span class="diagram-label">{locale==='ko'?'설명용 도식':locale==='ja'?'説明図':locale==='zh-CN'?'示意图':'Illustrative diagram'}</span>}{project.id==='kowrap' && <span class="diagram-label">{locale==='ko'?'기존 Kowrap 화면':locale==='ja'?'旧 Kowrap の画面':locale==='zh-CN'?'早期 Kowrap 界面':'Earlier Kowrap preview'}</span>}</div>
 </article>

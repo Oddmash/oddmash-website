@@ -3,9 +3,11 @@ import '../styles/site.scss';
 import '../styles/language-select.scss';
 import { copy, labels, locales, languageNames, url, type Locale } from '../content';
 import { absolute, indexable } from '../site';
+import { labCopy } from '../lab-content';
 interface Props { locale:Locale; path:string; title:string; description:string; image?:string; imageAlt?:string; noIndex?:boolean }
 const {locale,path,title,description,image='/assets/social.png',imageAlt,noIndex=false} = Astro.props;
 const t = copy[locale];
+const lab = labCopy[locale];
 const l = labels[locale];
 const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
@@ -36,7 +38,7 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <a class="skip" href="#main">{t.skip}</a>
 <header class="shell header">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
-  <nav aria-label={l.navigation}><a href={home+'#work'}>{t.nav[0]}</a><a href={url(locale,'studio')} aria-current={path==='studio'?'page':undefined}>{t.nav[1]}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
+  <nav aria-label={l.navigation}><a href={home+'#work'}>{t.nav[0]}</a><a href={home+'#method'}>{lab.methodNav}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
   <div class="language-select" data-om-theme="dark" hidden></div>
   <nav class="language-fallback" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
 </header>

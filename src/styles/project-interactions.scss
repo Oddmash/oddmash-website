@@ -41,7 +41,7 @@
   margin-top: 8px;
   align-self: start;
 }
-.project-sequence .project,
+.project-gallery .project,
 .project-link-list .project-index-row {
   position: relative;
   isolation: isolate;
@@ -58,21 +58,9 @@
 }
 .project-destination:focus-visible::after {
   outline: 2px solid var(--focus);
-  outline-offset: 4px;
+  outline-offset: -3px;
 }
-.project-arrow {
-  display: inline-block;
-  margin-inline-start: .25em;
-  color: var(--muted);
-  font-size: .66em;
-  vertical-align: .08em;
-  transition: color 240ms ease, transform 280ms cubic-bezier(.2,.8,.2,1);
-}
-.project-destination:focus-visible .project-arrow {
-  color: var(--ink);
-  transform: translateX(.15em);
-}
-.project-sequence .project-image {
+.project-gallery .project-image {
   transition: border-color 260ms ease, background-color 260ms ease;
 }
 .detail-image-link {
@@ -92,12 +80,6 @@
   gap: clamp(10px, 2vw, 20px);
   align-items: center;
   padding-inline: 4px;
-}
-.project-index .lead {
-  margin-top: 12px;
-}
-.project-index .project-link-list {
-  margin-top: clamp(20px, 4vw, 44px);
 }
 .about-principles .principle-list {
   margin-top: 32px;
@@ -127,14 +109,8 @@
     animation: none;
     transform: scale(.95);
   }
-  .project-destination:hover,
-  .project-destination:hover .project-arrow {
-    color: var(--ink);
-  }
-  .project-destination:hover .project-arrow {
-    transform: translateX(.22em);
-  }
-  .project-sequence .project:has(.project-destination:hover) .project-image {
+  .project-destination:hover { color: var(--ink); }
+  .project-gallery .project:has(.project-destination:hover) {
     border-color: var(--accent, var(--muted));
   }
   .detail-hero figure.detail-image:has(.detail-image-link:hover) {
@@ -173,25 +149,8 @@
   68% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
-@media (min-width: 960px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
-  html[data-page=home] {
-    scroll-behavior: smooth;
-  }
-  .project-index {
-    display: grid;
-    align-content: center;
-  }
-  @supports (animation-timeline: view()) {
-    .project-sequence .project-image picture {
-      animation: chapter-progress both linear;
-      animation-timeline: view(block);
-      animation-range: entry 0% entry 100%;
-    }
-    @keyframes chapter-progress {
-      from { opacity: .92; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  }
+@media (min-width: 960px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
+  html[data-page=home] { scroll-behavior: smooth; }
 }
 @media (max-width: 650px) {
   .project-link-list .project-index-row {
@@ -204,8 +163,6 @@
 @media (prefers-reduced-motion: reduce) {
   .platform-link:hover svg,
   .platform-link:active svg,
-  .project-destination:hover .project-arrow,
-  .project-destination:focus-visible .project-arrow,
   .brand:hover img,
   .brand:focus-visible img,
   .button:hover,
@@ -223,5 +180,65 @@
   .platform-link:focus-visible {
     color: HighlightText;
     background: Highlight;
+  }
+}
+
+.projects-overview {
+  padding-block: clamp(60px, 8vw, 112px);
+}
+.projects-overview .section-title {
+  align-items: start;
+  margin-bottom: clamp(28px, 4.6vw, 64px);
+}
+.projects-overview .section-title h2 {
+  max-width: 18ch;
+  font-size: clamp(2.4rem, 4.6vw, 4.5rem);
+  line-height: 1.08;
+}
+.projects-overview .section-title p {
+  max-width: 28rem;
+}
+.project-gallery {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2.3vw, 28px);
+}
+.project-gallery .project {
+  border-color: var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  transition: border-color 260ms ease, background-color 260ms ease;
+}
+.project-gallery .project:focus-within {
+  border-color: var(--focus);
+}
+.project-gallery .project-image {
+  order: -1;
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  background: radial-gradient(ellipse at center, #252525, #121212);
+  padding: clamp(12px, 2vw, 24px);
+}
+.project-gallery .project-image picture {
+  overflow: hidden;
+  border-radius: 9px;
+}
+.project-gallery .project-body {
+  padding: clamp(20px, 2.8vw, 30px);
+  gap: 8px;
+}
+.project-gallery .project-body h3 {
+  font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+}
+.project-gallery .project-body p:not(.tag) {
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 35rem;
+}
+.about-principles > .text-link {
+  margin-top: 24px;
+}
+@media (max-width: 700px) {
+  .project-gallery {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
