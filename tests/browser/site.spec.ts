@@ -1,4 +1,13 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const languageNames = { en: 'English', ko: '한국어', ja: '日本語', 'zh-CN': '简体中文' } as const;
+type Language = keyof typeof languageNames;
+const chooseLanguage = async (page: Page, locale: Language) => {
+  const trigger = page.locator('#language-select');
+  await trigger.click();
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
+  await page.getByRole('option',{name:languageNames[locale],exact:true}).click();
+};
 test('project catalog, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
   await expect(page).toHaveURL(/\/ko\/$/);
@@ -6,8 +15,8 @@ test('project catalog, detail navigation, locale and legacy query', async ({page
   await expect(page.locator('.project:visible')).toHaveCount(4);
   await page.getByRole('link',{name:'Kowrap 프로젝트 상세',exact:true}).click();
   await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
-  await expect(page.locator('#language-select')).toHaveValue('ko');
-  await page.locator('#language-select').selectOption('ja');
+  await expect(page.locator('#language-select')).toHaveText(languageNames.ko);
+  await chooseLanguage(page,'ja');
   await expect(page).toHaveURL(/\/ja\/projects\/kowrap\//);
   await expect(page.locator('html')).toHaveAttribute('lang','ja');
 });
@@ -72,7 +81,7 @@ test('legacy privacy locale and copy fallback',async ({page})=>{
   await page.getByRole('button',{name:'リンクをコピー'}).click();
   await expect(page.locator('#share-status')).toHaveText('アドレスバーからリンクをコピーしてください。');
   await expect(page.getByRole('textbox',{name:'ページリンク'})).toHaveValue('http://127.0.0.1:4322/ja/privacy/');
-  await page.locator('#language-select').selectOption('zh-CN');
+  await chooseLanguage(page,'zh-CN');
   await expect(page).toHaveURL(/\/zh-cn\/privacy\/$/);
 });
 
@@ -208,28 +217,58 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
 });
 
 
-test('Oddmash UI language selector preserves localized route identity', async ({page})=>{
+test('Oddmash UI custom dropdown preserves localized route identity', async ({page})=>{
   for(const original of ['/','/studio/','/projects/boundra/','/privacy/']){
     await page.goto(original);
     const select=page.locator('#language-select');
     await expect(select).toBeVisible();
-    await expect(select).toHaveClass(/(?:^|\s)om-select(?:\s|$)/);
+    await expect(select).toHaveClass(/om-select-dropdown-trigger/);
+    await expect(select).toHaveAttribute('role','combobox');
     await expect(select).toHaveAccessibleName(/\S/);
-    await expect(select).toHaveValue('en');
-    expect(await select.locator('option').evaluateAll(options=>options.map(option=>(option as HTMLOptionElement).value))).toEqual(['en','ko','ja','zh-CN']);
+    await expect(select).toHaveText(languageNames.en);
     await select.focus();
     await expect(select).toBeFocused();
+    await select.press('Enter');
+    await expect(select).toHaveAttribute('aria-expanded','true');
+    await expect(page.getByRole('option')).toHaveCount(4);
+    await expect(page.getByRole('option',{name:languageNames.en})).toHaveAttribute('aria-selected','true');
+    await select.press('Escape');
+    await expect(select).toHaveAttribute('aria-expanded','false');
     for(const [locale,prefix] of [['ko','/ko'],['ja','/ja'],['zh-CN','/zh-cn'],['en','']] as const){
-      await select.selectOption(locale);
+      await chooseLanguage(page,locale);
       await expect(page).toHaveURL('http://127.0.0.1:4322'+prefix+original);
       await expect(page.locator('html')).toHaveAttribute('lang',locale);
-      await expect(select).toHaveValue(locale);
+      await expect(select).toHaveText(languageNames[locale]);
     }
   }
   await page.goto('/ko/#work');
-  await page.locator('#language-select').selectOption('ja');
+  await chooseLanguage(page,'ja');
   await expect(page).toHaveURL('http://127.0.0.1:4322/ja/#work');
-  await expect(page.locator('#language-select')).toHaveValue('ja');
+  await expect(page.locator('#language-select')).toHaveText(languageNames.ja);
+});
+
+test('custom language menu supports keyboard, chevron and narrow viewport', async ({page})=>{
+  await page.setViewportSize({width:320,height:740});
+  await page.goto('/ko/');
+  const trigger=page.locator('#language-select');
+  await expect(trigger).toHaveText(languageNames.ko);
+  expect(await trigger.evaluate(el=>getComputedStyle(el,'::after').borderInlineEndStyle)).toBe('solid');
+  await trigger.focus();
+  await trigger.press('ArrowDown');
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
+  const list=page.getByRole('listbox');
+  await expect(list).toBeVisible();
+  const box=await list.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x+box!.width).toBeLessThanOrEqual(321);
+  await trigger.press('ArrowDown');
+  await trigger.press('Enter');
+  await expect(page).toHaveURL(/\/ja\/$/);
+  await expect(trigger).toHaveText(languageNames.ja);
+  await trigger.click();
+  await expect(list).toBeVisible();
+  await page.locator('h1').click();
+  await expect(list).toBeHidden();
 });
 
 test('desktop home chapters snap one at a time while narrow layouts scroll naturally', async ({page})=>{

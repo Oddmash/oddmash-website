@@ -320,34 +320,6 @@ html[lang=ko] .opening-scene h1 {
   50% { transform: translateY(-5px) scale(1.025); opacity: .96; }
 }
 
-.language-select {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  max-width: 100%;
-  color-scheme: dark;
-}
-.language-select label { color: var(--muted); font-size: .85rem; }
-select.language-select,
-.language-select select {
-  min-height: 44px;
-  max-width: 100%;
-  min-width: 118px;
-  padding: 9px 12px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
-  font-size: .86rem;
-  cursor: pointer;
-}
-select.language-select:focus-visible,
-.language-select select:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-}
 .language-fallback {
   display: flex;
   flex-wrap: wrap;
@@ -566,18 +538,8 @@ select.language-select:focus-visible,
     line-height: 1.17;
   }
   .opening-scene .lead { margin-top: 20px; }
-  .header .language-select { flex-basis: auto; }
   .header .brand { font-size: 1.35rem; gap: 8px; }
   .header .brand img { width: 32px; height: 32px; }
-  .language-select label:not(:focus) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  select.language-select, .language-select select { min-width: 106px; }
   .project-sequence .project-body h3 { font-size: clamp(2.1rem, 9vw, 3rem); }
   .project-sequence .project-image { max-height: none; }
 }
