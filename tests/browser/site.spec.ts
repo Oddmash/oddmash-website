@@ -163,3 +163,29 @@ test('Korean editorial text uses Kowrap across viewport sizes and preserves cont
     await expect(fallback.locator('[data-kowrap-applied]')).toHaveCount(0);
   } finally { await plain.close(); }
 });
+
+
+test('cinematic opening and project scenes preserve navigation and reduced motion', async ({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/');
+  const opening=page.locator('.opening-scene');
+  await expect(opening.locator('h1')).toBeVisible();
+  await expect(opening.locator('.primary')).toBeEnabled();
+  const image=opening.locator('.brand-art img');
+  expect(await image.evaluate(el=>getComputedStyle(el).animationName)).toBe('opening-fold');
+  const chapter=page.locator('.project-sequence .project-image').first();
+  await chapter.scrollIntoViewIfNeeded();
+  await expect(chapter).toHaveAttribute('data-scene-entered','true');
+  await expect(page.locator('.project-sequence .project')).toHaveCount(4);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.reload();
+  await expect(opening.locator('h1')).toBeVisible();
+  expect(await image.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  await chapter.scrollIntoViewIfNeeded();
+  await expect(chapter).not.toHaveAttribute('data-scene-entered','true');
+  expect(await chapter.locator('picture').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  await page.getByRole('link',{name:'Kowrap Project details',exact:true}).focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/projects\/kowrap\//);
+});
