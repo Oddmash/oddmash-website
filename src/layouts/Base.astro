@@ -10,7 +10,7 @@ const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
 ---
 <!doctype html>
-<html lang={locale} data-page={path === '' ? 'home' : undefined}>
+<html lang={locale} data-page={path === '' && !noIndex ? 'home' : undefined}>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
