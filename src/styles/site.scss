@@ -78,6 +78,7 @@ html[lang=ko] .hero h1 { max-width: 12em; font-size: clamp(2.6rem, 5.4vw, 5rem);
 .project-image { position: relative; aspect-ratio: 16/10; display: grid; align-items: center; justify-items: center; background: #1a1a1a; border-top: 1px solid var(--line); overflow: hidden; padding: clamp(14px, 3vw, 28px); }
 .project-image picture { display: block; min-width: 0; min-height: 0; width: 100%; height: 100%; }
 .project-image img { width: 100%; height: 100%; object-fit: contain; object-position: center; min-height: 0; }
+.project[data-project=kowrap] .project-image img { object-fit: cover; object-position: top; }
 .diagram-label { position: absolute; inset: auto 12px 12px auto; padding: 4px 8px; border-radius: 6px; background: var(--paper); color: var(--muted); font-size: .75rem; border: 1px solid var(--line); }
 .studio-summary, .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 5vw, 70px); }
 .studio-summary .lead { margin-top: 0; }
