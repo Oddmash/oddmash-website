@@ -14,9 +14,8 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
-<meta name="color-scheme" content="light dark" />
-<meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#101010" />
+<meta name="color-scheme" content="dark" />
 <title>{title} | Oddmash</title>
 <meta name="description" content={description} />
 <meta name="robots" content={indexable && !noIndex ? 'index, follow' : 'noindex, nofollow'} />
@@ -65,6 +64,36 @@ if (share && status) {
     }
   });
 }
+</script>
+<script>
+import { mountKowrap } from '@oddmash/kowrap/browser';
+const controllers = new Map<HTMLElement, ReturnType<typeof mountKowrap>>();
+const start = () => {
+  if(document.documentElement.lang !== 'ko') return;
+  for(const element of document.querySelectorAll<HTMLElement>('main h1, main h2, main h3, main p, main li, main figcaption')) {
+    if(element.closest('.demo-pair, [hidden], [role="status"]') || element.classList.contains('sr') || element.childElementCount || controllers.has(element)) continue;
+    const text = element.textContent?.trim() ?? '';
+    if(!/[가-힣]/.test(text)) continue;
+    try {
+      const controller = mountKowrap(element, {text});
+      controllers.set(element, controller);
+      element.dataset.kowrapApplied = 'true';
+    } catch {
+      element.textContent = text;
+      element.removeAttribute('data-kowrap-applied');
+    }
+  }
+};
+const stop = () => {
+  for(const [element, controller] of controllers) {
+    controller.destroy();
+    element.removeAttribute('data-kowrap-applied');
+  }
+  controllers.clear();
+};
+window.addEventListener('pagehide', stop);
+window.addEventListener('pageshow', event => { if(event.persisted) start(); });
+start();
 </script>
 </body>
 </html>
