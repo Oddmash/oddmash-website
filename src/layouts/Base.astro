@@ -58,6 +58,7 @@ const fallbackLinks = document.querySelector<HTMLElement>('.language-fallback');
 if(picker && fallbackLinks) {
   picker.parentElement!.hidden = false;
   fallbackLinks.hidden = true;
+  window.addEventListener('pageshow', () => { picker.value = document.documentElement.lang; });
   picker.addEventListener('change', () => {
     const link = [...fallbackLinks.querySelectorAll<HTMLAnchorElement>('a[data-locale]')].find(anchor=>anchor.dataset.locale===picker.value);
     if(link) location.assign(link.href + location.hash);
