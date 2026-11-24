@@ -24,7 +24,6 @@ const controls = {
     play: '继续动画', pause: '暂停动画',
   },
 }[locale];
-const formatStage = (index: number) => String(index + 1).padStart(2, '0') + ' / ' + String(scenes.length).padStart(2, '0');
 ---
 <section class="section lab-workflow" id="workflow" aria-labelledby="workflow-title">
   <div class="section-title">
@@ -36,7 +35,6 @@ const formatStage = (index: number) => String(index + 1).padStart(2, '0') + ' / 
       {c.steps.map((step, index) => <article class="film-visual" data-film-visual={index} hidden={index !== 0}>
         <div class="film-scene" aria-hidden="true"><FilmScene locale={locale} index={index} /></div>
         <div class="film-step-copy">
-          <span class="film-step-number" aria-hidden="true">{formatStage(index)}</span>
           <h3>{step.title}</h3>
           <p>{step.body}</p>
           <span class="film-outcome">{step.artifact}: {step.signal}</span>
@@ -52,7 +50,6 @@ const formatStage = (index: number) => String(index + 1).padStart(2, '0') + ' / 
   <ol class="film-steps" role="list">
     {c.steps.map((step, index) => <li class="film-step" id={'workflow-step-' + (index + 1)} data-film-step={index}>
       <div class="film-step-copy">
-        <span class="film-step-number" aria-hidden="true">{formatStage(index)}</span>
         <h3>{step.title}</h3>
         <p>{step.body}</p>
         <span class="film-outcome">{step.artifact}: {step.signal}</span>
@@ -71,7 +68,7 @@ if (root && 'IntersectionObserver' in window) {
   const label = root.querySelector<HTMLElement>('[data-film-toggle-label]');
   if (player && fallback && slides.length && toggle && label) {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const duration = 5400;
+    const duration = 3600;
     let index = 0;
     let remaining = duration;
     let timer: number | undefined;

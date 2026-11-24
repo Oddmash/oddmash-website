@@ -102,7 +102,7 @@
 @keyframes triage-sort { 0% {opacity:0; transform:translateX(16px);} 55% {transform:translateX(-3px);} 100% {opacity:1; transform:none;} }
 @keyframes docs-open { from {opacity:0; transform:scaleX(.2) translateY(10px);} to {opacity:1; transform:none;} }
 @keyframes architect-plan { from {opacity:0; transform:rotate(-18deg) scale(.75);} to {opacity:1; transform:none;} }
-@keyframes release-launch { from {opacity:0; transform:translate(-18px,18px);} 65% {transform:translate(3px,-3px);} to {opacity:1; transform:none;} }
+@keyframes release-launch { from {opacity:0; transform:translate(0,12px);} 65% {transform:translate(2px,-4px);} to {opacity:1; transform:none;} }
 
 .agent-caption {
   display: grid;
@@ -283,3 +283,12 @@
     animation: none;
   }
 }
+
+.gesture-glint { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=qa] .gesture-glint { animation: qa-glint .5s .65s ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=lead] .gesture-prop path { stroke-dasharray: 100; animation: gesture-draw .65s .16s ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=triage] .gesture-prop path { stroke-dasharray: 100; animation: gesture-draw .65s .2s ease both; }
+}
+@keyframes qa-glint { 0%,100% { opacity:0; } 45% { opacity:1; } }
+@keyframes gesture-draw { from { stroke-dashoffset:100; } to { stroke-dashoffset:0; } }

@@ -609,3 +609,28 @@ html[lang=ko] .film-step-copy h3 { max-width: 100%; }
 .skill-table :is(th,td) { text-align:left; padding:10px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
 @media(max-width:760px){.skill-grid{grid-template-columns:minmax(0,1fr);}}
 @media(min-width:481px) and (max-width:650px){.header nav:not(.language-fallback){grid-template-columns:repeat(3,minmax(0,1fr));}}
+
+.skill-flow-section{max-width:1120px;margin-inline:auto}
+.skill-flow-section>.section-title{display:grid;place-items:center;text-align:center;gap:12px}
+.skill-flow-controls{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin:28px 0}
+.skill-flow-controls[hidden],.skill-flow-panel[hidden],.skill-copy-source[hidden]{display:none}
+.skill-flow-controls button{position:relative;min-width:0;min-height:90px;display:grid;place-items:center;gap:7px;padding:12px 5px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--muted);text-align:center}
+.skill-flow-controls button:not(:last-child)::after{content:'›';position:absolute;right:-10px;top:40%;z-index:1;color:var(--muted)}
+.skill-flow-controls button[aria-pressed=true]{border-color:var(--ink);background:var(--hover);color:var(--ink)}
+.skill-flow-node,.skill-flow-count{font-size:.72rem;font-variant-numeric:tabular-nums}
+.skill-flow-controls strong{font-size:.92rem;overflow-wrap:anywhere}
+.skill-flow-panel{border:1px solid var(--line);border-radius:18px;background:#111;padding:clamp(16px,3vw,28px);margin-block:14px}
+.skill-flow-panel>h3{margin-bottom:18px}
+.skill-grid{gap:10px}
+.skill-item h4{font-size:1.05rem;margin-bottom:8px;color:var(--ink)}
+.skill-item p{font-size:.88rem}
+.skill-actions{justify-content:center;flex-wrap:wrap}
+.skill-actions [role=status]{flex-basis:100%;font-size:.85rem;color:var(--muted)}
+.skill-copy-source{width:100%;min-height:140px;background:var(--paper);color:var(--ink);padding:12px}
+.skill-reference h2:not(:first-child){margin-top:30px}
+.skill-related{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.skill-related h3{flex-basis:100%}
+.skill-install pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:var(--paper);border-radius:12px;border:1px solid var(--line);margin-block:20px}
+.skill-install{scroll-margin-top:100px}
+@media(max-width:760px){.skill-flow-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-flow-controls button::after{display:none}}
+@media(max-width:420px){.skill-flow-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}

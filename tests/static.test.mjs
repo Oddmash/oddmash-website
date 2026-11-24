@@ -98,8 +98,14 @@ test('all localized skills have on-site reference pages',()=>{
     for(const id of new Set(links)){
       const detail=readFileSync('build/'+prefix+'skills/'+id+'/index.html','utf8');
       assert.match(detail,/skill-reference/);
-      assert.match(detail,/lang="en"/);
-      assert.ok(detail.includes('/licenses/oddmash-skills.txt'));
+      assert.match(detail,/data-copy="markdown"/);
+      assert.match(detail,/id="skill-install"/);
+      assert.doesNotMatch(detail,/>MIT License</);
     }
   }
+});
+
+
+test('the skill source license remains available as a distribution asset',()=>{
+  assert.ok(existsSync('build/licenses/oddmash-skills.txt'));
 });

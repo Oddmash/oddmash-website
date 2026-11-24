@@ -5,12 +5,12 @@ const { id, color } = Astro.props;
 <span class="agent-character" data-agent-role={id} style={`--agent-accent:${color}`} aria-hidden="true">
   <img src={`/assets/agents/${id}.svg`} width="256" height="256" alt="" loading="lazy" />
   <svg class="agent-gesture" viewBox="0 0 100 100" fill="none" aria-hidden="true" width="100" height="100" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    {id === 'qa' && <g class="gesture-prop"><rect x="20" y="39" width="25" height="18" rx="6" fill="#141414"/><rect x="55" y="39" width="25" height="18" rx="6" fill="#141414"/><path d="M45 46h10M13 40l7 5M80 45l7-5M26 43l7 4M61 43l7 4"/></g>}
+    {id === 'qa' && <g class="gesture-prop"><rect x="20" y="39" width="25" height="18" rx="6" fill="#141414"/><rect x="55" y="39" width="25" height="18" rx="6" fill="#141414"/><path d="M45 46h10M13 40l7 5M80 45l7-5"/><g class="gesture-glint" stroke="#fff" stroke-width="2.4"><path d="M25 52l10-10m-5 12 8-8M60 52l10-10m-5 12 8-8"/></g></g>}
     {id === 'lead' && <g class="gesture-prop"><rect x="60" y="57" width="32" height="36" rx="5" fill="#161b24"/><path d="M68 66h16M68 73h16M68 82l5 5 12-12"/></g>}
     {id === 'impact' && <g class="gesture-prop"><path d="M72 13l5 14 14 5-14 5-5 14-5-14-14-5 14-5z" fill="#252027"/><path d="M88 59v14M81 66h14"/></g>}
     {id === 'triage' && <g class="gesture-prop"><rect x="58" y="61" width="36" height="30" rx="5" fill="#161b24"/><path d="M65 68h5m-5 7h5m-5 7h5M76 68h11M76 75h8M76 82h5"/></g>}
     {id === 'docs' && <g class="gesture-prop"><path d="M50 72c-12-8-22-8-32-5v24c12-3 23-2 32 5 9-7 20-8 32-5V67c-10-3-20-3-32 5z" fill="#161b24"/><path d="M50 72v24M25 74l17 4M25 81l17 4M58 78l17-4M58 85l17-4"/></g>}
     {id === 'architect' && <g class="gesture-prop"><rect x="59" y="57" width="39" height="37" rx="5" fill="#161b24"/><path d="M65 84V65h25v19M65 75h25M78 65v19M65 84h25"/></g>}
-    {id === 'release' && <g class="gesture-prop"><path d="M76 20c11-10 18-8 18-8s2 7-8 18l-14 14-10-10z" fill="#1d1e26"/><circle cx="82" cy="24" r="4"/><path d="M63 33l-10 5 2 9 10-3M72 43l-5 10-9-2M58 46l-8 8M65 53l-5 9"/></g>}
+    {id === 'release' && <g class="gesture-prop" transform="translate(49 -9) scale(.52)"><path d="M76 20c11-10 18-8 18-8s2 7-8 18l-14 14-10-10z" fill="#1d1e26"/><circle cx="82" cy="24" r="4"/><path d="M63 33l-10 5 2 9 10-3M72 43l-5 10-9-2M58 46l-8 8M65 53l-5 9"/></g>}
   </svg>
 </span>
