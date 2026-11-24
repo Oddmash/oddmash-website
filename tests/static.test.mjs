@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 const prefixes=['','ko/','ja/','zh-cn/'];
 const langs=['en','ko','ja','zh-CN'];
-const pages=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/vertactics/','projects/boundra/'];
+const pages=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
 test('all locale paths contain static copy, correct metadata and local assets',()=>{
   for(const [i,prefix] of prefixes.entries()) for(const path of pages){
     const html=readFileSync('build/'+prefix+path+'index.html','utf8');
@@ -29,4 +29,11 @@ test('preview robots and sitemap never reveal public routes',()=>{
   const legacy=readFileSync('build/privacy.html','utf8');
   assert.match(legacy,/<noscript><meta http-equiv="refresh" content="0; url=\/privacy\/">/);
   for(const prefix of prefixes) assert.match(legacy,new RegExp(`href="/${prefix}privacy/"`));
+});
+test('excluded project has no public pages or image',()=>{
+  for(const prefix of prefixes){
+    assert.ok(!existsSync('build/'+prefix+'projects/vertactics/'));
+    assert.doesNotMatch(readFileSync('build/'+prefix+'index.html','utf8'),/vertactics/i);
+  }
+  assert.ok(!existsSync('build/assets/vertactics.jpg'));
 });
