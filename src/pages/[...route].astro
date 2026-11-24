@@ -56,10 +56,10 @@ if (filterBox && status) {
     status.textContent = (count===1 ? status.dataset.one : status.dataset.label)?.replace('{count}',String(count)) ?? '';
   });
 }
-if (location.pathname === '/') {
+if (location.pathname === '/' || location.pathname === '/oddmash-website/') {
   const legacy = new URLSearchParams(location.search).get('lang');
   const map: Record<string,string> = {ko:'/ko/',ja:'/ja/','zh-CN':'/zh-cn/'};
-  if (legacy && Object.hasOwn(map,legacy)) location.replace(map[legacy]+location.hash);
+  if (legacy && Object.hasOwn(map,legacy)) location.replace(location.pathname.replace(/\/$/,'')+map[legacy]+location.hash);
   else if (legacy) {
     const current=new URL(location.href);
     current.searchParams.delete('lang');
