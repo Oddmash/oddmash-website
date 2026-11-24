@@ -2,7 +2,7 @@
 
 Audience: developers and potential contributors looking for an actual tool; first useful action is exploring a project and reaching its public product or documentation. No account, form, persistent user data, server, analytics, ads or billing. No skeletons needed: content is prerendered. Loading/failure applies only to optional copy and wrapping enhancement, not navigation.
 
-Astro static rendering replaces manually duplicated HTML and runtime locale switching; Next.js server features and React hydration are unnecessary. Shared Oddmash UI token snapshot, native buttons and links, SCSS and small browser scripts preserve semantic color and focus. Kowrap is used for a real comparison on its detail page, with actual-width bounds and a progressive fallback. The private preview includes five currently public projects and 32 localized content pages plus a 404. Roll back via a normal revert PR; hosting setup and audience unchanged.
+Astro static rendering replaces manually duplicated HTML and runtime locale switching; Next.js server features and React hydration are unnecessary. Shared Oddmash UI token snapshot, native buttons and links, SCSS and small browser scripts preserve semantic color and focus. Kowrap is used for a real comparison on its detail page, with actual-width bounds and a progressive fallback. The private preview includes four currently public projects and 28 localized content pages plus a 404. Roll back via a normal revert PR; hosting setup and audience unchanged.
 
 | Area | Applicability / acceptance |
 | --- | --- |
