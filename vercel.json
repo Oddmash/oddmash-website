@@ -1,1 +1,11 @@
-{"framework":"astro","buildCommand":"npm run build","outputDirectory":"build"}
+{
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
+}
