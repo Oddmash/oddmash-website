@@ -1,6 +1,7 @@
 name: Website checks
 on:
   pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
   push:
     branches: [main]
 permissions:
@@ -9,7 +10,15 @@ concurrency:
   group: website-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  verify:
+  scope:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    uses: Oddmash/.github/.github/workflows/ci-scope.yml@9a2077a4b0ff9188ef2cb2ab306f181a134d3110
+    with:
+      profile: meta
+  website-tests:
     timeout-minutes: 30
     runs-on: ubuntu-24.04
     steps:
@@ -29,3 +38,14 @@ jobs:
           name: website-browser-captures
           path: test-results/
           retention-days: 7
+
+  verify:
+    needs: [scope, website-tests]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require metadata and website checks
+        env:
+          SCOPE: ${{ needs.scope.result }}
+          WEBSITE: ${{ needs.website-tests.result }}
+        run: test "$SCOPE:$WEBSITE" = success:success
