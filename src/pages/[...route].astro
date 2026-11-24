@@ -5,6 +5,8 @@ import ProjectImage from '../components/ProjectImage.astro';
 import PlatformLinks from '../components/PlatformLinks.astro';
 import WrapDemo from '../components/WrapDemo.astro';
 import LabStory from '../components/LabStory.astro';
+import SkillDocs from '../components/skill-docs.astro';
+import { skillCopy, findSkill, skillName } from '../skill-content';
 import AgentDocs from '../components/agent-docs.astro';
 import { agentDocsCopy, findAgentRole } from '../agent-content';
 import { ecosystemCopy } from '../ecosystem-content';
@@ -26,9 +28,11 @@ const home=url(locale);
 const project=projects.find(p=>path==='projects/'+p.id);
 const details=project ? t.projects[project.id as ProjectId] : undefined;
 const links=project ? projectLinks(project.id,locale) : undefined;
+const skillPage=path==='skills'||path.startsWith('skills/');
+const skill=findSkill(path);
 const agentPage=path==='agents'||path.startsWith('agents/');
-const title=agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
-const description=agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findAgentRole(path)!.id] : agentDocsCopy[locale].intro) : details?.description ?? (path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
+const title=skillPage ? (skill ? skillName(skill,locale) : skillCopy[locale].title) : agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
+const description=skillPage ? skillCopy[locale].intro : agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findAgentRole(path)!.id] : agentDocsCopy[locale].intro) : details?.description ?? (path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
 ---
 <Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
@@ -52,6 +56,7 @@ const description=agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findA
   <LabStory locale={locale} />
   <section class="section contribute closing-cta" id="contribute"><div><h2>{t.contribute}</h2><p>{t.contributeText}</p></div><div class="actions"><a class="button primary" href={contributionUrl}>{e.contributeAction}</a><a class="button secondary" href={url(locale,'studio')}>{t.nav[1]}</a></div></section>
 </>}
+{skillPage && <SkillDocs locale={locale} path={path} />}
 {agentPage && <AgentDocs locale={locale} path={path} />}
 {path==='projects' && <>
   <section class="detail-head"><p class="eyebrow">Oddmash</p><h1>{t.work}</h1><p class="lead">{t.workIntro}</p></section>
@@ -68,7 +73,7 @@ const description=agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findA
   <section class="section ecosystem-section" aria-labelledby="ecosystem-title">
     <div class="section-title"><h2 id="ecosystem-title">{ecosystem.title}</h2><p>{ecosystem.intro}</p></div>
     <div class="ecosystem-grid">
-      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><a class="text-link" href="https://github.com/Oddmash/oddmash-skills">{ecosystem.skillsLink}</a></article>
+      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><a class="text-link" href={url(locale,'skills')}>{skillCopy[locale].title}</a></article>
       <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><div class="actions"><a class="text-link" href={url(locale,'agents')}>{ecosystem.agentDocs}</a><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" /></div></article>
     </div>
   </section>

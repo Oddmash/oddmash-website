@@ -83,8 +83,23 @@ test('public workflow resources are discoverable from each locale',()=>{
   for(const prefix of prefixes){
     const home=readFileSync('build/'+prefix+'index.html','utf8');
     const catalog=readFileSync('build/'+prefix+'projects/index.html','utf8');
-    assert.ok(home.includes('https://github.com/Oddmash/oddmash-skills'));
-    assert.ok(catalog.includes('https://github.com/Oddmash/oddmash-skills'));
+    assert.ok(home.includes('href="/'+prefix+'skills/"'));
+    assert.ok(catalog.includes('href="/'+prefix+'skills/"'));
     assert.ok(catalog.includes('https://github.com/Oddmash/oddmash-agents'));
+  }
+});
+
+
+test('all localized skills have on-site reference pages',()=>{
+  for(const prefix of prefixes){
+    const catalog=readFileSync('build/'+prefix+'skills/index.html','utf8');
+    const links=[...catalog.matchAll(new RegExp('href="/'+prefix+'skills/([a-z-]+)/"','g'))].map(m=>m[1]);
+    assert.equal(new Set(links).size,30);
+    for(const id of new Set(links)){
+      const detail=readFileSync('build/'+prefix+'skills/'+id+'/index.html','utf8');
+      assert.match(detail,/skill-reference/);
+      assert.match(detail,/lang="en"/);
+      assert.ok(detail.includes('/licenses/oddmash-skills.txt'));
+    }
   }
 });

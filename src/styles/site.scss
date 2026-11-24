@@ -587,3 +587,25 @@ main > .closing-cta .actions {
   .header nav:not(.language-fallback) a{min-width:0;justify-content:center;overflow-wrap:anywhere;}
 }
 @media(max-width:480px){.header nav:not(.language-fallback){grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+main > .contribute.closing-cta { grid-template-columns: minmax(0,1fr); justify-content: center; align-items: center; justify-items: center; width: 100%; }
+main > .closing-cta > div { width: 100%; max-width: 48rem; margin-inline: auto; text-align: center; }
+main > .closing-cta h2, main > .closing-cta p { margin-inline: auto; text-align: center; }
+main > .closing-cta .actions { justify-content: center; }
+html[lang=ko] main :is(h1,h2,h3,h4,p,li,dd,dt,figcaption) { word-break: keep-all; overflow-wrap: anywhere; }
+html[lang=ko] main :is(h1,h2,h3,h4):not([data-kowrap-applied]) { text-wrap: balance; }
+html[lang=ko] .film-step-copy h3 { max-width: 100%; }
+
+.skill-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.skill-item { display:block; padding:20px; background:var(--paper); border:1px solid var(--line); border-radius:14px; min-width:0; }
+.skill-item:hover,.skill-item:focus-visible { border-color:var(--muted); }
+.skill-item h3 { font-size:1.15rem; margin-bottom:10px; }
+.skill-item p { font-size:.95rem; line-height:1.65; }
+.skill-reference h3 { margin-top:32px; margin-bottom:12px; font-size:1.3rem; }
+.skill-reference p,.skill-reference ul,.skill-reference pre,.skill-table { margin-block:14px; }
+.skill-reference pre,.skill-table { overflow-x:auto; max-width:100%; }
+.skill-reference pre { padding:16px; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
+.skill-table table { width:100%; border-collapse:collapse; font-size:.9rem; }
+.skill-table :is(th,td) { text-align:left; padding:10px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+@media(max-width:760px){.skill-grid{grid-template-columns:minmax(0,1fr);}}
+@media(min-width:481px) and (max-width:650px){.header nav:not(.language-fallback){grid-template-columns:repeat(3,minmax(0,1fr));}}
