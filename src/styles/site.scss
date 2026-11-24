@@ -233,11 +233,6 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
   padding: clamp(14px, 2vw, 25px);
 }
 .project-sequence .project-image picture { overflow: hidden; border-radius: 7px; }
-.project-sequence .project-image[data-scene-entered=true] picture { animation: chapter-enter 650ms cubic-bezier(.2,.8,.25,1) both; }
-@keyframes chapter-enter {
-  from { transform: translateY(12px) scale(.975); opacity: .8; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
-}
 .closing-scene {
   grid-template-columns: 1fr;
   gap: 18px;
@@ -267,7 +262,7 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
   .closing-scene .lead { text-align: start; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .opening-scene .brand-art img, .project-sequence .project-image[data-scene-entered=true] picture { animation: none !important; }
+  .opening-scene .brand-art img { animation: none !important; }
 }
 @media (forced-colors: active) {
   .opening-scene::before, .scene-light { display: none; }
@@ -588,8 +583,7 @@ select.language-select:focus-visible,
 }
 @media (prefers-reduced-motion: reduce) {
   html[data-page=home] { scroll-snap-type: none; }
-  .opening-scene .brand-art img,
-  .project-sequence .project-image[data-scene-entered=true] picture {
+  .opening-scene .brand-art img {
     animation: none !important;
   }
 }

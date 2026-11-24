@@ -1,0 +1,227 @@
+.platform-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.platform-link {
+  --platform-color: #f5f5f5;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--muted);
+  transition: color 220ms ease, background-color 220ms ease, border-color 220ms ease;
+}
+.platform-link[data-platform=npm] {
+  --platform-color: #cb3837;
+}
+.platform-link svg {
+  display: block;
+  max-width: 28px;
+  transform-origin: center;
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+}
+.platform-link:focus-visible,
+.platform-link:active {
+  color: var(--platform-color);
+  border-color: var(--line);
+  background: var(--hover);
+}
+.platform-link:active svg {
+  transform: scale(.95);
+}
+.project .project-body .platform-links {
+  margin-top: 8px;
+  align-self: start;
+}
+.project-sequence .project,
+.project-link-list .project-index-row {
+  position: relative;
+  isolation: isolate;
+}
+.project-destination {
+  transition: color 240ms ease;
+}
+.project-destination::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 12px;
+  content: '';
+}
+.project-destination:focus-visible::after {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+.project-arrow {
+  display: inline-block;
+  margin-inline-start: .25em;
+  color: var(--muted);
+  font-size: .66em;
+  vertical-align: .08em;
+  transition: color 240ms ease, transform 280ms cubic-bezier(.2,.8,.2,1);
+}
+.project-destination:focus-visible .project-arrow {
+  color: var(--ink);
+  transform: translateX(.15em);
+}
+.project-sequence .project-image {
+  transition: border-color 260ms ease, background-color 260ms ease;
+}
+.detail-image-link {
+  display: block;
+  overflow: hidden;
+  border-radius: 7px;
+}
+.detail-hero figure.detail-image {
+  transition: border-color 240ms ease;
+}
+.detail-hero figure.detail-image:focus-within {
+  border-color: var(--focus);
+}
+.project-link-list .project-index-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(10px, 2vw, 20px);
+  align-items: center;
+  padding-inline: 4px;
+}
+.project-index .lead {
+  margin-top: 12px;
+}
+.project-index .project-link-list {
+  margin-top: clamp(20px, 4vw, 44px);
+}
+.about-principles .principle-list {
+  margin-top: 32px;
+}
+.about-principles .principle-list h3 {
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+.brand {
+  min-height: 44px;
+}
+.brand img {
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+}
+.brand:focus-visible img {
+  transform: scale(1.05);
+}
+@media (hover: hover) and (pointer: fine) {
+  .platform-link:hover {
+    color: var(--platform-color);
+    border-color: var(--line);
+    background: var(--hover);
+  }
+  .platform-link:hover svg {
+    animation: platform-pulse 1700ms cubic-bezier(.45,0,.55,1) infinite;
+  }
+  .platform-link:active svg {
+    animation: none;
+    transform: scale(.95);
+  }
+  .project-destination:hover,
+  .project-destination:hover .project-arrow {
+    color: var(--ink);
+  }
+  .project-destination:hover .project-arrow {
+    transform: translateX(.22em);
+  }
+  .project-sequence .project:has(.project-destination:hover) .project-image {
+    border-color: var(--accent, var(--muted));
+  }
+  .detail-hero figure.detail-image:has(.detail-image-link:hover) {
+    border-color: var(--muted);
+  }
+  .project-link-list .project-index-row:has(.project-destination:hover) {
+    background: var(--hover);
+  }
+  .button {
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.2,.8,.2,1);
+  }
+  .button:hover {
+    transform: translateY(-2px);
+  }
+  .button:active {
+    transform: translateY(0) scale(.98);
+  }
+  .header nav a,
+  .footer nav a,
+  .footer button,
+  .text-link {
+    transition: color 180ms ease, text-underline-offset 180ms ease;
+  }
+  .text-link:hover,
+  .footer button:hover {
+    color: var(--ink);
+    text-underline-offset: 6px;
+  }
+  .brand:hover img {
+    transform: scale(1.05);
+  }
+}
+@keyframes platform-pulse {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.07); }
+  68% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+@media (min-width: 960px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  html[data-page=home] {
+    scroll-behavior: smooth;
+  }
+  .project-index {
+    display: grid;
+    align-content: center;
+  }
+  @supports (animation-timeline: view()) {
+    .project-sequence .project-image picture {
+      animation: chapter-progress both linear;
+      animation-timeline: view(block);
+      animation-range: entry 0% entry 100%;
+    }
+    @keyframes chapter-progress {
+      from { opacity: .92; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+@media (max-width: 650px) {
+  .project-link-list .project-index-row {
+    align-items: start;
+  }
+  .project-index-row .platform-links {
+    gap: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-link:hover svg,
+  .platform-link:active svg,
+  .project-destination:hover .project-arrow,
+  .project-destination:focus-visible .project-arrow,
+  .brand:hover img,
+  .brand:focus-visible img,
+  .button:hover,
+  .button:active {
+    transform: none;
+    animation: none;
+  }
+}
+@media (forced-colors: active) {
+  .platform-link {
+    color: LinkText;
+    border-color: ButtonText;
+  }
+  .platform-link:hover,
+  .platform-link:focus-visible {
+    color: HighlightText;
+    background: Highlight;
+  }
+}

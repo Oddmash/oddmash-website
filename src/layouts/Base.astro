@@ -1,5 +1,9 @@
 ---
 import '../styles/site.scss';
+import '../styles/language-select.scss';
+import { Select } from '@oddmash/ui/select';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { copy, labels, locales, languageNames, url, type Locale } from '../content';
 import { absolute, indexable } from '../site';
 interface Props { locale:Locale; path:string; title:string; description:string; image?:string; imageAlt?:string; noIndex?:boolean }
@@ -8,6 +12,12 @@ const t = copy[locale];
 const l = labels[locale];
 const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
+const languageSelect = renderToStaticMarkup(createElement(Select, {
+  id: 'language-select',
+  name: 'language',
+  'aria-label': t.language,
+  defaultValue: locale,
+}, locales.map(lang => createElement('option', { key: lang, value: lang, lang }, languageNames[lang]))));
 ---
 <!doctype html>
 <html lang={locale} data-page={path === '' && !noIndex ? 'home' : undefined}>
@@ -36,11 +46,9 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <header class="shell header">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
   <nav aria-label={l.navigation}><a href={home+'#work'}>{t.nav[0]}</a><a href={url(locale,'studio')} aria-current={path==='studio'?'page':undefined}>{t.nav[1]}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
-  <div class="language-select" hidden>
+  <div class="language-select" data-om-theme="dark" hidden>
     <label for="language-select" class="sr">{t.language}</label>
-    <select id="language-select" name="language" aria-label={t.language}>
-      {locales.map(lang=><option value={lang} lang={lang} selected={lang===locale}>{languageNames[lang]}</option>)}
-    </select>
+    <Fragment set:html={languageSelect} />
   </div>
   <nav class="language-fallback" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
 </header>
@@ -56,12 +64,16 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 const picker = document.querySelector<HTMLSelectElement>('#language-select');
 const fallbackLinks = document.querySelector<HTMLElement>('.language-fallback');
 if(picker && fallbackLinks) {
-  picker.parentElement!.hidden = false;
+  picker.closest('.language-select')?.removeAttribute('hidden');
   fallbackLinks.hidden = true;
   window.addEventListener('pageshow', () => { picker.value = document.documentElement.lang; });
   picker.addEventListener('change', () => {
     const link = [...fallbackLinks.querySelectorAll<HTMLAnchorElement>('a[data-locale]')].find(anchor=>anchor.dataset.locale===picker.value);
-    if(link) location.assign(link.href + location.hash);
+    if(link) {
+      const destination = new URL(link.href);
+      destination.hash = location.hash;
+      location.assign(destination.href);
+    }
   });
 }
 const share = document.querySelector<HTMLButtonElement>('#share');
