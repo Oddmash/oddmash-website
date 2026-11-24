@@ -1,1 +1,12 @@
-{"framework":"astro","buildCommand":"npm run build","outputDirectory":"build"}
+{
+  "framework": "astro",
+  "installCommand": "corepack pnpm install --frozen-lockfile --ignore-scripts",
+  "buildCommand": "corepack pnpm run build",
+  "outputDirectory": "build",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
+}

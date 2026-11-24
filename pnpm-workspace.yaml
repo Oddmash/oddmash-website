@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - '@oddmash/kowrap@0.3.0'
