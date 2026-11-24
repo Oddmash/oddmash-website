@@ -9,3 +9,7 @@ Follow the [Oddmash agent attribution convention](https://github.com/Oddmash/.gi
 ## Branch workflow
 
 This organization website is a main-only repository. Create focused topic branches from `main` and target `main` directly. Do not create or use `develop`. Keep issue linkage, required CI, review, normal merge commits, and GitHub Pages deployment from `main`.
+
+## Website experience
+
+Home uses a cinematic viewport-based project sequence on large screens. Keep ordinary scrolling on small screens, zoomed layouts and reduced motion. The language selector must retain its route and provide a no-script fallback. Verify localized documentation against actual repository paths, and preserve the original Korean Kowrap demonstration until its product redesign is released.
