@@ -1,6 +1,6 @@
 ---
-import type { Locale } from '../content';
-import { ecosystemCopy } from '../ecosystem-content';
+import { url, type Locale } from '../content';
+import { skillCopy } from '../skill-content';
 import { labCopy } from '../lab-content';
 import AgentRoster from './agent-roster.astro';
 import WorkflowPlayer from './workflow-player.astro';
@@ -8,7 +8,7 @@ import WorkflowPlayer from './workflow-player.astro';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const c = labCopy[locale];
-const ecosystem = ecosystemCopy[locale];
+
 ---
 <section class="section lab-method" id="method" aria-labelledby="method-title">
   <div class="section-title">
@@ -22,7 +22,7 @@ const ecosystem = ecosystemCopy[locale];
       <p>{method.body}</p>
     </li>)}
   </ol>
-  <a class="text-link ecosystem-method-link" href="https://github.com/Oddmash/oddmash-skills">{ecosystem.skillsLink}</a>
+  <a class="text-link ecosystem-method-link" href={url(locale,'skills')}>{skillCopy[locale].title} →</a>
 </section>
 <AgentRoster locale={locale} compact={true} />
 <WorkflowPlayer locale={locale} />

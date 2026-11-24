@@ -1,0 +1,50 @@
+---
+import { url, type Locale } from '../content';
+import { skills, skillCopy, skillGroups, skillName, skillSummary, findSkill, skillRevision } from '../skill-content';
+
+interface Props { locale: Locale; path: string }
+const { locale, path } = Astro.props;
+const t = skillCopy[locale];
+const skill = findSkill(path);
+type Block = { type: 'heading' | 'paragraph' | 'list' | 'code' | 'table'; lines: string[] };
+const clean = (line: string) => line.replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\x60([^\x60]+)\x60/g,'$1');
+const blocks: Block[] = [];
+if (skill) {
+  let code = false;
+  for(const line of skill.source.split('\n')){
+    if(line.startsWith('```')){ code = !code; if(code) blocks.push({type:'code',lines:[]}); continue; }
+    if(code){ blocks[blocks.length-1].lines.push(line); continue; }
+    if(!line.trim()) continue;
+    if(/^#\s/.test(line)) continue;
+    const type: Block['type'] = /^#{2,6}\s/.test(line) ? 'heading' : /^\s*[-*]\s|^\s*\d+\.\s/.test(line) ? 'list' : /^\|/.test(line) ? 'table' : 'paragraph';
+    if(type==='table' && /^\|[\s:\-|]+\|$/.test(line)) continue;
+    const value=type==='heading' ? line.replace(/^#+\s/,'') : type==='list' ? line.replace(/^\s*(?:[-*]|\d+\.)\s/,'') : line;
+    const last=blocks[blocks.length-1];
+    if(last?.type===type && (type==='list'||type==='table')) last.lines.push(value);
+    else blocks.push({type,lines:[value]});
+  }
+}
+const cells = (line: string) => line.split('|').slice(1,-1).map(cell=>clean(cell.trim()));
+---
+{skill ? <article class="agent-doc skill-doc">
+  <header class="detail-head agent-doc-heading">
+    <a class="text-link" href={url(locale,'skills')}>← {t.back}</a>
+    <p class="eyebrow">Oddmash Skills</p>
+    <h1>{skillName(skill,locale)}</h1>
+    <p class="lead" lang={locale}>{skillSummary(skill,locale)}</p>
+  </header>
+  <section class="section agent-doc-section skill-reference">
+    <h2>{t.reference}</h2>
+    <div lang="en">
+      {blocks.map(block=>block.type==='heading' ? <h3>{clean(block.lines[0])}</h3> : block.type==='list' ? <ul class="feature-list">{block.lines.map(line=><li>{clean(line)}</li>)}</ul> : block.type==='code' ? <pre><code>{block.lines.join('\n')}</code></pre> : block.type==='table' ? <div class="skill-table"><table><thead><tr>{cells(block.lines[0]).map(cell=><th scope="col">{cell}</th>)}</tr></thead><tbody>{block.lines.slice(1).map(line=><tr>{cells(line).map(cell=><td>{cell}</td>)}</tr>)}</tbody></table></div> : <p>{clean(block.lines[0])}</p>)}
+    </div>
+    <a class="text-link" href={`https://github.com/Oddmash/oddmash-skills/blob/${skillRevision}/${skill.path}`}>{t.source} ({skillRevision.slice(0,7)}) ↗</a><a class="text-link" href="/licenses/oddmash-skills.txt">MIT License</a>
+  </section>
+</article> : <div class="agent-doc skill-doc">
+  <header class="detail-head agent-doc-heading"><p class="eyebrow">Oddmash</p><h1>{t.title}</h1><p class="lead">{t.intro}</p></header>
+  {skillGroups.map((group,index)=><section class="section agent-doc-section skill-category">
+    <h2>{t.groups[index]}</h2>
+    <div class="skill-grid">{skills.filter(skill=>skill.group===group).map(skill=><a class="skill-item" href={url(locale,'skills/'+skill.id)}><h3>{skillName(skill,locale)}</h3><p lang={locale}>{skillSummary(skill,locale)}</p></a>)}</div>
+  </section>)}
+  <section class="section agent-doc-section"><a class="text-link" href={url(locale,'agents')}>{locale==='ko'?'에이전트 문서':locale==='ja'?'エージェント':locale==='zh-CN'?'智能体文档':'Agent documentation'} →</a></section>
+</div>}

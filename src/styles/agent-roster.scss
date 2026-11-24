@@ -59,57 +59,50 @@
 .agent-character {
   --character-size: 92px;
   position: relative;
-  display: inline-flex;
-  width: calc(var(--character-size) + 18px);
-  height: var(--character-size);
-  max-width: 100%;
-  align-items: center;
-  justify-content: flex-start;
-  flex-shrink: 0;
-  color: var(--agent-accent);
-}
-
-.agent-character img {
+  display: grid;
+  place-items: center;
   width: var(--character-size);
   height: var(--character-size);
-  max-width: calc(100% - 10px);
+  max-width: 100%;
+  flex-shrink: 0;
+  color: var(--agent-accent);
+}
+.agent-character img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   border-radius: calc(var(--character-size) * .21);
-  flex-shrink: 0;
 }
-
-.agent-wave-arm {
+.agent-gesture {
   position: absolute;
-  width: calc(var(--character-size) * .36);
-  height: auto;
-  right: 0;
-  bottom: 0;
-  color: var(--agent-accent);
-  transform: rotate(10deg);
-  transform-origin: 28% 91%;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: visible;
 }
-
-.agent-profile-link:focus-visible .agent-wave-arm {
-  animation: agent-wave 920ms ease-in-out 1;
-}
-
+.agent-profile-link:focus-visible .agent-gesture { opacity: 1; }
 @media (hover: hover) and (pointer: fine) {
-  .agent-profile-link:hover {
-    background: var(--hover);
-    border-color: var(--agent-accent);
-  }
-
-  .agent-profile-link:hover .agent-wave-arm,
-  .agent-doc-art:hover .agent-wave-arm {
-    animation: agent-wave 920ms ease-in-out 1;
-  }
+  .agent-profile-link:hover { background: var(--hover); border-color: var(--agent-accent); }
+  .agent-profile-link:hover .agent-gesture, .agent-doc-art:hover .agent-gesture { opacity: 1; }
 }
-
-@keyframes agent-wave {
-  0%, 100% { transform: rotate(10deg); }
-  18%, 56% { transform: rotate(-23deg); }
-  37%, 76% { transform: rotate(25deg); }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=qa] .agent-gesture { animation: qa-inspect 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=lead] .agent-gesture { animation: lead-check 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=impact] .agent-gesture { animation: impact-spark 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=triage] .agent-gesture { animation: triage-sort 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=docs] .agent-gesture { animation: docs-open 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=architect] .agent-gesture { animation: architect-plan 850ms ease both; }
+  :is(.agent-profile-link:hover,.agent-profile-link:focus-visible,.agent-doc-art:hover) [data-agent-role=release] .agent-gesture { animation: release-launch 850ms ease both; }
 }
+@keyframes qa-inspect { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
+@keyframes lead-check { from { opacity:0; transform:translate(10px,12px) rotate(13deg); } to { opacity:1; transform:none; } }
+@keyframes impact-spark { 0% { opacity:0; transform:scale(.65) rotate(-15deg); } 65% { transform:scale(1.09); } 100% { opacity:1; transform:none; } }
+@keyframes triage-sort { 0% {opacity:0; transform:translateX(16px);} 55% {transform:translateX(-3px);} 100% {opacity:1; transform:none;} }
+@keyframes docs-open { from {opacity:0; transform:scaleX(.2) translateY(10px);} to {opacity:1; transform:none;} }
+@keyframes architect-plan { from {opacity:0; transform:rotate(-18deg) scale(.75);} to {opacity:1; transform:none;} }
+@keyframes release-launch { from {opacity:0; transform:translate(-18px,18px);} 65% {transform:translate(3px,-3px);} to {opacity:1; transform:none;} }
 
 .agent-caption {
   display: grid;
@@ -284,9 +277,9 @@
     transform: none;
   }
 
-  .agent-profile-link:hover .agent-wave-arm,
-  .agent-profile-link:focus-visible .agent-wave-arm,
-  .agent-doc-art:hover .agent-wave-arm {
+  .agent-profile-link:hover .agent-gesture,
+  .agent-profile-link:focus-visible .agent-gesture,
+  .agent-doc-art:hover .agent-gesture {
     animation: none;
   }
 }

@@ -279,35 +279,32 @@ test('custom language menu supports keyboard, chevron and narrow viewport', asyn
   await expect(list).toBeHidden();
 });
 
-test('cinematic workflow auto plays in view and supports manual playback',async ({page},testInfo)=>{
-  test.setTimeout(45_000);
+test('cinematic workflow repeats automatically with only a pause control',async ({page},testInfo)=>{
+  test.setTimeout(65_000);
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/');
   const workflow=page.locator('#workflow');
   await expect(workflow).toHaveAttribute('data-film-ready','true');
-  await expect(workflow).toHaveAttribute('data-active-scene','0');
   await expect(workflow.locator('.film-step')).toHaveCount(6);
   await expect(workflow.locator('.film-player')).toBeVisible();
+  await expect(workflow.locator('.film-controls button')).toHaveCount(1);
+  await expect(workflow.locator('progress, .film-timeline')).toHaveCount(0);
   await workflow.locator('.film-screen').scrollIntoViewIfNeeded();
   await expect(workflow).toHaveAttribute('data-playing','true');
   await expect(workflow).toHaveAttribute('data-active-scene','1',{timeout:15000});
   await workflow.locator('[data-film-toggle]').click();
   await expect(workflow).toHaveAttribute('data-playing','false');
-  await workflow.locator('[data-film-select="3"]').click();
-  await expect(workflow).toHaveAttribute('data-active-scene','3');
-  await expect(workflow.locator('[data-film-visual="3"]')).toBeVisible();
-  await workflow.locator('[data-film-next]').click();
-  await expect(workflow).toHaveAttribute('data-active-scene','4');
-  await workflow.locator('[data-film-prev]').click();
-  await expect(workflow).toHaveAttribute('data-active-scene','3');
-  await page.screenshot({path:testInfo.outputPath('desktop-workflow-scene.png')});
-  await workflow.locator('[data-film-replay]').click();
-  await expect(workflow).toHaveAttribute('data-active-scene','0');
+  const paused=await workflow.getAttribute('data-active-scene');
+  await page.waitForTimeout(6000);
+  await expect(workflow).toHaveAttribute('data-active-scene',paused!);
+  await workflow.locator('[data-film-toggle]').click();
   await expect(workflow).toHaveAttribute('data-playing','true');
+  await expect(workflow).toHaveAttribute('data-active-scene','5',{timeout:30000});
+  await expect(workflow).toHaveAttribute('data-active-scene','0',{timeout:10000});
+  await page.screenshot({path:testInfo.outputPath('desktop-workflow-scene.png')});
   await page.locator('h1').scrollIntoViewIfNeeded();
   await expect(workflow).toHaveAttribute('data-playing','false');
-  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
 });
 
 test('workflow preserves inline scenes under reduced motion and fits narrow screens',async ({page})=>{
@@ -568,6 +565,10 @@ test('home section headings and method cards align at desktop and mobile sizes',
       const heading=await title.boundingBox();
       expect(Math.abs(box!.x+box!.width/2-heading!.x-heading!.width/2)).toBeLessThan(3);
     }
+    const closing=page.locator('.closing-cta');
+    const closeBox=await closing.boundingBox();
+    const closeHeading=await closing.locator('h2').boundingBox();
+    expect(Math.abs(closeBox!.x+closeBox!.width/2-closeHeading!.x-closeHeading!.width/2)).toBeLessThan(3);
     const cards=page.locator('.method-item');
     const first=await cards.nth(0).boundingBox();
     const second=await cards.nth(1).boundingBox();
@@ -580,30 +581,38 @@ test('home section headings and method cards align at desktop and mobile sizes',
 });
 
 
-test('localized agent pages describe official roles and preserve waving character interaction',async ({page})=>{
+test('localized agent pages describe official roles and preserve individual character gestures',async ({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/ko/');
   const agent=page.locator('#agents .agent-profile-link').first();
-  const hand=agent.locator('.agent-wave-arm');
+  const hand=agent.locator('.agent-gesture');
+  await expect(hand).toHaveCSS('opacity','0');
   await agent.scrollIntoViewIfNeeded();
   if(await page.evaluate(()=>matchMedia('(hover: hover) and (pointer: fine)').matches)){
     await agent.hover();
-    expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('agent-wave');
+    expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('lead-check');
     expect(await hand.evaluate(el=>getComputedStyle(el).animationIterationCount)).toBe('1');
+    await page.mouse.move(1,1);
+    const gestures=['lead-check','impact-spark','triage-sort','qa-inspect','docs-open','architect-plan','release-launch'];
+    for (const [index,name] of gestures.entries()) {
+      const card=page.locator('#agents .agent-profile-link').nth(index);
+      await card.hover();
+      expect(await card.locator('.agent-gesture').evaluate(el=>getComputedStyle(el).animationName)).toBe(name);
+    }
     await page.mouse.move(1,1);
   }
   await page.keyboard.press('Tab');
   await agent.focus();
   await expect(agent).toBeFocused();
-  expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('agent-wave');
+  expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('lead-check');
   await page.emulateMedia({reducedMotion:'reduce'});
   expect(await hand.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   await page.locator('#agents .agent-roster-cta').click();
   await expect(page).toHaveURL(/\/ko\/agents\/$/);
   await expect(page.locator('.agent-profile')).toHaveCount(7);
   await expect(page.locator('a[href="https://github.com/Oddmash/oddmash-agents"]')).toHaveCount(1);
-  await expect(page.locator('a[href="https://github.com/Oddmash/oddmash-skills"]')).toHaveCount(1);
+  await expect(page.locator('main a[href="/ko/skills/"]')).toHaveCount(2);
   await page.locator('a[href="/ko/agents/triage/"]').click();
   await expect(page.locator('h1')).toHaveText('Triage');
   await expect(page.locator('.agent-command-card code')).toHaveText('/triage');
@@ -617,12 +626,28 @@ test('visible workflow stages use Korean enhancement and other locales use nativ
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/ko/');
   const player=page.locator('#workflow .film-player');
-  await player.locator('[data-film-select="3"]').click();
-  await expect(player.locator('[data-film-visual="3"] h3')).toHaveAttribute('data-kowrap-applied','true');
+  await player.locator('.film-screen').scrollIntoViewIfNeeded();
+  await expect(page.locator('#workflow')).toHaveAttribute('data-active-scene','1',{timeout:15000});
+  await expect(player.locator('[data-film-visual="1"] h3')).toHaveAttribute('data-kowrap-applied','true');
   await expect(player.locator('[data-film-visual]:is([hidden]) [data-kowrap-applied]')).toHaveCount(0);
   for(const path of ['/ja/','/zh-cn/']){
     await page.goto(path);
     expect(await page.locator('main').evaluate(el=>getComputedStyle(el).lineBreak)).toBe('strict');
     await expect(page.locator('[data-kowrap-applied]')).toHaveCount(0);
+  }
+});
+
+
+test('skills are documented natively and localized routes remain usable',async ({page})=>{
+  for(const [prefix,language] of [['','en'],['ko/','ko'],['ja/','ja'],['zh-cn/','zh-CN']]){
+    await page.setViewportSize({width:320,height:900});
+    await page.goto('/'+prefix+'skills/');
+    await expect(page.locator('.skill-item')).toHaveCount(30);
+    await page.locator('a[href="/'+prefix+'skills/accessibility/"]').click();
+    await expect(page.locator('.skill-reference')).toBeVisible();
+    expect(await page.locator('.skill-reference li').count()).toBeGreaterThan(3);
+    await expect(page.locator('html')).toHaveAttribute('lang',language);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    if(language==='ko') await expect(page.locator('.skill-doc .lead')).toHaveAttribute('data-kowrap-applied','true');
   }
 });

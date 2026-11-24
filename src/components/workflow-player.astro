@@ -9,23 +9,19 @@ const c = labCopy[locale];
 const controls = {
   en: {
     lead: 'See how a change moves from a real issue through implementation, review and a verified public release.',
-    play: 'Play', pause: 'Pause', replay: 'Replay', previous: 'Previous stage', next: 'Next stage',
-    timeline: 'Workflow stages', progress: 'Playback progress', playback: 'Playback controls',
+    play: 'Resume animation', pause: 'Pause animation',
   },
   ko: {
     lead: '실제 이슈에서 시작한 변경이 구현, 검토, 검증을 거쳐 공개 배포에 이르는 과정을 확인해 보세요.',
-    play: '재생', pause: '일시정지', replay: '다시 재생', previous: '이전 단계', next: '다음 단계',
-    timeline: '작업 과정 단계', progress: '재생 진행률', playback: '재생 제어',
+    play: '애니메이션 재개', pause: '애니메이션 정지',
   },
   ja: {
     lead: '実際の課題から始まる変更が実装、レビュー、検証を経て公開されるまでをご覧ください。',
-    play: '再生', pause: '一時停止', replay: 'もう一度再生', previous: '前の段階', next: '次の段階',
-    timeline: 'ワークフローの段階', progress: '再生の進捗', playback: '再生コントロール',
+    play: 'アニメーションを再開', pause: 'アニメーションを停止',
   },
   'zh-CN': {
     lead: '了解一项改动如何从实际问题出发，经过实现、审查和验证，最终公开发布。',
-    play: '播放', pause: '暂停', replay: '重新播放', previous: '上一阶段', next: '下一阶段',
-    timeline: '工作流程阶段', progress: '播放进度', playback: '播放控制',
+    play: '继续动画', pause: '暂停动画',
   },
 }[locale];
 const formatStage = (index: number) => String(index + 1).padStart(2, '0') + ' / ' + String(scenes.length).padStart(2, '0');
@@ -48,27 +44,9 @@ const formatStage = (index: number) => String(index + 1).padStart(2, '0') + ' / 
       </article>)}
     </div>
     <div class="film-controls">
-      <progress class="film-progress" data-film-progress max={scenes.length} value="0" aria-label={controls.progress}></progress>
-      <div class="film-toolbar" role="group" aria-label={controls.playback}>
-        <div class="film-transport">
-          <button type="button" class="film-toggle" data-film-toggle data-play={controls.play} data-pause={controls.pause}>
-            <span class="film-toggle-icon" aria-hidden="true"></span><span data-film-toggle-label>{controls.play}</span>
-          </button>
-          <button type="button" class="film-replay" data-film-replay>{controls.replay}</button>
-        </div>
-        <div class="film-position">
-          <button type="button" data-film-prev aria-label={controls.previous} aria-disabled="true"><span aria-hidden="true">←</span></button>
-          <span data-film-counter aria-hidden="true">{formatStage(0)}</span>
-          <button type="button" data-film-next aria-label={controls.next}><span aria-hidden="true">→</span></button>
-        </div>
-      </div>
-      <div class="film-timeline" role="group" aria-label={controls.timeline}>
-        {c.steps.map((step, index) => <button type="button" data-film-select={index} aria-pressed={index === 0 ? 'true' : 'false'}>
-          <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-          <span>{step.artifact}</span>
-        </button>)}
-      </div>
-      <span class="sr" role="status" data-film-status></span>
+      <button type="button" class="film-toggle" data-film-toggle data-play={controls.play} data-pause={controls.pause}>
+        <span class="film-toggle-icon" aria-hidden="true"></span><span data-film-toggle-label>{controls.play}</span>
+      </button>
     </div>
   </div>
   <ol class="film-steps" role="list">
@@ -89,99 +67,49 @@ if (root && 'IntersectionObserver' in window) {
   const player = root.querySelector<HTMLElement>('.film-player');
   const fallback = root.querySelector<HTMLElement>('.film-steps');
   const slides = [...root.querySelectorAll<HTMLElement>('[data-film-visual]')];
-  const selectors = [...root.querySelectorAll<HTMLButtonElement>('[data-film-select]')];
   const toggle = root.querySelector<HTMLButtonElement>('[data-film-toggle]');
-  const toggleLabel = root.querySelector<HTMLElement>('[data-film-toggle-label]');
-  const replay = root.querySelector<HTMLButtonElement>('[data-film-replay]');
-  const prev = root.querySelector<HTMLButtonElement>('[data-film-prev]');
-  const next = root.querySelector<HTMLButtonElement>('[data-film-next]');
-  const counter = root.querySelector<HTMLElement>('[data-film-counter]');
-  const progress = root.querySelector<HTMLProgressElement>('[data-film-progress]');
-  const status = root.querySelector<HTMLElement>('[data-film-status]');
-  if (player && fallback && slides.length && toggle && toggleLabel && replay && prev && next && counter && progress && status) {
+  const label = root.querySelector<HTMLElement>('[data-film-toggle-label]');
+  if (player && fallback && slides.length && toggle && label) {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const sceneDuration = 5400;
+    const duration = 5400;
     let index = 0;
-    let elapsed = 0;
-    let frame = 0;
-    let lastTime = 0;
+    let remaining = duration;
+    let timer: number | undefined;
+    let started = 0;
     let inView = false;
     let pageActive = true;
     let wantsPlay = true;
-    let animate = true;
-    let finished = false;
-    const displayNumber = (n: number) => String(n).padStart(2, '0');
-    const updateProgress = () => {
-      progress.value = index + elapsed / sceneDuration;
-    };
-    const renderStage = (announce = false) => {
+    const render = () => {
       root.dataset.activeScene = String(index);
       for (const [i, slide] of slides.entries()) slide.hidden = i !== index;
-      for (const [i, button] of selectors.entries()) button.setAttribute('aria-pressed', String(i === index));
-      prev.setAttribute('aria-disabled', String(index === 0));
-      next.setAttribute('aria-disabled', String(index === slides.length - 1));
-      counter.textContent = displayNumber(index + 1) + ' / ' + displayNumber(slides.length);
-      updateProgress();
-      if (announce) status.textContent = slides[index].querySelector('h3')?.textContent ?? '';
     };
-    const canPlay = () => !media.matches && pageActive && inView && !document.hidden && wantsPlay && !finished;
-    const syncPlayback = () => {
+    const canPlay = () => !media.matches && pageActive && inView && !document.hidden && wantsPlay;
+    const stopTimer = () => {
+      if (timer === undefined) return;
+      clearTimeout(timer);
+      timer = undefined;
+      remaining = Math.max(0, remaining - (performance.now() - started));
+    };
+    const sync = () => {
+      const playing = canPlay();
       if (!media.matches) {
-        root.dataset.playing = String(canPlay());
-        root.dataset.filmAnimate = String(animate);
+        root.dataset.playing = String(playing);
+        root.dataset.filmAnimate = 'true';
       }
-      root.dataset.playIntent = String(wantsPlay && !finished);
-      toggleLabel.textContent = wantsPlay && !finished ? toggle.dataset.pause ?? '' : toggle.dataset.play ?? '';
-      if (!canPlay()) {
-        if (frame) cancelAnimationFrame(frame);
-        frame = 0;
-        lastTime = 0;
-      } else if (!frame) {
-        lastTime = 0;
-        frame = requestAnimationFrame(tick);
+      root.dataset.playIntent = String(wantsPlay);
+      label.textContent = wantsPlay ? toggle.dataset.pause ?? '' : toggle.dataset.play ?? '';
+      if (!playing) stopTimer();
+      else if (timer === undefined) {
+        started = performance.now();
+        timer = window.setTimeout(() => {
+          timer = undefined;
+          if (!canPlay()) { sync(); return; }
+          index = (index + 1) % slides.length;
+          remaining = duration;
+          render();
+          sync();
+        }, remaining);
       }
-    };
-    const tick = (now: number) => {
-      frame = 0;
-      if (!canPlay()) {
-        syncPlayback();
-        return;
-      }
-      if (lastTime) elapsed += Math.min(now - lastTime, 100);
-      lastTime = now;
-      if (elapsed >= sceneDuration) {
-        if (index >= slides.length - 1) {
-          elapsed = sceneDuration;
-          finished = true;
-          wantsPlay = false;
-          updateProgress();
-          syncPlayback();
-          return;
-        }
-        index += 1;
-        elapsed -= sceneDuration;
-        renderStage();
-      } else {
-        updateProgress();
-      }
-      frame = requestAnimationFrame(tick);
-    };
-    const jump = (target: number, autoplay: boolean) => {
-      if (target < 0 || target >= slides.length) return;
-      if (autoplay && target === index && root.dataset.filmAnimate === 'true') {
-        delete root.dataset.filmAnimate;
-        void player.offsetWidth;
-      }
-      if (frame) cancelAnimationFrame(frame);
-      frame = 0;
-      lastTime = 0;
-      index = target;
-      elapsed = 0;
-      finished = false;
-      wantsPlay = autoplay;
-      animate = autoplay;
-      renderStage(true);
-      syncPlayback();
     };
     const syncMotion = () => {
       if (media.matches && player.contains(document.activeElement)) root.querySelector<HTMLElement>('#workflow-title')?.focus();
@@ -194,43 +122,20 @@ if (root && 'IntersectionObserver' in window) {
         delete root.dataset.filmAnimate;
       } else {
         root.dataset.filmReady = 'true';
-        renderStage();
+        render();
       }
-      syncPlayback();
+      sync();
     };
-    toggle.addEventListener('click', () => {
-      if (finished) jump(0, true);
-      else {
-        wantsPlay = !wantsPlay;
-        if (wantsPlay) animate = true;
-        syncPlayback();
-      }
-    });
-    replay.addEventListener('click', () => jump(0, true));
-    prev.addEventListener('click', () => jump(index - 1, false));
-    next.addEventListener('click', () => jump(index + 1, false));
-    for (const [i, button] of selectors.entries()) button.addEventListener('click', () => jump(i, false));
-    player.addEventListener('focusin', event => {
-      if (event.target instanceof HTMLElement && event.target !== toggle && event.target.matches(':focus-visible') && wantsPlay) {
-        wantsPlay = false;
-        syncPlayback();
-      }
-    });
+    toggle.addEventListener('click', () => { wantsPlay = !wantsPlay; sync(); });
     const observer = new IntersectionObserver(entries => {
-      inView = !!entries[0]?.isIntersecting && entries[0].intersectionRatio >= .25;
-      syncPlayback();
-    }, { threshold: [0, .25] });
+      inView = !!entries[0]?.isIntersecting && entries[0].intersectionRatio >= .1;
+      sync();
+    }, { threshold: [0, .1] });
     observer.observe(player);
     media.addEventListener('change', syncMotion);
-    document.addEventListener('visibilitychange', syncPlayback);
-    window.addEventListener('pagehide', () => {
-      pageActive = false;
-      syncPlayback();
-    });
-    window.addEventListener('pageshow', () => {
-      pageActive = true;
-      syncMotion();
-    });
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('pagehide', () => { pageActive = false; sync(); });
+    window.addEventListener('pageshow', () => { pageActive = true; syncMotion(); });
     syncMotion();
   }
 }
