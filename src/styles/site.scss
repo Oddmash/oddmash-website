@@ -190,6 +190,7 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
   height: auto;
   border-radius: 0;
   mix-blend-mode: screen;
+  mask-image: radial-gradient(ellipse at center, #000 42%, transparent 73%);
   animation: opening-fold 1250ms cubic-bezier(.18,.7,.24,1) both;
 }
 @keyframes opening-fold {
@@ -270,5 +271,5 @@ html[lang=ko] .opening-scene h1 { max-width: 10em; font-size: clamp(2.9rem, 5.8v
 }
 @media (forced-colors: active) {
   .opening-scene::before, .scene-light { display: none; }
-  .opening-scene .brand-art img { mix-blend-mode: normal; }
+  .opening-scene .brand-art img { mix-blend-mode: normal; mask-image: none; }
 }
