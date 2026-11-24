@@ -6,7 +6,8 @@ test('project catalog, detail navigation, locale and legacy query', async ({page
   await expect(page.locator('.project:visible')).toHaveCount(4);
   await page.getByRole('link',{name:'Kowrap 프로젝트 상세',exact:true}).click();
   await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
-  await page.getByRole('link',{name:'日本語'}).click();
+  await expect(page.locator('#language-select')).toHaveValue('ko');
+  await page.locator('#language-select').selectOption('ja');
   await expect(page).toHaveURL(/\/ja\/projects\/kowrap\//);
   await expect(page.locator('html')).toHaveAttribute('lang','ja');
 });
@@ -71,7 +72,7 @@ test('legacy privacy locale and copy fallback',async ({page})=>{
   await page.getByRole('button',{name:'リンクをコピー'}).click();
   await expect(page.locator('#share-status')).toHaveText('アドレスバーからリンクをコピーしてください。');
   await expect(page.getByRole('textbox',{name:'ページリンク'})).toHaveValue('http://127.0.0.1:4322/ja/privacy/');
-  await page.getByRole('link',{name:'简体中文'}).click();
+  await page.locator('#language-select').selectOption('zh-CN');
   await expect(page).toHaveURL(/\/zh-cn\/privacy\/$/);
 });
 
@@ -81,6 +82,7 @@ test('progressive rendering without JavaScript',async ({browser})=>{
   try{
     await page.goto('http://127.0.0.1:4322/privacy.html?lang=ko');
     await expect(page).toHaveURL(/\/privacy\/$/);
+    await expect(page.locator('#language-select')).toBeHidden();
     await page.getByRole('link',{name:'한국어'}).click();
     await expect(page).toHaveURL(/\/ko\/privacy\/$/);
     await page.goto('http://127.0.0.1:4322/ko/');
@@ -180,7 +182,14 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   await expect(opening.locator('h1')).toBeVisible();
   await expect(opening.locator('.primary')).toBeEnabled();
   const image=opening.locator('.brand-art img');
-  expect(await image.evaluate(el=>getComputedStyle(el).animationName)).toBe('opening-fold');
+  const animation=await image.evaluate(el=>{
+    const style=getComputedStyle(el);
+    return {name:style.animationName,duration:style.animationDuration,iterations:style.animationIterationCount};
+  });
+  expect(animation.name).not.toBe('none');
+  expect(animation.name).toContain('ribbon-hum');
+  expect(animation.duration).toBe('0.7s, 1.45s');
+  expect(animation.iterations).toBe('1, 2');
   const chapter=page.locator('.project-sequence .project-image').first();
   await chapter.scrollIntoViewIfNeeded();
   await expect(chapter).toHaveAttribute('data-scene-entered','true');
@@ -189,10 +198,107 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   await page.reload();
   await expect(opening.locator('h1')).toBeVisible();
   expect(await image.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
   await chapter.scrollIntoViewIfNeeded();
   await expect(chapter).not.toHaveAttribute('data-scene-entered','true');
   expect(await chapter.locator('picture').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   await page.getByRole('link',{name:'Kowrap Project details',exact:true}).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/projects\/kowrap\//);
+});
+
+
+test('native language selector preserves localized route identity', async ({page})=>{
+  for(const original of ['/','/studio/','/projects/boundra/','/privacy/']){
+    await page.goto(original);
+    const select=page.locator('#language-select');
+    await expect(select).toBeVisible();
+    await expect(select).toHaveAccessibleName(/\S/);
+    await expect(select).toHaveValue('en');
+    expect(await select.locator('option').evaluateAll(options=>options.map(option=>(option as HTMLOptionElement).value))).toEqual(['en','ko','ja','zh-CN']);
+    await select.focus();
+    await expect(select).toBeFocused();
+    for(const [locale,prefix] of [['ko','/ko'],['ja','/ja'],['zh-CN','/zh-cn'],['en','']] as const){
+      await select.selectOption(locale);
+      await expect(page).toHaveURL('http://127.0.0.1:4322'+prefix+original);
+      await expect(page.locator('html')).toHaveAttribute('lang',locale);
+      await expect(select).toHaveValue(locale);
+    }
+  }
+});
+
+test('desktop home chapters snap one at a time while narrow layouts scroll naturally', async ({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/');
+  const chapters=page.locator('.project-sequence .project');
+  await expect(chapters).toHaveCount(4);
+  const snapType=()=>page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType);
+  await expect.poll(snapType).toMatch(/y (mandatory|proximity)/);
+  const geometry=await chapters.evaluateAll(nodes=>nodes.map(el=>({
+    height:el.getBoundingClientRect().height,
+    align:getComputedStyle(el).scrollSnapAlign
+  })));
+  for(const item of geometry){
+    expect(item.height).toBeGreaterThanOrEqual(900*.7);
+    expect(item.align).not.toBe('none');
+  }
+  const nearestChapter=()=>chapters.evaluateAll(nodes=>{
+    const root=document.scrollingElement ?? document.documentElement;
+    const padding=parseFloat(getComputedStyle(root).scrollPaddingTop)||0;
+    return nodes.map((node,index)=>({index,distance:Math.abs(node.getBoundingClientRect().top-padding)})).sort((a,b)=>a.distance-b.distance)[0].index;
+  });
+  await chapters.first().evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
+  await expect.poll(nearestChapter).toBe(0);
+  const firstTop=await chapters.first().evaluate(el=>el.getBoundingClientRect().top);
+  await page.mouse.move(720,450);
+  await page.mouse.wheel(0,770);
+  await expect.poll(nearestChapter).toBe(1);
+  await expect.poll(()=>chapters.nth(1).evaluate(el=>Math.abs(el.getBoundingClientRect().top-firstTop))).toBeLessThan(90);
+  await page.setViewportSize({width:390,height:844});
+  await expect.poll(snapType).toBe('none');
+  await page.goto('/ko/');
+  await expect(page.locator('#hero-title')).toBeVisible();
+  await chapters.last().scrollIntoViewIfNeeded();
+  await expect(chapters.last()).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test('non-Kowrap project detail hero places real media next to the introduction on desktop', async ({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  for(const project of ['boundra','oddmash-ui','interaction-inspector']){
+    await page.goto('/ko/projects/'+project+'/');
+    expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
+    const hero=page.locator('.detail-hero');
+    const media=hero.locator('.detail-image');
+    await expect(hero.locator('h1')).toBeVisible();
+    await expect(media).toBeVisible();
+    const bounds=await hero.evaluate(el=>{
+      const h=el.querySelector('h1')!.getBoundingClientRect();
+      const img=el.querySelector('.detail-image')!.getBoundingClientRect();
+      return {display:getComputedStyle(el).display,titleRight:h.right,titleBottom:h.bottom,imageTop:img.top,imageLeft:img.left,imageHeight:img.height};
+    });
+    expect(bounds.display).toBe('grid');
+    expect(bounds.imageHeight).toBeGreaterThan(100);
+    expect(bounds.imageTop).toBeLessThan(900);
+    expect(bounds.imageLeft).toBeGreaterThanOrEqual(bounds.titleRight-1);
+    await expect.poll(()=>media.locator('img').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
+    await page.setViewportSize({width:320,height:740});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    await media.scrollIntoViewIfNeeded();
+    await expect(media).toBeVisible();
+    await page.setViewportSize({width:1440,height:900});
+  }
+});
+
+
+test('public project documentation targets match the selected language',async ({page})=>{
+  const locales=[['','README.md','user-guide.md'],['ko/','docs/ko/README.md','user-guide.ko.md'],['ja/','docs/ja/README.md','user-guide.ja.md'],['zh-cn/','docs/zh-CN/README.md','user-guide.zh-cn.md']];
+  for(const [prefix,readme,guide] of locales){
+    await page.goto('/'+prefix+'projects/oddmash-ui/');
+    await expect(page.locator('.detail-hero .primary')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
+    await page.goto('/'+prefix+'projects/boundra/');
+    await expect(page.locator('.detail-hero .secondary')).toHaveAttribute('href','https://github.com/Oddmash/boundra/blob/main/docs/'+guide);
+    await expect(page.locator('.detail-grid .lead')).toContainText('pnpm exec boundra');
+  }
 });
