@@ -22,6 +22,13 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
     const route='/'+prefix+path;
     await page.goto(route);
     await expect(page.locator('h1')).toBeVisible();
+    if(path==='') await expect(page.locator('.project-sequence .project')).toHaveCount(4);
+    if(path==='projects/boundra/'){
+      await expect(page.locator('h1')).toHaveText('Boundra');
+      await expect(page.locator('.feature-list li')).toHaveCount(3);
+      await expect(page.locator('.detail-head .lead')).not.toBeEmpty();
+      await expect(page.locator('.detail-image img')).toHaveAttribute('alt', /Boundra/i);
+    }
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
     await expect(page.locator('meta[name=robots]')).toHaveAttribute('content','noindex, nofollow');
     await page.keyboard.press('Tab');
