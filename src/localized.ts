@@ -10,7 +10,9 @@ export const projectLinks = (projectId: ProjectId, locale: Locale) => {
   const contribute = `${project.repo}/issues`;
 
   if (projectId === 'kowrap') {
-    return { readme: project.repo, docs: project.docs, contribute, live: project.live };
+    const path = locale === 'ko' ? '' : locale === 'zh-CN' ? 'zh/' : locale + '/';
+    const live = 'https://oddmash.github.io/kowrap/' + path;
+    return { readme: project.repo, docs: live + 'docs/', contribute, live };
   }
 
   if (projectId === 'boundra') {

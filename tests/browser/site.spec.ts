@@ -13,7 +13,7 @@ test('project catalog, detail navigation, locale and legacy query', async ({page
   await expect(page).toHaveURL(/\/ko\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang','ko');
   await expect(page.locator('.project:visible')).toHaveCount(4);
-  await page.getByRole('link',{name:'Kowrap 프로젝트 상세',exact:true}).click();
+  await page.getByRole('link',{name:'Juliya 프로젝트 상세',exact:true}).click();
   await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
   await expect(page.locator('#language-select')).toHaveText(languageNames.ko);
   await chooseLanguage(page,'ja');
@@ -24,7 +24,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   test.setTimeout(120_000);
   await page.setViewportSize({width:320,height:740});
   const prefixes=['','ko/','ja/','zh-cn/'];
-  const paths=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+  const paths=['','projects/','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
   const unexpected:string[]=[];
   page.on('pageerror',error=>unexpected.push(error.message));
   page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4322/')&&!request.url().startsWith('data:'))unexpected.push('Unexpected external request');});
@@ -32,7 +32,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
     const route='/'+prefix+path;
     await page.goto(route);
     await expect(page.locator('h1')).toBeVisible();
-    if(path==='') await expect(page.locator('.project-sequence .project')).toHaveCount(4);
+    if(path==='') await expect(page.locator('.project-gallery .project')).toHaveCount(4);
     if(path==='projects/boundra/'){
       await expect(page.locator('h1')).toHaveText('Boundra');
       await expect(page.locator('.feature-list li')).toHaveCount(3);
@@ -98,7 +98,12 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await expect(page.locator('.project:visible')).toHaveCount(4);
     await expect(page.locator('#filters')).toBeHidden();
     await expect(page.locator('#share')).toBeHidden();
-    await page.getByRole('link',{name:'Kowrap 프로젝트 상세'}).click();
+    const workflow=page.locator('#workflow');
+    await expect(workflow).not.toHaveAttribute('data-film-ready','true');
+    await expect(workflow.locator('.film-step')).toHaveCount(6);
+    await expect(workflow.locator('.film-inline:visible')).toHaveCount(6);
+    for(const step of await workflow.locator('.film-step').all()) await expect(step.locator('h3')).toBeVisible();
+    await page.getByRole('link',{name:'Juliya 프로젝트 상세'}).click();
     await expect(page.locator('#demo-fallback')).toBeVisible();
     await expect(page.locator('#demo-pair')).toBeHidden();
     await expect(page.locator('#demo-control')).toBeHidden();
@@ -160,7 +165,7 @@ test('Korean editorial text uses Kowrap across viewport sizes and preserves cont
   const fallback = await plain.newPage();
   const normalize = (value:string) => value.replace(/\s+/g,'');
   try {
-    for(const route of ['/ko/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
+    for(const route of ['/ko/','/ko/projects/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
       await fallback.goto('http://127.0.0.1:4322'+route);
       await page.goto(route);
       await expect(page.locator('[data-kowrap-applied]').first()).toBeVisible();
@@ -173,7 +178,7 @@ test('Korean editorial text uses Kowrap across viewport sizes and preserves cont
       const applied = await page.locator('[data-kowrap-applied]').allTextContents();
       expect(applied.length).toBeGreaterThan(0);
       for(const text of applied) expect(original.map(normalize)).toContain(normalize(text));
-      await expect(page.locator('[data-agent-stage]')).toHaveCount(0);
+      await expect(page.locator('.agent-profile')).toHaveCount(route==='/ko/'?7:0);
     }
     await page.setViewportSize({width:320,height:900});
     await page.goto('/ko/');
@@ -199,10 +204,10 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   expect(animation.name).toContain('ribbon-hum');
   expect(animation.duration).toBe('0.7s, 1.45s');
   expect(animation.iterations).toBe('1, 2');
-  const chapter=page.locator('.project-sequence .project-image').first();
+  const chapter=page.locator('.project-gallery .project-image').first();
   await chapter.scrollIntoViewIfNeeded();
   await expect(chapter.locator('picture')).toBeVisible();
-  await expect(page.locator('.project-sequence .project')).toHaveCount(4);
+  await expect(page.locator('.project-gallery .project')).toHaveCount(4);
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.reload();
   await expect(opening.locator('h1')).toBeVisible();
@@ -211,14 +216,14 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   await chapter.scrollIntoViewIfNeeded();
   expect(await chapter.locator('picture').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollBehavior)).toBe('auto');
-  await page.getByRole('link',{name:'Kowrap Project details',exact:true}).focus();
+  await page.getByRole('link',{name:'Juliya Project details',exact:true}).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/projects\/kowrap\//);
 });
 
 
 test('Oddmash UI custom dropdown preserves localized route identity', async ({page})=>{
-  for(const original of ['/','/studio/','/projects/boundra/','/privacy/']){
+  for(const original of ['/','/projects/','/studio/','/projects/boundra/','/privacy/']){
     await page.goto(original);
     const select=page.locator('#language-select');
     await expect(select).toBeVisible();
@@ -271,45 +276,69 @@ test('custom language menu supports keyboard, chevron and narrow viewport', asyn
   await expect(list).toBeHidden();
 });
 
-test('desktop home chapters snap one at a time while narrow layouts scroll naturally', async ({page})=>{
+test('desktop workflow follows native scrolling in both directions without snapping', async ({page},testInfo)=>{
+  test.setTimeout(60_000);
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/');
-  const chapters=page.locator('.project-sequence .project');
-  await expect(chapters).toHaveCount(4);
-  const snapType=()=>page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType);
-  await expect.poll(snapType).toMatch(/y (mandatory|proximity)/);
-  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollBehavior)).toBe('smooth');
-  const geometry=await chapters.evaluateAll(nodes=>nodes.map(el=>({
-    height:el.getBoundingClientRect().height,
-    align:getComputedStyle(el).scrollSnapAlign
-  })));
-  for(const item of geometry){
-    expect(item.height).toBeGreaterThanOrEqual(900*.7);
-    expect(item.align).not.toBe('none');
-  }
-  const nearestChapter=()=>chapters.evaluateAll(nodes=>{
-    const root=document.scrollingElement ?? document.documentElement;
-    const padding=parseFloat(getComputedStyle(root).scrollPaddingTop)||0;
-    return nodes.map((node,index)=>({index,distance:Math.abs(node.getBoundingClientRect().top-padding)})).sort((a,b)=>a.distance-b.distance)[0].index;
-  });
-  await chapters.first().evaluate(el=>el.scrollIntoView({block:'start',behavior:'instant'}));
-  await expect.poll(nearestChapter).toBe(0);
-  const firstTop=await chapters.first().evaluate(el=>el.getBoundingClientRect().top);
+  const workflow=page.locator('#workflow');
+  const steps=workflow.locator('.film-step');
+  const stage=workflow.locator('.film-screen');
+  await expect(workflow).toHaveAttribute('data-film-ready','true');
+  await expect(steps).toHaveCount(6);
+  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
+  expect(await stage.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
+  const show=async(index:number)=>{
+    const step=steps.nth(index);
+    await expect(step).toHaveAttribute('id','workflow-step-'+(index+1));
+    await expect(step).toHaveAttribute('data-film-step',String(index));
+    await step.evaluate(el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+    await expect(workflow).toHaveAttribute('data-active-scene',String(index));
+    await expect(step.locator('h3')).toBeVisible();
+    const visual=stage.locator('[data-film-visual="'+index+'"]');
+    await expect.poll(()=>visual.evaluate(el=>Number(getComputedStyle(el).opacity))).toBeGreaterThan(.95);
+    const inactive=stage.locator('[data-film-visual="'+((index+1)%6)+'"]');
+    await expect.poll(()=>inactive.evaluate(el=>Number(getComputedStyle(el).opacity))).toBeLessThan(.05);
+    return (await stage.boundingBox())!.y;
+  };
+  await show(0);
+  const firstY=await show(1);
+  const secondY=await show(2);
+  expect(Math.abs(firstY-secondY)).toBeLessThan(8);
+  await show(3);
+  await page.evaluate(()=>document.fonts.ready);
+  await page.screenshot({path:testInfo.outputPath('desktop-workflow-scene.png')});
+  await show(4);
+  await show(5);
+  await show(3);
+  await show(1);
+  await show(0);
+  const before=await page.evaluate(()=>window.scrollY);
   await page.mouse.move(720,450);
-  await page.mouse.wheel(0,770);
-  await expect.poll(nearestChapter).toBe(1);
-  await expect.poll(()=>chapters.nth(1).evaluate((el, top)=>Math.abs(el.getBoundingClientRect().top-top),firstTop)).toBeLessThan(90);
-  await page.mouse.wheel(0,-770);
-  await expect.poll(nearestChapter).toBe(0);
-  await expect.poll(()=>chapters.first().evaluate((el, top)=>Math.abs(el.getBoundingClientRect().top-top),firstTop)).toBeLessThan(90);
-  await page.setViewportSize({width:390,height:844});
-  await expect.poll(snapType).toBe('none');
-  await page.goto('/ko/');
-  await expect(page.locator('#hero-title')).toBeVisible();
-  await chapters.last().scrollIntoViewIfNeeded();
-  await expect(chapters.last()).toBeVisible();
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.mouse.wheel(0,140);
+  await expect.poll(()=>page.evaluate(start=>window.scrollY-start,before),{intervals:[100,150,250]}).toBeGreaterThan(30);
+  await expect.poll(()=>page.evaluate(start=>window.scrollY-start,before)).toBeLessThan(250);
+});
+
+test('workflow preserves inline scenes on narrow viewports and reduced motion',async ({page})=>{
+  for(const [width,reducedMotion] of [[390,'no-preference'],[1440,'reduce']] as const){
+    await page.setViewportSize({width,height:900});
+    await page.emulateMedia({reducedMotion});
+    await page.goto('/ko/');
+    const workflow=page.locator('#workflow');
+    const steps=workflow.locator('.film-step');
+    await expect(steps).toHaveCount(6);
+    await expect(workflow).not.toHaveAttribute('data-film-ready','true');
+    await expect(workflow.locator('.film-inline:visible')).toHaveCount(6);
+    for(const step of await steps.all()){
+      await step.scrollIntoViewIfNeeded();
+      await expect(step.locator('h3')).toBeVisible();
+      await expect(step.locator('.film-inline')).toBeVisible();
+      expect(await step.locator('.film-inline').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+    }
+    expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  }
 });
 
 test('non-Kowrap project detail hero places real media next to the introduction on desktop', async ({page})=>{
@@ -355,7 +384,7 @@ test('project section navigation includes image and keyboard with independent pa
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/ko/');
-  const cards=page.locator('.project-sequence .project');
+  const cards=page.locator('.project-gallery .project');
   const published:Record<string,string>={kowrap:'@oddmash/kowrap','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
   for(const card of await cards.all()){
     const project=(await card.getAttribute('data-project'))!;
@@ -374,13 +403,13 @@ test('project section navigation includes image and keyboard with independent pa
       await expect(npm.locator('svg')).toBeVisible();
     }else await expect(npm).toHaveCount(0);
   }
-  const ui=page.locator('.project-sequence [data-project=oddmash-ui]');
+  const ui=page.locator('.project-gallery [data-project=oddmash-ui]');
   await ui.locator('a.project-destination').focus();
   await expect(ui.locator('a.project-destination')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/ko\/projects\/oddmash-ui\/$/);
   await page.goto('/ko/');
-  const inspector=page.locator('.project-sequence [data-project=interaction-inspector]');
+  const inspector=page.locator('.project-gallery [data-project=interaction-inspector]');
   const image=inspector.locator('.project-image');
   await image.scrollIntoViewIfNeeded();
   const box=(await image.boundingBox())!;
@@ -398,7 +427,7 @@ test('project icons have meaningful hover feedback and honour reduced motion',as
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/');
-  const npm=page.locator('.project-sequence [data-project=oddmash-ui] [data-platform=npm]');
+  const npm=page.locator('.project-gallery [data-project=oddmash-ui] [data-platform=npm]');
   await npm.scrollIntoViewIfNeeded();
   const color=()=>npm.evaluate(el=>getComputedStyle(el).color);
   await page.mouse.move(5,5);
@@ -407,10 +436,11 @@ test('project icons have meaningful hover feedback and honour reduced motion',as
     await npm.hover();
     await expect.poll(color).not.toBe(resting);
     await expect.poll(()=>npm.locator('svg').evaluate(el=>getComputedStyle(el).animationName)).not.toBe('none');
+    expect(await npm.locator('svg').evaluate(el=>getComputedStyle(el).animationIterationCount)).toBe('1');
     await page.mouse.move(5,5);
     await expect.poll(color).toBe(resting);
   }
-  await page.locator('.project-sequence [data-project=oddmash-ui] [data-platform=github]').focus();
+  await page.locator('.project-gallery [data-project=oddmash-ui] [data-platform=github]').focus();
   await page.keyboard.press('Tab');
   await expect(npm).toBeFocused();
   expect(await npm.evaluate(el=>getComputedStyle(el).outlineStyle)).not.toBe('none');
@@ -420,14 +450,43 @@ test('project icons have meaningful hover feedback and honour reduced motion',as
   expect(await npm.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
 });
 
-test('additional project index offers direct navigation without requiring scrolling through every chapter',async ({page})=>{
+test('homepage sections are navigable and every public product appears once',async ({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.setViewportSize({width:390,height:844});
   await page.goto('/ko/');
-  const index=page.locator('#project-index');
-  await index.scrollIntoViewIfNeeded();
-  await expect(index.locator('h2')).toBeVisible();
-  const boundra=index.locator('a[href="/ko/projects/boundra/"]').first();
+  await expect(page.locator('#project-index')).toHaveCount(0);
+  const work=page.locator('#work');
+  const method=page.locator('#method');
+  const agents=page.locator('#agents');
+  const workflow=page.locator('#workflow');
+  for(const section of [work,method,agents,workflow]){
+    await expect(section.locator('h2')).toBeVisible();
+  }
+  await expect(work.locator('.project-gallery .project')).toHaveCount(4);
+  await expect(work.locator('.project-arrow')).toHaveCount(0);
+  for(const project of ['kowrap','oddmash-ui','interaction-inspector','boundra']){
+    await expect(page.locator('main a[href="/ko/projects/'+project+'/"]')).toHaveCount(1);
+  }
+  await expect(method.locator('.method-item')).toHaveCount(4);
+  await expect(agents.locator('.agent-profile')).toHaveCount(7);
+  for(const profile of await agents.locator('.agent-profile').all()){
+    await expect(profile.locator('h3')).toBeVisible();
+    const badge=profile.locator('img');
+    await expect(badge).toHaveAttribute('src',/^\/(?!\/).*\.svg$/);
+    await badge.scrollIntoViewIfNeeded();
+    await expect.poll(()=>badge.evaluate((el:HTMLImageElement)=>el.complete&&el.naturalWidth>0)).toBe(true);
+  }
+  await expect(workflow.locator('.film-step')).toHaveCount(6);
+  for(const fragment of ['method','contribute']){
+    await page.locator('header nav a[href$="#'+fragment+'"]').click();
+    await expect(page).toHaveURL(new RegExp('/ko/#'+fragment+'$'));
+  }
+  await page.locator('header nav a[href="/ko/projects/"]').click();
+  await expect(page).toHaveURL(/\/ko\/projects\/$/);
+  await expect(page.locator('.catalog-entry')).toHaveCount(4);
+  await expect(page.locator('#workflow')).toHaveCount(0);
+  await page.goto('/ko/');
+  const boundra=work.locator('a[href="/ko/projects/boundra/"]');
   await expect(boundra).toHaveAccessibleName(/Boundra/i);
   await boundra.click();
   await expect(page).toHaveURL(/\/ko\/projects\/boundra\/$/);
@@ -450,8 +509,8 @@ test('detail media and related project rows retain separate navigation and platf
   await imageLink.click();
   await expect(page).toHaveURL(live);
   await page.goto('/ja/studio/');
-  await expect(page.locator('.about-projects [data-platform=github]')).toHaveCount(4);
-  await expect(page.locator('.about-projects [data-platform=npm]')).toHaveCount(3);
+  await expect(page.locator('.about-projects')).toHaveCount(0);
+  await expect(page.locator('.principle-list h3')).toHaveCount(3);
   await expect(page.locator('main a a, main a button')).toHaveCount(0);
 });
 
@@ -497,5 +556,15 @@ test('Oddmash UI documentation artwork is displayed completely in both themes an
         expect(fit.insideFrame).toBe(true);
       }
     }
+  }
+});
+
+
+test('localized Juliya links follow upstream language routes',async ({page})=>{
+  for(const [prefix,suffix] of [['','en/'],['ko/',''],['ja/','ja/'],['zh-cn/','zh/']] as const){
+    await page.goto('/'+prefix+'projects/kowrap/');
+    const live='https://oddmash.github.io/kowrap/'+suffix;
+    await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
+    await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
   }
 });

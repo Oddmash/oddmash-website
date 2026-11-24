@@ -1,0 +1,33 @@
+---
+import type { Locale } from '../content';
+import { agents, labCopy, scenes } from '../lab-content';
+
+interface Props { locale: Locale; index: number }
+const { locale, index } = Astro.props;
+const c = labCopy[locale];
+const scene = scenes[index];
+const step = c.steps[index];
+const left = agents.find(agent => agent.id === scene.left);
+const right = agents.find(agent => agent.id === scene.right);
+const leftName = left?.name ?? (index === 5 ? c.checks : c.developer);
+const rightName = right?.name ?? (index === 2 ? c.checks : c.maintainer);
+---
+<div class="scene-art" data-stage={scene.id} style={`--scene-light: color-mix(in srgb, ${scene.color} 13%, #121212)`}>
+  <div class="scene-caption"><span>{c.exampleLabel}</span><span>{String(index + 1).padStart(2, '0')} / {scenes.length}</span></div>
+  <div class="scene-track">
+    <div class="scene-node">
+      {left ? <img class="scene-person" src={`/assets/agents/${left.id}.svg`} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 5 ? '✓' : '⌘'}</span>}
+      <span>{leftName}</span>
+    </div>
+    <div class="scene-node scene-artifact">
+      <span class="artifact-glyph">{scene.glyph}</span>
+      <strong class="artifact-title">{step.artifact}</strong>
+      <span class="artifact-lines"><span></span><span></span><span></span></span>
+    </div>
+    <div class="scene-node">
+      {right ? <img class="scene-person" src={`/assets/agents/${right.id}.svg`} width="64" height="64" alt="" /> : <span class="scene-symbol" aria-hidden="true">{index === 2 ? '✓' : '○'}</span>}
+      <span>{rightName}</span>
+    </div>
+  </div>
+  <div class="scene-signal"><span aria-hidden="true"></span>{step.signal}</div>
+</div>
