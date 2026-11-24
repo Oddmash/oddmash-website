@@ -24,7 +24,7 @@ const description=details?.description ?? (path==='privacy' ? t.privacyText[0] :
   </section>
   <section class="section" id="work" aria-labelledby="work-title">
     <div class="section-title"><div><p class="eyebrow">{t.nav[0]}</p><h2 id="work-title">{t.work}</h2></div><p>{t.workIntro}</p></div>
-    <div class="filters" id="filters" hidden role="group" aria-label={l.filters}>{['all','tools','web'].map((key,i)=><button type="button" data-filter={key} aria-pressed={i===0?'true':'false'}>{t.filters[i]}</button>)}</div>
+    <div class="filters" id="filters" hidden role="group" aria-label={l.filters}>{['all','tools','web'].map((key,i)=>(key==='all'||projects.some(p=>p.category===key))&&<button type="button" data-filter={key} aria-pressed={i===0?'true':'false'}>{t.filters[i]}</button>)}</div>
     <p id="filter-status" class="sr" role="status" data-label={l.count} data-one={l.one}></p>
     <div class="projects">{projects.map(project=><ProjectCard locale={locale} project={project} />)}</div>
   </section>

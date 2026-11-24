@@ -3,20 +3,21 @@ test('filter, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
   await expect(page).toHaveURL(/\/ko\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang','ko');
-  await page.getByRole('button',{name:'웹 서비스'}).click();
-  await expect(page.locator('.project:visible')).toHaveCount(1);
-  await expect(page.locator('#filter-status')).toHaveText('프로젝트 1개 표시');
-  await page.getByRole('link',{name:'Vertactics 프로젝트 상세',exact:true}).click();
-  await expect(page).toHaveURL(/\/ko\/projects\/vertactics\//);
+  await expect(page.getByRole('button',{name:'웹 서비스'})).toHaveCount(0);
+  await page.getByRole('button',{name:'개발 도구'}).click();
+  await expect(page.locator('.project:visible')).toHaveCount(4);
+  await expect(page.locator('#filter-status')).toHaveText('프로젝트 4개 표시');
+  await page.getByRole('link',{name:'Kowrap 프로젝트 상세',exact:true}).click();
+  await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
   await page.getByRole('link',{name:'日本語'}).click();
-  await expect(page).toHaveURL(/\/ja\/projects\/vertactics\//);
+  await expect(page).toHaveURL(/\/ja\/projects\/kowrap\//);
   await expect(page.locator('html')).toHaveAttribute('lang','ja');
 });
 test('all localized pages reflow, load images and retain keyboard focus', async ({page})=>{
   test.setTimeout(120_000);
   await page.setViewportSize({width:320,height:740});
   const prefixes=['','ko/','ja/','zh-cn/'];
-  const paths=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/vertactics/','projects/boundra/'];
+  const paths=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
   const unexpected:string[]=[];
   page.on('pageerror',error=>unexpected.push(error.message));
   page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4322/')&&!request.url().startsWith('data:'))unexpected.push('Unexpected external request');});
@@ -79,7 +80,7 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await page.getByRole('link',{name:'한국어'}).click();
     await expect(page).toHaveURL(/\/ko\/privacy\/$/);
     await page.goto('http://127.0.0.1:4322/ko/');
-    await expect(page.locator('.project:visible')).toHaveCount(5);
+    await expect(page.locator('.project:visible')).toHaveCount(4);
     await expect(page.locator('#filters')).toBeHidden();
     await expect(page.locator('#share')).toBeHidden();
     await page.getByRole('link',{name:'Kowrap 프로젝트 상세'}).click();
