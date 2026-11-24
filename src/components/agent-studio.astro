@@ -66,7 +66,7 @@ for (const stage of document.querySelectorAll<HTMLElement>('[data-agent-stage]')
   const play = stage.querySelector<HTMLButtonElement>('[data-agent-play]');
   const grid = stage.querySelector<HTMLElement>('.agent-grid');
   if(grid) grid.hidden = false;
-  if(play) play.hidden = false;
+  if(play) play.hidden = motion.matches;
   const controller = new AbortController();
   const options = { signal: controller.signal };
   let selected = 0;
@@ -84,7 +84,7 @@ for (const stage of document.querySelectorAll<HTMLElement>('[data-agent-stage]')
   buttons.forEach((button,i)=>button.addEventListener('click',()=>{stop();select(i);}));
   play?.addEventListener('click',()=>{
     if(timer!==undefined){stop();return;}
-    if(motion.matches){select((selected+1)%buttons.length);return;}
+    if(motion.matches)return;
     select(0);
     play.textContent=play.dataset.pause ?? '';
     play.setAttribute('aria-pressed','true');
@@ -103,7 +103,7 @@ for (const stage of document.querySelectorAll<HTMLElement>('[data-agent-stage]')
     });
   });
   stage.addEventListener('pointerleave',reset);
-  motion.addEventListener('change',()=>{reset();if(motion.matches)stop();},options);
+  motion.addEventListener('change',()=>{reset();if(motion.matches)stop();if(play)play.hidden=motion.matches;},options);
   window.addEventListener('pagehide',stop,options);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();},options);
   const observer = new MutationObserver(()=>{if(!stage.isConnected)cleanup();});
