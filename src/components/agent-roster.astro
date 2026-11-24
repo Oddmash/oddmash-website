@@ -1,0 +1,38 @@
+---
+import { url, type Locale } from '../content';
+import { agentDocsCopy, agentRoles } from '../agent-content';
+import { labCopy } from '../lab-content';
+import AgentCharacter from './agent-character.astro';
+import '../styles/agent-roster.scss';
+
+interface Props {
+  locale: Locale;
+  compact?: boolean;
+}
+
+const { locale, compact = true } = Astro.props;
+const t = agentDocsCopy[locale];
+const lab = labCopy[locale];
+---
+
+<section class:list={['section', 'agent-section', { 'agent-section-compact': compact }]} id="agents" aria-labelledby="agents-title">
+  <div class="section-title agent-section-heading">
+    <h2 id="agents-title">{compact ? t.rosterTitle : t.rolesTitle}</h2>
+    {compact && <p>{t.rosterLead}</p>}
+  </div>
+  <ul class="agent-roster">
+    {agentRoles.map(role => (
+      <li class="agent-profile">
+        <a href={url(locale, 'agents/' + role.id)} class="agent-profile-link" style={`--agent-accent:${role.color}`}>
+          <AgentCharacter id={role.id} color={role.color} />
+          <div class="agent-caption">
+            <h3>{role.name}</h3>
+            <span class="agent-mode">{role.id === 'lead' ? lab.reviewMode : role.id === 'triage' ? lab.issueMode : lab.advisoryMode}</span>
+            {!compact && <p>{lab.agentDescriptions[role.id]}</p>}
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+  {compact && <a class="button secondary agent-roster-cta" href={url(locale, 'agents')}>{t.explore}<span aria-hidden="true">→</span></a>}
+</section>

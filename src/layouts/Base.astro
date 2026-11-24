@@ -3,6 +3,7 @@ import '../styles/site.scss';
 import '../styles/language-select.scss';
 import { copy, labels, locales, languageNames, url, type Locale } from '../content';
 import { absolute, indexable } from '../site';
+import { agentDocsCopy } from '../agent-content';
 import { labCopy } from '../lab-content';
 interface Props { locale:Locale; path:string; title:string; description:string; image?:string; imageAlt?:string; noIndex?:boolean }
 const {locale,path,title,description,image='/assets/social.png',imageAlt,noIndex=false} = Astro.props;
@@ -38,7 +39,7 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <a class="skip" href="#main">{t.skip}</a>
 <header class="shell header">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
-  <nav aria-label={l.navigation}><a href={url(locale,'projects')} aria-current={path==='projects'?'page':undefined}>{t.nav[0]}</a><a href={home+'#method'}>{lab.methodNav}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
+  <nav aria-label={l.navigation}><a href={url(locale,'projects')} aria-current={path==='projects'?'page':undefined}>{t.nav[0]}</a><a href={home+'#method'}>{lab.methodNav}</a><a href={url(locale,'agents')} aria-current={path==='agents'||path.startsWith('agents/')?'page':undefined}>{agentDocsCopy[locale].nav}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
   <div class="language-select" data-om-theme="dark" hidden></div>
   <nav class="language-fallback" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
 </header>
@@ -109,35 +110,109 @@ if (share && status) {
   });
 }
 </script>
+<style is:global>
+  html[lang="en"] main,
+  html[lang="ja"] main,
+  html[lang="zh-CN"] main {
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+  html[lang="ja"] main,
+  html[lang="zh-CN"] main {
+    line-break: strict;
+  }
+</style>
 <script>
 import { mountKowrap } from '@oddmash/kowrap/browser';
+
+const root = document.querySelector<HTMLElement>('main');
+const eligible = 'h1, h2, h3, h4, h5, h6, p, li, figcaption, dt, dd, blockquote';
+const inlineTags = new Set([
+  'A', 'ABBR', 'B', 'BDI', 'BDO', 'BR', 'CITE', 'CODE', 'DEL', 'EM', 'I',
+  'INS', 'KBD', 'MARK', 'Q', 'S', 'SAMP', 'SMALL', 'SPAN', 'STRONG',
+  'SUB', 'SUP', 'TIME', 'U', 'VAR', 'WBR',
+]);
+const excluded = '.demo-pair, [hidden], [aria-hidden="true"], [role="status"], [aria-live]:not([aria-live="off"]), [contenteditable], [data-no-wrap], .sr';
 const controllers = new Map<HTMLElement, ReturnType<typeof mountKowrap>>();
-const start = () => {
-  if(document.documentElement.lang !== 'ko') return;
-  for(const element of document.querySelectorAll<HTMLElement>('main h1, main h2, main h3, main p, main li, main figcaption')) {
-    if(element.closest('.demo-pair, [hidden], [role="status"]') || element.classList.contains('sr') || element.childElementCount || controllers.has(element)) continue;
-    const text = element.textContent?.trim() ?? '';
-    if(!/[가-힣]/.test(text)) continue;
+let observer: MutationObserver | undefined;
+let frame: number | undefined;
+
+const isEligible = (element: HTMLElement) => {
+  const language = element.closest('[lang]')?.getAttribute('lang')?.toLowerCase();
+  if (language !== 'ko' || element.closest(excluded)) return false;
+  if (!/[가-힣]/.test(element.textContent ?? '')) return false;
+  return [...element.querySelectorAll<HTMLElement>('*')].every(child =>
+    inlineTags.has(child.tagName) &&
+    !child.matches(excluded) &&
+    (!child.hasAttribute('lang') || child.lang.toLowerCase() === 'ko') &&
+    (child.tagName === 'BR' || child.tagName === 'WBR' || getComputedStyle(child).display === 'inline')
+  );
+};
+
+const unmount = (element: HTMLElement, controller: ReturnType<typeof mountKowrap>) => {
+  controller.destroy();
+  element.removeAttribute('data-kowrap-applied');
+  controllers.delete(element);
+};
+
+const sync = () => {
+  if (!root) return;
+  for (const [element, controller] of controllers) {
+    if (!element.isConnected || element.closest(excluded)) unmount(element, controller);
+  }
+  for (const element of root.querySelectorAll<HTMLElement>(eligible)) {
+    if (controllers.has(element) || !isEligible(element)) continue;
+    const original = {
+      whiteSpace: element.style.whiteSpace,
+      wordBreak: element.style.wordBreak,
+      overflowWrap: element.style.overflowWrap,
+    };
     try {
-      const controller = mountKowrap(element, {text});
+      const controller = mountKowrap(element, {
+        inline: true,
+        breakLongWords: false,
+      });
       controllers.set(element, controller);
+      element.style.overflowWrap = 'anywhere';
       element.dataset.kowrapApplied = 'true';
     } catch {
-      element.textContent = text;
+      Object.assign(element.style, original);
       element.removeAttribute('data-kowrap-applied');
     }
   }
 };
-const stop = () => {
-  for(const [element, controller] of controllers) {
-    controller.destroy();
-    element.removeAttribute('data-kowrap-applied');
-  }
-  controllers.clear();
+
+const queueSync = () => {
+  if (frame !== undefined) return;
+  frame = requestAnimationFrame(() => {
+    frame = undefined;
+    sync();
+  });
 };
+
+const start = () => {
+  if (!root || observer) return;
+  sync();
+  observer = new MutationObserver(queueSync);
+  observer.observe(root, {
+    attributes: true,
+    attributeFilter: ['hidden', 'aria-hidden'],
+    subtree: true,
+  });
+};
+
+const stop = () => {
+  observer?.disconnect();
+  observer = undefined;
+  if (frame !== undefined) cancelAnimationFrame(frame);
+  frame = undefined;
+  for (const [element, controller] of controllers) unmount(element, controller);
+};
+
 window.addEventListener('pagehide', stop);
-window.addEventListener('pageshow', event => { if(event.persisted) start(); });
+window.addEventListener('pageshow', event => { if (event.persisted) start(); });
 start();
 </script>
+
 </body>
 </html>

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 const prefixes=['','ko/','ja/','zh-cn/'];
 const langs=['en','ko','ja','zh-CN'];
-const pages=['','projects/','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+const pages=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
 test('all locale paths contain static copy, correct metadata and local assets',()=>{
   for(const [i,prefix] of prefixes.entries()) for(const path of pages){
     const html=readFileSync('build/'+prefix+path+'index.html','utf8');
@@ -41,7 +41,7 @@ test('excluded project has no public pages or image',()=>{
 test('the public workflow contains only local agent artwork and no private repository links',()=>{
   for(const prefix of prefixes){
     const html=readFileSync('build/'+prefix+'index.html','utf8');
-    assert.doesNotMatch(html,/github\.com\/Oddmash\/oddmash-(agents|skills)(?:[\/"?#]|$)/i);
+    assert.doesNotMatch(html,/github\.com\/Oddmash\/oddmash-(agents|skills)\/[^" ]*(?:\.env|secret|credential)/i);
     assert.doesNotMatch(html,/id="project-index"/);
     assert.equal([...html.matchAll(/data-film-step="[0-5]"/g)].length,6);
     for(const agent of ['lead','impact','triage','qa','docs','architect','release']){
@@ -61,5 +61,30 @@ test('the standalone localized catalog contains all projects without workflow du
     assert.doesNotMatch(catalog,/id="workflow"/);
     const home=readFileSync('build/'+prefix+'index.html','utf8');
     assert.ok(home.includes(`href="/${prefix}projects/"`));
+  }
+});
+
+
+test('all localized agent documentation pages are linked without private implementation links',()=>{
+  for(const prefix of prefixes){
+    const home=readFileSync('build/'+prefix+'index.html','utf8');
+    assert.ok(home.includes('href="/'+prefix+'agents/"'));
+    const overview=readFileSync('build/'+prefix+'agents/index.html','utf8');
+    for(const role of ['lead','impact','triage','qa','docs','architect','release']){
+      assert.ok(overview.includes('href="/'+prefix+'agents/'+role+'/"'));
+      const detail=readFileSync('build/'+prefix+'agents/'+role+'/index.html','utf8');
+      assert.doesNotMatch(detail,/github\.com\/Oddmash\/oddmash-(agents|skills)\/[^" ]*(?:\.env|secret|credential)/i);
+    }
+  }
+});
+
+
+test('public workflow resources are discoverable from each locale',()=>{
+  for(const prefix of prefixes){
+    const home=readFileSync('build/'+prefix+'index.html','utf8');
+    const catalog=readFileSync('build/'+prefix+'projects/index.html','utf8');
+    assert.ok(home.includes('https://github.com/Oddmash/oddmash-skills'));
+    assert.ok(catalog.includes('https://github.com/Oddmash/oddmash-skills'));
+    assert.ok(catalog.includes('https://github.com/Oddmash/oddmash-agents'));
   }
 });
