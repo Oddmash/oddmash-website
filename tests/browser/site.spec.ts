@@ -676,3 +676,18 @@ test('skill copy and install affordances provide actionable content',async ({pag
   await page.locator('[data-copy="commands"]').click();
   await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/oddmash-accessibility\/SKILL\.md/);
 });
+
+
+test('skill flow heading is centered and the development map is discoverable',async ({page})=>{
+  for(const width of [1280,320]){
+    await page.setViewportSize({width,height:720});
+    await page.goto('/ko/skills/');
+    const section=await page.locator('.skill-flow-section').boundingBox();
+    const heading=await page.locator('#skill-flow-title').boundingBox();
+    const controls=await page.locator('[data-skill-flow-controls]').boundingBox();
+    expect(Math.abs(section!.x+section!.width/2-heading!.x-heading!.width/2)).toBeLessThan(3);
+    expect(heading!.width).toBeGreaterThan(Math.min(section!.width*.8,700));
+    if(width===1280) expect(controls!.y).toBeLessThan(620);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  }
+});

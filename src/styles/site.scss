@@ -610,8 +610,11 @@ html[lang=ko] .film-step-copy h3 { max-width: 100%; }
 @media(max-width:760px){.skill-grid{grid-template-columns:minmax(0,1fr);}}
 @media(min-width:481px) and (max-width:650px){.header nav:not(.language-fallback){grid-template-columns:repeat(3,minmax(0,1fr));}}
 
-.skill-flow-section{max-width:1120px;margin-inline:auto}
-.skill-flow-section>.section-title{display:grid;place-items:center;text-align:center;gap:12px}
+.skill-doc:not(article)>.detail-head{padding-block:clamp(32px,4vw,48px)}
+.skill-flow-section{max-width:1120px;margin-inline:auto;padding-block:clamp(24px,3vw,40px)}
+.skill-flow-section>.section-title{display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;justify-items:center;text-align:center;gap:12px;margin-bottom:20px}
+.skill-flow-section>.section-title h2{width:100%;max-width:48rem;font-size:clamp(1.8rem,3vw,2.5rem);line-height:1.2}
+.skill-flow-section>.section-title p{width:100%;max-width:42rem}
 .skill-flow-controls{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin:28px 0}
 .skill-flow-controls[hidden],.skill-flow-panel[hidden],.skill-copy-source[hidden]{display:none}
 .skill-flow-controls button{position:relative;min-width:0;min-height:90px;display:grid;place-items:center;gap:7px;padding:12px 5px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--muted);text-align:center}
