@@ -138,3 +138,40 @@ test('Kowrap demo pauses and resumes across cached page transitions', async ({pa
     await expect(output).toHaveText((await range.inputValue())+' px');
   }
 });
+
+
+test('studio roles remain keyboard accessible and playback stops when detached', async ({page})=>{
+  await page.goto('/ko/');
+  const stage=page.locator('[data-agent-stage]');
+  const roles=stage.locator('[data-agent-index]');
+  await expect(roles).toHaveCount(7);
+  await expect(roles.first()).toHaveText('Lead');
+  await roles.nth(2).focus();
+  await page.keyboard.press('Enter');
+  await expect(roles.nth(2)).toHaveAttribute('aria-pressed','true');
+  await expect(stage.locator('[data-agent-output]:visible')).toHaveCount(1);
+  await expect(stage.locator('[data-agent-output]:visible')).toContainText('Triage');
+  const play=stage.locator('[data-agent-play]');
+  await play.click();
+  await expect(play).toHaveAttribute('aria-pressed','true');
+  await page.evaluate(()=>{
+    const stage=document.querySelector('[data-agent-stage]')!;
+    document.body.dataset.detachedStage='pending';
+    const play=stage.querySelector('[data-agent-play]')!;
+    const observer=new MutationObserver(()=>{
+      if(play.getAttribute('aria-pressed')==='false'){
+        document.body.dataset.detachedStage='stopped';
+        observer.disconnect();
+      }
+    });
+    observer.observe(play,{attributes:true});
+    stage.remove();
+  });
+  await expect(page.locator('body')).toHaveAttribute('data-detached-stage','stopped');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.reload();
+  await expect(roles).toHaveCount(7);
+  await expect(play).toBeHidden();
+  await roles.last().click();
+  await expect(roles.last()).toHaveAttribute('aria-pressed','true');
+});
