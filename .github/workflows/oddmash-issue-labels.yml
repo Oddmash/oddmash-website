@@ -1,0 +1,14 @@
+name: Oddmash issue label catalog
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - '.github/workflows/oddmash-issue-labels.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * 1'
+permissions:
+  issues: write
+jobs:
+  sync:
+    uses: Oddmash/.github/.github/workflows/oddmash-issue-labels.yml@cc563ade87c6bc6616635f725b5c1821852dd979
