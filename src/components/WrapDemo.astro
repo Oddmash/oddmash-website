@@ -36,16 +36,37 @@ if (range && pair && value && title && control && fallback && status) {
     range.max = String(max);
   };
   const update = () => { pair.style.setProperty('--sample-width', range.value+'px'); value.value = range.value+' px'; };
-  try {
-    updateLimit();
-    update();
-    const controller = mountKowrap(title, {text:title.textContent ?? ''});
-    control.hidden = false;
-    fallback.hidden = true;
-    range.addEventListener('input', update);
-    const observer = new ResizeObserver(() => { updateLimit(); update(); });
-    for (const panel of pair.children) observer.observe(panel);
-    window.addEventListener('pagehide', event => { if (!event.persisted) { observer.disconnect(); controller.destroy(); } }, {once:true});
-  } catch { pair.hidden = true; control.hidden = true; fallback.hidden = true; status.textContent = status.dataset.failure ?? ''; }
+  const text = title.textContent ?? '';
+  let cleanup: (() => void) | undefined;
+  const start = () => {
+    if (cleanup) return;
+    try {
+      pair.hidden = false;
+      updateLimit();
+      update();
+      const observer = new ResizeObserver(() => { updateLimit(); update(); });
+      const controller = mountKowrap(title, {text});
+      cleanup = () => {
+        observer.disconnect();
+        range.removeEventListener('input', update);
+        controller.destroy();
+        cleanup = undefined;
+      };
+      for (const panel of pair.children) observer.observe(panel);
+      range.addEventListener('input', update);
+      control.hidden = false;
+      fallback.hidden = true;
+      status.textContent = '';
+    } catch {
+      cleanup?.();
+      pair.hidden = true;
+      control.hidden = true;
+      fallback.hidden = true;
+      status.textContent = status.dataset.failure ?? '';
+    }
+  };
+  window.addEventListener('pagehide', () => cleanup?.());
+  window.addEventListener('pageshow', event => { if (event.persisted) start(); });
+  start();
 }
 </script>
