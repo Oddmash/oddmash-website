@@ -138,3 +138,30 @@ test('Kowrap demo pauses and resumes across cached page transitions', async ({pa
     await expect(output).toHaveText((await range.inputValue())+' px');
   }
 });
+
+test('agent studio supports pointer, keyboard and reduced motion', async ({page})=>{
+  await page.goto('/ko/');
+  const stage=page.locator('[data-agent-stage]');
+  const roles=stage.locator('[data-agent-index]');
+  await expect(roles).toHaveCount(7);
+  await expect(roles.first()).toHaveAttribute('aria-pressed','true');
+  const qa=stage.getByRole('button',{name:'QA',exact:true});
+  await qa.focus();
+  await qa.press('Enter');
+  await expect(qa).toBeFocused();
+  await expect(qa).toHaveAttribute('aria-pressed','true');
+  await expect(stage.locator('[data-agent-output]:visible')).toHaveCount(1);
+  await expect(stage.locator('[data-agent-output]:visible')).toContainText('테스트 범위 점검');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await stage.hover();
+  await expect.poll(()=>qa.evaluate(el=>el.style.getPropertyValue('--gaze-x'))).not.toBe('');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect.poll(()=>qa.locator('.agent-gaze').evaluate(el=>getComputedStyle(el).transform)).toBe('none');
+  await qa.press('Enter');
+  await expect(qa).toHaveAttribute('aria-pressed','true');
+  await stage.getByRole('button',{name:'작업 흐름 재생'}).click();
+  await expect(stage.getByRole('button',{name:'작업 흐름 일시 정지'})).toHaveAttribute('aria-pressed','true');
+  await qa.click();
+  await expect(stage.getByRole('button',{name:'작업 흐름 재생'})).toHaveAttribute('aria-pressed','false');
+  await expect(qa).toHaveAttribute('aria-pressed','true');
+});
