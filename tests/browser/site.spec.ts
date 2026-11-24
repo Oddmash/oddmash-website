@@ -192,7 +192,7 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   expect(animation.iterations).toBe('1, 2');
   const chapter=page.locator('.project-sequence .project-image').first();
   await chapter.scrollIntoViewIfNeeded();
-  await expect(chapter).toHaveAttribute('data-scene-entered','true');
+  await expect(chapter.locator('picture')).toBeVisible();
   await expect(page.locator('.project-sequence .project')).toHaveCount(4);
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.reload();
@@ -200,19 +200,20 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   expect(await image.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
   expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType)).toBe('none');
   await chapter.scrollIntoViewIfNeeded();
-  await expect(chapter).not.toHaveAttribute('data-scene-entered','true');
   expect(await chapter.locator('picture').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollBehavior)).toBe('auto');
   await page.getByRole('link',{name:'Kowrap Project details',exact:true}).focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/projects\/kowrap\//);
 });
 
 
-test('native language selector preserves localized route identity', async ({page})=>{
+test('Oddmash UI language selector preserves localized route identity', async ({page})=>{
   for(const original of ['/','/studio/','/projects/boundra/','/privacy/']){
     await page.goto(original);
     const select=page.locator('#language-select');
     await expect(select).toBeVisible();
+    await expect(select).toHaveClass(/(?:^|\s)om-select(?:\s|$)/);
     await expect(select).toHaveAccessibleName(/\S/);
     await expect(select).toHaveValue('en');
     expect(await select.locator('option').evaluateAll(options=>options.map(option=>(option as HTMLOptionElement).value))).toEqual(['en','ko','ja','zh-CN']);
@@ -225,6 +226,10 @@ test('native language selector preserves localized route identity', async ({page
       await expect(select).toHaveValue(locale);
     }
   }
+  await page.goto('/ko/#work');
+  await page.locator('#language-select').selectOption('ja');
+  await expect(page).toHaveURL('http://127.0.0.1:4322/ja/#work');
+  await expect(page.locator('#language-select')).toHaveValue('ja');
 });
 
 test('desktop home chapters snap one at a time while narrow layouts scroll naturally', async ({page})=>{
@@ -235,6 +240,7 @@ test('desktop home chapters snap one at a time while narrow layouts scroll natur
   await expect(chapters).toHaveCount(4);
   const snapType=()=>page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollSnapType);
   await expect.poll(snapType).toMatch(/y (mandatory|proximity)/);
+  expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollBehavior)).toBe('smooth');
   const geometry=await chapters.evaluateAll(nodes=>nodes.map(el=>({
     height:el.getBoundingClientRect().height,
     align:getComputedStyle(el).scrollSnapAlign
@@ -255,6 +261,9 @@ test('desktop home chapters snap one at a time while narrow layouts scroll natur
   await page.mouse.wheel(0,770);
   await expect.poll(nearestChapter).toBe(1);
   await expect.poll(()=>chapters.nth(1).evaluate((el, top)=>Math.abs(el.getBoundingClientRect().top-top),firstTop)).toBeLessThan(90);
+  await page.mouse.wheel(0,-770);
+  await expect.poll(nearestChapter).toBe(0);
+  await expect.poll(()=>chapters.first().evaluate((el, top)=>Math.abs(el.getBoundingClientRect().top-top),firstTop)).toBeLessThan(90);
   await page.setViewportSize({width:390,height:844});
   await expect.poll(snapType).toBe('none');
   await page.goto('/ko/');
@@ -296,9 +305,158 @@ test('public project documentation targets match the selected language',async ({
   const locales=[['','README.md','user-guide.md'],['ko/','docs/ko/README.md','user-guide.ko.md'],['ja/','docs/ja/README.md','user-guide.ja.md'],['zh-cn/','docs/zh-CN/README.md','user-guide.zh-cn.md']];
   for(const [prefix,readme,guide] of locales){
     await page.goto('/'+prefix+'projects/oddmash-ui/');
-    await expect(page.locator('.detail-hero .primary')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
+    await expect(page.locator('.detail-hero [data-platform=github]')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
     await page.goto('/'+prefix+'projects/boundra/');
     await expect(page.locator('.detail-hero .secondary')).toHaveAttribute('href','https://github.com/Oddmash/boundra/blob/main/docs/'+guide);
     await expect(page.locator('.detail-grid .lead')).toContainText('pnpm exec boundra');
+  }
+});
+
+test('project section navigation includes image and keyboard with independent package and repository links',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/ko/');
+  const cards=page.locator('.project-sequence .project');
+  const published:Record<string,string>={kowrap:'@oddmash/kowrap','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
+  for(const card of await cards.all()){
+    const project=(await card.getAttribute('data-project'))!;
+    const destination=card.locator('a.project-destination');
+    const github=card.locator('a[data-platform=github]');
+    const npm=card.locator('a[data-platform=npm]');
+    await expect(destination).toHaveAttribute('href','/ko/projects/'+project+'/');
+    await expect(destination).toHaveAccessibleName(/\S/);
+    await expect(github).toHaveAccessibleName(/GitHub/i);
+    await expect(github).toHaveAttribute('href',new RegExp('^https://github\\.com/Oddmash/'+project+'(?:/|$)'));
+    await expect(github.locator('svg')).toBeVisible();
+    await expect(card.locator('a a, a button')).toHaveCount(0);
+    if(published[project]){
+      await expect(npm).toHaveAccessibleName(/npm/i);
+      await expect(npm).toHaveAttribute('href','https://www.npmjs.com/package/'+published[project]);
+      await expect(npm.locator('svg')).toBeVisible();
+    }else await expect(npm).toHaveCount(0);
+  }
+  const ui=page.locator('.project-sequence [data-project=oddmash-ui]');
+  await ui.locator('a.project-destination').focus();
+  await expect(ui.locator('a.project-destination')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/ko\/projects\/oddmash-ui\/$/);
+  await page.goto('/ko/');
+  const inspector=page.locator('.project-sequence [data-project=interaction-inspector]');
+  const image=inspector.locator('.project-image');
+  await image.scrollIntoViewIfNeeded();
+  const box=(await image.boundingBox())!;
+  await page.mouse.click(box.x+box.width/2,box.y+box.height/2);
+  await expect(page).toHaveURL(/\/ko\/projects\/interaction-inspector\/$/);
+  await page.goto('/ko/');
+  const npm=ui.locator('a[data-platform=npm]');
+  const npmHref=(await npm.getAttribute('href'))!;
+  await page.route(npmHref,route=>route.fulfill({contentType:'text/html',body:'<title>npm package</title>'}));
+  await npm.click();
+  await expect(page).toHaveURL(npmHref);
+});
+
+test('project icons have meaningful hover feedback and honour reduced motion',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/');
+  const npm=page.locator('.project-sequence [data-project=oddmash-ui] [data-platform=npm]');
+  await npm.scrollIntoViewIfNeeded();
+  const color=()=>npm.evaluate(el=>getComputedStyle(el).color);
+  await page.mouse.move(5,5);
+  const resting=await color();
+  if(await page.evaluate(()=>matchMedia('(hover: hover) and (pointer: fine)').matches)){
+    await npm.hover();
+    await expect.poll(color).not.toBe(resting);
+    await expect.poll(()=>npm.locator('svg').evaluate(el=>getComputedStyle(el).animationName)).not.toBe('none');
+    await page.mouse.move(5,5);
+    await expect.poll(color).toBe(resting);
+  }
+  await page.locator('.project-sequence [data-project=oddmash-ui] [data-platform=github]').focus();
+  await page.keyboard.press('Tab');
+  await expect(npm).toBeFocused();
+  expect(await npm.evaluate(el=>getComputedStyle(el).outlineStyle)).not.toBe('none');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await npm.hover();
+  expect(await npm.locator('svg').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+  expect(await npm.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+});
+
+test('additional project index offers direct navigation without requiring scrolling through every chapter',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/ko/');
+  const index=page.locator('#project-index');
+  await index.scrollIntoViewIfNeeded();
+  await expect(index.locator('h2')).toBeVisible();
+  const boundra=index.locator('a[href="/ko/projects/boundra/"]').first();
+  await expect(boundra).toHaveAccessibleName(/Boundra/i);
+  await boundra.click();
+  await expect(page).toHaveURL(/\/ko\/projects\/boundra\/$/);
+});
+
+test('detail media and related project rows retain separate navigation and platform links',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/ja/projects/oddmash-ui/');
+  const detail=page.locator('.detail-hero');
+  const imageLink=detail.locator('.detail-image-link');
+  const live='https://oddmash.github.io/oddmash-ui/';
+  await expect(imageLink).toHaveAttribute('href',live);
+  await expect(imageLink).toHaveAccessibleName(/\S/);
+  await expect(detail.locator('[data-platform=npm]')).toHaveAttribute('href','https://www.npmjs.com/package/@oddmash/ui');
+  await expect(page.locator('.related-projects [data-platform=github]')).toHaveCount(3);
+  await expect(page.locator('.related-projects [data-platform=npm]')).toHaveCount(2);
+  await expect(page.locator('main a a, main a button')).toHaveCount(0);
+  await page.route(live,route=>route.fulfill({contentType:'text/html',body:'<title>UI documentation</title>'}));
+  await imageLink.click();
+  await expect(page).toHaveURL(live);
+  await page.goto('/ja/studio/');
+  await expect(page.locator('.about-projects [data-platform=github]')).toHaveCount(4);
+  await expect(page.locator('.about-projects [data-platform=npm]')).toHaveCount(3);
+  await expect(page.locator('main a a, main a button')).toHaveCount(0);
+});
+
+test('Oddmash UI documentation artwork is displayed completely in both themes and at mobile width',async ({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for(const colorScheme of ['dark','light'] as const){
+    await page.emulateMedia({colorScheme});
+    for(const width of [390,1440]){
+      await page.setViewportSize({width,height:900});
+      for(const route of ['/','/projects/oddmash-ui/']){
+        await page.goto(route);
+        const frame=page.locator(route==='/'?'[data-project=oddmash-ui] .project-image':'.detail-hero .detail-image');
+        await frame.scrollIntoViewIfNeeded();
+        const image=frame.locator('img');
+        await expect.poll(()=>image.evaluate((el:HTMLImageElement)=>el.complete&&el.naturalWidth>0)).toBe(true);
+        const fit=await image.evaluate((el:HTMLImageElement)=>{
+          const picture=el.parentElement!;
+          const frame=el.closest('.project-image, .detail-image')!;
+          const box=el.getBoundingClientRect();
+          const pictureBox=picture.getBoundingClientRect();
+          const frameBox=frame.getBoundingClientRect();
+          const style=getComputedStyle(el);
+          return {
+            source:el.currentSrc,
+            naturalWidth:el.naturalWidth,
+            naturalHeight:el.naturalHeight,
+            width:box.width,
+            height:box.height,
+            objectFit:style.objectFit,
+            noDistortion:Math.abs(box.width/box.height-el.naturalWidth/el.naturalHeight)<.02 || style.objectFit==='contain',
+            insidePicture:box.left>=pictureBox.left-1 && box.right<=pictureBox.right+1 && box.top>=pictureBox.top-1 && box.bottom<=pictureBox.bottom+1,
+            insideFrame:box.left>=frameBox.left-1 && box.right<=frameBox.right+1 && box.top>=frameBox.top-1 && box.bottom<=frameBox.bottom+1
+          };
+        });
+        expect(fit.source).toMatch(colorScheme==='dark'?/ui-dark\.png$/:/ui\.png$/);
+        expect(fit.naturalWidth).toBe(1280);
+        expect(fit.naturalHeight).toBe(950);
+        expect(fit.width).toBeGreaterThan(100);
+        expect(fit.height).toBeGreaterThan(100);
+        expect(fit.objectFit).toBe('contain');
+        expect(fit.noDistortion).toBe(true);
+        expect(fit.insidePicture).toBe(true);
+        expect(fit.insideFrame).toBe(true);
+      }
+    }
   }
 });

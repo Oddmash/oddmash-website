@@ -18,13 +18,18 @@
   },
   "dependencies": {
     "astro": "7.4.13",
-    "@oddmash/kowrap": "0.3.0"
+    "@oddmash/kowrap": "0.3.0",
+    "@oddmash/ui": "0.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.4",
     "typescript": "5.9.3",
     "sass": "1.97.1",
     "@playwright/test": "1.56.1",
-    "@types/node": "24.10.1"
+    "@types/node": "24.10.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
   }
 }

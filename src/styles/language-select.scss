@@ -1,0 +1,30 @@
+@import '@oddmash/ui/styles.css' layer(oddmash-ui);
+
+.language-select .om-select {
+  min-height: 44px;
+  width: auto;
+  max-width: 100%;
+  background: var(--om-semantic-color-surface);
+  color: var(--om-semantic-color-muted);
+  border-color: var(--om-semantic-color-border-subtle);
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.language-select .om-select:is(:hover, :focus-visible) {
+  color: var(--om-semantic-color-text);
+  border-color: var(--om-semantic-color-border);
+}
+
+.language-select .om-select:focus-visible {
+  outline: 3px solid var(--om-semantic-color-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .language-select .om-select { transition: none; }
+}
+
+@media (forced-colors: active) {
+  .language-select .om-select { border: 1px solid ButtonText; }
+  .language-select .om-select:focus-visible { outline-color: Highlight; }
+}
