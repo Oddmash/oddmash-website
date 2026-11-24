@@ -254,7 +254,7 @@ test('desktop home chapters snap one at a time while narrow layouts scroll natur
   await page.mouse.move(720,450);
   await page.mouse.wheel(0,770);
   await expect.poll(nearestChapter).toBe(1);
-  await expect.poll(()=>chapters.nth(1).evaluate(el=>Math.abs(el.getBoundingClientRect().top-firstTop))).toBeLessThan(90);
+  await expect.poll(()=>chapters.nth(1).evaluate((el, top)=>Math.abs(el.getBoundingClientRect().top-top),firstTop)).toBeLessThan(90);
   await page.setViewportSize({width:390,height:844});
   await expect.poll(snapType).toBe('none');
   await page.goto('/ko/');
