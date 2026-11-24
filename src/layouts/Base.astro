@@ -10,7 +10,7 @@ const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
 ---
 <!doctype html>
-<html lang={locale}>
+<html lang={locale} data-page={path === '' && !noIndex ? 'home' : undefined}>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,7 +36,13 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <header class="shell header">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
   <nav aria-label={l.navigation}><a href={home+'#work'}>{t.nav[0]}</a><a href={url(locale,'studio')} aria-current={path==='studio'?'page':undefined}>{t.nav[1]}</a><a href={home+'#contribute'}>{t.nav[2]}</a></nav>
-  <nav class="languages" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined}>{languageNames[lang]}</a>)}</nav>
+  <div class="language-select" hidden>
+    <label for="language-select" class="sr">{t.language}</label>
+    <select id="language-select" name="language" aria-label={t.language}>
+      {locales.map(lang=><option value={lang} lang={lang} selected={lang===locale}>{languageNames[lang]}</option>)}
+    </select>
+  </div>
+  <nav class="language-fallback" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
 </header>
 <main id="main" class="shell" tabindex="-1"><slot /></main>
 <footer class="shell footer">
@@ -47,6 +53,17 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
   <input id="share-fallback" type="url" readonly hidden aria-label={l.shareLink} />
 </footer>
 <script>
+const picker = document.querySelector<HTMLSelectElement>('#language-select');
+const fallbackLinks = document.querySelector<HTMLElement>('.language-fallback');
+if(picker && fallbackLinks) {
+  picker.parentElement!.hidden = false;
+  fallbackLinks.hidden = true;
+  window.addEventListener('pageshow', () => { picker.value = document.documentElement.lang; });
+  picker.addEventListener('change', () => {
+    const link = [...fallbackLinks.querySelectorAll<HTMLAnchorElement>('a[data-locale]')].find(anchor=>anchor.dataset.locale===picker.value);
+    if(link) location.assign(link.href + location.hash);
+  });
+}
 const share = document.querySelector<HTMLButtonElement>('#share');
 const status = document.querySelector<HTMLElement>('#share-status');
 const fallback = document.querySelector<HTMLInputElement>('#share-fallback');
