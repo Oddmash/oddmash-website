@@ -114,3 +114,26 @@ test('representative light and dark product captures',async ({page},testInfo)=>{
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:testInfo.outputPath('mobile-home-dark.png'),fullPage:true});
 });
+
+test('Kowrap demo pauses and resumes across cached page transitions', async ({page})=>{
+  await page.goto('/ko/projects/kowrap/');
+  const range=page.locator('#demo-width');
+  const output=page.locator('#width-value');
+  await expect(range).toBeVisible();
+  for(let cycle=0;cycle<3;cycle++){
+    const before: string=await output.innerText();
+    await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));
+    await range.evaluate((input:HTMLInputElement)=>{
+      input.value=input.value==='160'?'220':'160';
+      input.dispatchEvent(new Event('input'));
+    });
+    await expect(output).toHaveText(before);
+    await page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));
+    await expect(output).toHaveText((await range.inputValue())+' px');
+    await expect.poll(()=>page.locator('#optimized-wrap').evaluate(el=>el.childNodes.length>1)).toBe(true);
+    await expect(page.locator('#demo-status')).toBeEmpty();
+    await range.focus();
+    await range.press('End');
+    await expect(output).toHaveText((await range.inputValue())+' px');
+  }
+});
