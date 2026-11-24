@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectImage from '../components/ProjectImage.astro';
+import AgentStudio from '../components/agent-studio.astro';
 import WrapDemo from '../components/WrapDemo.astro';
 import { copy, labels, projects, staticPages, url, type Locale, type ProjectId } from '../content';
 export function getStaticPaths() {
@@ -20,7 +21,7 @@ const description=details?.description ?? (path==='privacy' ? t.privacyText[0] :
 {path==='' && <>
   <section class="hero">
     <div class="hero-copy"><p class="eyebrow"><span class="line"></span>{t.eyebrow}</p><h1>{t.headline[0]}<br />{t.headline[1]}</h1><p class="lead">{t.intro}</p><div class="actions"><a class="button primary" href="#work">{t.explore}</a><a class="button secondary" href="https://github.com/Oddmash">{t.github}</a></div></div>
-    <div class="hero-art" aria-hidden="true"><span>ODDMASH / STUDIO</span><img src="/assets/oddmash-logo.png" width="360" height="360" alt="" /><span>SMALL TOOLS. BETTER FLOW.</span></div>
+    <AgentStudio locale={locale} />
   </section>
   <section class="section" id="work" aria-labelledby="work-title">
     <div class="section-title"><div><p class="eyebrow">{t.nav[0]}</p><h2 id="work-title">{t.work}</h2></div><p>{t.workIntro}</p></div>
