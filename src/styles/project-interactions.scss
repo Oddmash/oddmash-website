@@ -57,8 +57,7 @@
   content: '';
 }
 .project-destination:focus-visible::after {
-  outline: 2px solid var(--focus);
-  outline-offset: -3px;
+  border: 2px solid var(--focus);
 }
 .project-gallery .project-image {
   transition: border-color 260ms ease, background-color 260ms ease;
@@ -103,7 +102,7 @@
     background: var(--hover);
   }
   .platform-link:hover svg {
-    animation: platform-pulse 1700ms cubic-bezier(.45,0,.55,1) infinite;
+    animation: platform-pulse 1700ms cubic-bezier(.45,0,.55,1) 1;
   }
   .platform-link:active svg {
     animation: none;
@@ -242,3 +241,15 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.catalog-cta { margin-top: 24px; }
+.catalog-projects { display: grid; gap: 32px; }
+.catalog-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 32px; }
+.catalog-description { min-width: 0; display: grid; gap: 16px; color: var(--muted); }
+.catalog-description h3 { color: var(--ink); font-size: 1rem; margin: 0; }
+@media (max-width: 760px) { .catalog-entry { grid-template-columns: minmax(0, 1fr); } }
+
+.catalog-identity { display: grid; gap: 12px; min-width: 0; }
+.catalog-identity h2 .text-link { font-size: clamp(1.6rem, 3vw, 2.4rem); color: var(--ink); }
+.catalog-identity picture { display: block; min-width: 0; }
+.catalog-identity img { display: block; width: 100%; max-height: 240px; object-fit: contain; border-radius: 10px; }

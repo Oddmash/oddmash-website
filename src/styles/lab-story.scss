@@ -561,3 +561,11 @@
     border-color: CanvasText;
   }
 }
+
+@media (max-width: 480px) {
+  .lab-workflow .scene-track { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .lab-workflow .scene-track::before { display: none; }
+  .lab-workflow .scene-node:nth-child(2) { grid-row: 2; grid-column: 1 / -1; }
+  .lab-workflow .scene-node:nth-child(3) { grid-row: 1; grid-column: 2; }
+  .lab-workflow .scene-node { font-size: .75rem; }
+}

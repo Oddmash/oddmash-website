@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 const prefixes=['','ko/','ja/','zh-cn/'];
 const langs=['en','ko','ja','zh-CN'];
-const pages=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+const pages=['','projects/','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
 test('all locale paths contain static copy, correct metadata and local assets',()=>{
   for(const [i,prefix] of prefixes.entries()) for(const path of pages){
     const html=readFileSync('build/'+prefix+path+'index.html','utf8');
@@ -51,5 +51,15 @@ test('the public workflow contains only local agent artwork and no private repos
   for(const agent of ['lead','impact','triage','qa','docs','architect','release']){
     const svg=readFileSync('build/assets/agents/'+agent+'.svg','utf8');
     assert.doesNotMatch(svg,/<(?:script|foreignObject)\b|\b(?:href|onload|onclick)\s*=/i);
+  }
+});
+
+test('the standalone localized catalog contains all projects without workflow duplication',()=>{
+  for(const prefix of prefixes){
+    const catalog=readFileSync('build/'+prefix+'projects/index.html','utf8');
+    assert.equal([...catalog.matchAll(/class="catalog-entry"/g)].length,4);
+    assert.doesNotMatch(catalog,/id="workflow"/);
+    const home=readFileSync('build/'+prefix+'index.html','utf8');
+    assert.ok(home.includes(`href="/${prefix}projects/"`));
   }
 });

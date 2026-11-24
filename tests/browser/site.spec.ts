@@ -24,7 +24,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   test.setTimeout(120_000);
   await page.setViewportSize({width:320,height:740});
   const prefixes=['','ko/','ja/','zh-cn/'];
-  const paths=['','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+  const paths=['','projects/','studio/','privacy/','projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
   const unexpected:string[]=[];
   page.on('pageerror',error=>unexpected.push(error.message));
   page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4322/')&&!request.url().startsWith('data:'))unexpected.push('Unexpected external request');});
@@ -165,7 +165,7 @@ test('Korean editorial text uses Kowrap across viewport sizes and preserves cont
   const fallback = await plain.newPage();
   const normalize = (value:string) => value.replace(/\s+/g,'');
   try {
-    for(const route of ['/ko/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
+    for(const route of ['/ko/','/ko/projects/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
       await fallback.goto('http://127.0.0.1:4322'+route);
       await page.goto(route);
       await expect(page.locator('[data-kowrap-applied]').first()).toBeVisible();
@@ -223,7 +223,7 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
 
 
 test('Oddmash UI custom dropdown preserves localized route identity', async ({page})=>{
-  for(const original of ['/','/studio/','/projects/boundra/','/privacy/']){
+  for(const original of ['/','/projects/','/studio/','/projects/boundra/','/privacy/']){
     await page.goto(original);
     const select=page.locator('#language-select');
     await expect(select).toBeVisible();
@@ -436,6 +436,7 @@ test('project icons have meaningful hover feedback and honour reduced motion',as
     await npm.hover();
     await expect.poll(color).not.toBe(resting);
     await expect.poll(()=>npm.locator('svg').evaluate(el=>getComputedStyle(el).animationName)).not.toBe('none');
+    expect(await npm.locator('svg').evaluate(el=>getComputedStyle(el).animationIterationCount)).toBe('1');
     await page.mouse.move(5,5);
     await expect.poll(color).toBe(resting);
   }
@@ -476,10 +477,15 @@ test('homepage sections are navigable and every public product appears once',asy
     await expect.poll(()=>badge.evaluate((el:HTMLImageElement)=>el.complete&&el.naturalWidth>0)).toBe(true);
   }
   await expect(workflow.locator('.film-step')).toHaveCount(6);
-  for(const fragment of ['method','contribute','work']){
+  for(const fragment of ['method','contribute']){
     await page.locator('header nav a[href$="#'+fragment+'"]').click();
     await expect(page).toHaveURL(new RegExp('/ko/#'+fragment+'$'));
   }
+  await page.locator('header nav a[href="/ko/projects/"]').click();
+  await expect(page).toHaveURL(/\/ko\/projects\/$/);
+  await expect(page.locator('.catalog-entry')).toHaveCount(4);
+  await expect(page.locator('#workflow')).toHaveCount(0);
+  await page.goto('/ko/');
   const boundra=work.locator('a[href="/ko/projects/boundra/"]');
   await expect(boundra).toHaveAccessibleName(/Boundra/i);
   await boundra.click();
@@ -550,5 +556,15 @@ test('Oddmash UI documentation artwork is displayed completely in both themes an
         expect(fit.insideFrame).toBe(true);
       }
     }
+  }
+});
+
+
+test('localized Juliya links follow upstream language routes',async ({page})=>{
+  for(const [prefix,suffix] of [['','en/'],['ko/',''],['ja/','ja/'],['zh-cn/','zh/']] as const){
+    await page.goto('/'+prefix+'projects/kowrap/');
+    const live='https://oddmash.github.io/kowrap/'+suffix;
+    await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
+    await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
   }
 });
