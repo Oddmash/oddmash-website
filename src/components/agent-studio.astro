@@ -1,0 +1,114 @@
+---
+import type { Locale } from '../content';
+const { locale } = Astro.props as { locale: Locale };
+const agents = [
+  { name: 'Lead', color: '#9AD9FF', path: 'M86 126c22-30 62-30 84 0-22 30-62 30-84 0Z M128 114a12 12 0 1 0 0 24a12 12 0 1 0 0-24' },
+  { name: 'Impact', color: '#FFB67B', path: 'm128 93 8 24 24 9-24 9-8 24-8-24-24-9 24-9Z' },
+  { name: 'Triage', color: '#D5B8FF', path: 'M98 104h60M98 126h40M98 148h22m-10-9 10 9-10 9' },
+  { name: 'QA', color: '#A7E0AC', path: 'M99 126l19 19 39-40' },
+  { name: 'Release', color: '#FFD27E', path: 'M128 94c17 14 24 30 15 51l-15-8-15 8c-9-21-2-37 15-51ZM128 147v15' },
+  { name: 'Docs', color: '#95DED8', path: 'M128 107c-14-8-25-8-37-5v47c12-3 23-3 37 5 14-8 25-8 37-5v-47c-12-3-23-3-37 5ZM128 107v47' },
+  { name: 'Architect', color: '#C8C9FF', path: 'M103 95h50v22h-50ZM84 139h38v20H84ZM134 139h38v20h-38ZM128 117v12m-25 10v-10h50v10' },
+] as const;
+const words = {
+  en: { title:'The studio at work', demo:'Illustrative workflow, not a live activity feed.', auto:'Automatic', request:'On request', play:'Play workflow', pause:'Pause workflow', roles:['Coordinate specialist reviews and surface the final review decision.','Assess whether a change adds user value.','Classify issues and suggest priorities.','Identify test gaps and analyze reported checks.','Draft release notes and compatibility guidance.','Find documentation gaps and inconsistencies.','Evaluate design trade-offs and maintainability.'], examples:['Review a proposed change','Evaluate product fit','Prioritize a new issue','Check coverage','Summarize a release','Check documentation','Review architecture'], note:'Lead coordinates reviews. Specialist roles support the maintainer.' },
+  ko: { title:'함께 만드는 스튜디오', demo:'실시간 활동이 아닌 예시 작업 흐름입니다.', auto:'자동 실행', request:'요청 시 실행', play:'작업 흐름 재생', pause:'작업 흐름 일시 정지', roles:['전문 에이전트의 검토를 조율하고 최종 리뷰 결정을 전달합니다.','변경의 제품 가치와 필요성을 평가합니다.','이슈를 분류하고 우선순위를 제안합니다.','테스트 누락과 결과를 분석합니다.','릴리스 노트와 호환성 안내를 작성합니다.','코드와 문서의 불일치를 확인합니다.','설계의 트레이드오프와 유지보수성을 평가합니다.'], examples:['변경 사항 검토','제품 가치 평가','새 이슈 우선순위 판단','테스트 범위 점검','릴리스 변경 사항 정리','문서 일관성 확인','아키텍처 검토'], note:'Lead는 리뷰를 조율하고 전문 역할은 메인테이너를 지원합니다.' },
+  ja: { title:'スタジオの開発風景', demo:'実際の活動ではなく、ワークフローの例です。', auto:'自動実行', request:'リクエスト時', play:'再生', pause:'一時停止', roles:['専門エージェントのレビューを調整し、最終判断を伝えます。','変更の製品価値を評価します。','課題を分類し、優先順位を提案します。','テストの不足と結果を分析します。','リリースノートと互換性の案内を作ります。','コードとドキュメントの不一致を確認します。','設計と保守性のトレードオフを評価します。'], examples:['変更をレビュー','製品価値を評価','課題を分類','テスト範囲を確認','リリースを整理','ドキュメントを確認','設計をレビュー'], note:'Leadがレビューを調整し、専門の役割がメンテナーを支援します。' },
+  'zh-CN': { title:'工作中的工作室', demo:'示例工作流程，不是实时活动。', auto:'自动运行', request:'按需运行', play:'播放流程', pause:'暂停流程', roles:['协调专业代理的审查并汇总最终判断。','评估变更的产品价值。','分类问题并建议优先级。','分析测试覆盖缺口和检查结果。','起草发布说明和兼容性指南。','检查代码与文档的一致性。','评估设计取舍和可维护性。'], examples:['审查变更','评估产品价值','确定问题优先级','检查测试覆盖','总结发布内容','检查文档','审查架构'], note:'Lead 协调审查，专业角色协助维护者。' },
+} as const;
+const text = words[locale];
+---
+<section class="agent-stage" data-agent-stage aria-label={text.title}>
+  <div class="stage-top"><span class="stage-brand"><img src="/assets/oddmash-logo.png" width="28" height="28" alt="" /> ODDMASH / STUDIO</span><span class="stage-count">07</span></div>
+  <div class="stage-heading"><h2>{text.title}</h2><p>{text.demo}</p></div>
+  <div class="agent-grid" hidden>
+    {agents.map((agent,i)=><button type="button" class="agent" data-agent-index={i} aria-pressed={i===0?'true':'false'} style={`--agent-color:${agent.color}`}>
+      <svg class="agent-portrait" viewBox="0 0 256 256" width="88" height="88" aria-hidden="true">
+        <rect width="256" height="256" rx="54" fill="#161B24"/>
+        <path d="M128 37v23" stroke={agent.color} stroke-width="8" stroke-linecap="round"/><circle cx="128" cy="35" r="8" fill={agent.color}/>
+        <rect x="25" y="108" width="22" height="42" rx="11" fill={agent.color}/><rect x="209" y="108" width="22" height="42" rx="11" fill={agent.color}/>
+        <rect x="44" y="59" width="168" height="135" rx="40" fill="#252E3D" stroke={agent.color} stroke-width="5"/>
+        <rect x="62" y="80" width="132" height="94" rx="26" fill="#111721"/>
+        <g class="agent-gaze"><path d={agent.path} stroke={agent.color} stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+        <rect x="98" y="205" width="60" height="7" rx="3.5" fill={agent.color}/>
+      </svg>
+      <span>{agent.name}</span>
+    </button>)}
+  </div>
+  <div class="stage-output">
+    {agents.map((agent,i)=><div class="agent-output" data-agent-output={i} hidden={i!==0} style={`--agent-color:${agent.color}`}><p class="output-role"><span class="output-indicator"></span> {agent.name} <span class="output-mode">{i===0?text.auto:text.request}</span></p><h3>{text.examples[i]}</h3><p>{text.roles[i]}</p></div>)}
+  </div>
+  <noscript><ul class="agent-fallback">{agents.map((agent,i)=><li><strong>{agent.name}:</strong> {text.roles[i]}</li>)}</ul></noscript>
+  <div class="stage-bottom"><p>{text.note}</p><button type="button" hidden data-agent-play data-play={text.play} data-pause={text.pause} aria-pressed="false">{text.play}</button></div>
+</section>
+<style>
+.agent-stage{min-width:0;background:#10141b;color:#f1f4f8;border:1px solid #303947;border-radius:24px;padding:clamp(16px,2.5vw,28px);box-shadow:0 16px 48px #00000016}
+.stage-top,.stage-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stage-brand{display:flex;align-items:center;gap:9px;font:600 .75rem/1.4 ui-monospace,monospace;letter-spacing:.06em;color:#c5cedb}.stage-brand img{width:28px;height:28px;border-radius:5px}
+.stage-count{font:600 1.4rem/1 ui-monospace,monospace;color:#c5cedb}
+.stage-heading{margin-top:22px}.stage-heading h2{font-size:clamp(1.4rem,2.2vw,2rem);letter-spacing:-.04em}.stage-heading p{font-size:.875rem;color:#b8c4d4;margin-top:6px}
+.agent-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:20px 0}
+.agent{background:#161b24;border:1px solid #354050;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;min-width:0;color:#f1f4f8;font-size:.75rem;font-weight:650;transition:border-color .15s,background .15s,transform .15s}
+.agent[aria-pressed=true]{border-color:var(--agent-color);background:#202a36}.agent:hover{border-color:var(--agent-color);transform:translateY(-2px)}.agent:focus-visible,.stage-bottom button:focus-visible{outline:3px solid #9ad9ff;outline-offset:2px}
+.agent-portrait{width:min(100%,88px);height:auto;aspect-ratio:1;overflow:visible;pointer-events:none}.agent-gaze{transform:translate(var(--gaze-x,0px),var(--gaze-y,0px));transition:transform .12s ease-out}
+.agent-fallback{padding-left:1.25rem;font-size:.9rem;line-height:1.6}.stage-output{background:#1b2330;border:1px solid #394658;border-radius:16px;padding:16px;min-height:146px}.output-role{display:flex;align-items:center;gap:8px;font-size:.875rem;line-height:1.4;color:var(--agent-color);font-weight:650}.output-indicator{width:8px;height:8px;background:var(--agent-color);border-radius:50%}.output-mode{margin-left:auto;font-size:.75rem;color:#c5cedb}
+.agent-output h3{font-size:1.2rem;margin:12px 0 6px;letter-spacing:-.02em}.agent-output>p:last-child{font-size:.9rem;color:#c5cedb;line-height:1.55}
+.stage-bottom{margin-top:14px;align-items:start}.stage-bottom p{font-size:.8rem;line-height:1.5;color:#b8c4d4;max-width:70%}.stage-bottom button{border:1px solid #637187;background:transparent;color:#f1f4f8;border-radius:12px;min-height:44px;padding:8px 10px;font-size:.8rem;flex-shrink:0}
+@media(max-width:420px){.agent-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.agent{font-size:.75rem}.stage-bottom{flex-wrap:wrap}.stage-bottom p{max-width:none}}
+@media(prefers-reduced-motion:reduce){.agent,.agent-gaze{transition:none;transform:none}}
+@media(forced-colors:active){.agent[aria-pressed=true]{outline:2px solid Highlight}}
+</style>
+<script>
+const motion = matchMedia('(prefers-reduced-motion: reduce)');
+for (const stage of document.querySelectorAll<HTMLElement>('[data-agent-stage]')) {
+  const buttons = [...stage.querySelectorAll<HTMLButtonElement>('[data-agent-index]')];
+  const outputs = [...stage.querySelectorAll<HTMLElement>('[data-agent-output]')];
+  const play = stage.querySelector<HTMLButtonElement>('[data-agent-play]');
+  const grid = stage.querySelector<HTMLElement>('.agent-grid');
+  if(grid) grid.hidden = false;
+  if(play) play.hidden = false;
+  const controller = new AbortController();
+  const options = { signal: controller.signal };
+  let selected = 0;
+  let timer: number | undefined;
+  const select = (index: number) => {
+    selected = index;
+    buttons.forEach((button,i)=>button.setAttribute('aria-pressed', String(i===index)));
+    outputs.forEach((output,i)=>output.hidden=i!==index);
+  };
+  const stop = () => {
+    if (timer !== undefined) window.clearInterval(timer);
+    timer = undefined;
+    if (play) { play.textContent = play.dataset.play ?? ''; play.setAttribute('aria-pressed','false'); }
+  };
+  buttons.forEach((button,i)=>button.addEventListener('click',()=>{stop();select(i);}));
+  play?.addEventListener('click',()=>{
+    if(timer!==undefined){stop();return;}
+    if(motion.matches){select((selected+1)%buttons.length);return;}
+    select(0);
+    play.textContent=play.dataset.pause ?? '';
+    play.setAttribute('aria-pressed','true');
+    timer=window.setInterval(()=>{if(!stage.isConnected || selected===buttons.length-1){stop();return;}select(selected+1);},2800);
+  });
+  const reset = ()=>buttons.forEach(button=>{button.style.removeProperty('--gaze-x');button.style.removeProperty('--gaze-y');});
+  stage.addEventListener('pointermove',event=>{
+    if(motion.matches || event.pointerType!=='mouse')return;
+    buttons.forEach(button=>{
+      const bounds=button.getBoundingClientRect();
+      const dx=event.clientX-(bounds.left+bounds.width/2);
+      const dy=event.clientY-(bounds.top+bounds.height/2);
+      const magnitude=Math.max(1,Math.hypot(dx,dy));
+      button.style.setProperty('--gaze-x',`${dx/magnitude*7}px`);
+      button.style.setProperty('--gaze-y',`${dy/magnitude*7}px`);
+    });
+  });
+  stage.addEventListener('pointerleave',reset);
+  motion.addEventListener('change',()=>{reset();if(motion.matches)stop();},options);
+  window.addEventListener('pagehide',stop,options);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();},options);
+  const observer = new MutationObserver(()=>{if(!stage.isConnected)cleanup();});
+  const cleanup = ()=>{stop();controller.abort();observer.disconnect();};
+  observer.observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('astro:before-swap',cleanup,{...options,once:true});
+}
+</script>
