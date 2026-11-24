@@ -1,12 +1,9 @@
 import { test, expect } from '@playwright/test';
-test('filter, detail navigation, locale and legacy query', async ({page})=>{
+test('project catalog, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
   await expect(page).toHaveURL(/\/ko\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang','ko');
-  await expect(page.getByRole('button',{name:'웹 서비스'})).toHaveCount(0);
-  await page.getByRole('button',{name:'개발 도구'}).click();
   await expect(page.locator('.project:visible')).toHaveCount(4);
-  await expect(page.locator('#filter-status')).toHaveText('프로젝트 4개 표시');
   await page.getByRole('link',{name:'Kowrap 프로젝트 상세',exact:true}).click();
   await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
   await page.getByRole('link',{name:'日本語'}).click();
@@ -32,7 +29,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
     await page.keyboard.press('Enter');
     await expect(page.locator('main')).toBeFocused();
     await page.locator('footer').scrollIntoViewIfNeeded();
-    const img = page.locator('img');
+    const img = page.locator('img:visible');
     for (let i=0;i<await img.count();i++){ await img.nth(i).scrollIntoViewIfNeeded(); await expect.poll(async()=>img.nth(i).evaluate(el=>(el as HTMLImageElement).complete&&(el as HTMLImageElement).naturalWidth>0)).toBe(true); }
   }
   expect(unexpected).toEqual([]);
@@ -94,7 +91,7 @@ test('representative light and dark product captures',async ({page},testInfo)=>{
   await page.setViewportSize({width:1440,height:1000});
   await page.emulateMedia({colorScheme:'light',reducedMotion:'reduce'});
   await page.goto('/');
-  for(const img of await page.locator('img').all()){
+  for(const img of await page.locator('img:visible').all()){
     await img.scrollIntoViewIfNeeded();
     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).complete&&(el as HTMLImageElement).naturalWidth>0)).toBe(true);
   }
@@ -107,7 +104,7 @@ test('representative light and dark product captures',async ({page},testInfo)=>{
   await page.screenshot({path:testInfo.outputPath('desktop-ui-dark.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.goto('/ko/');
-  for(const img of await page.locator('img').all()){
+  for(const img of await page.locator('img:visible').all()){
     await img.scrollIntoViewIfNeeded();
     await expect.poll(()=>img.evaluate(el=>(el as HTMLImageElement).complete&&(el as HTMLImageElement).naturalWidth>0)).toBe(true);
   }
@@ -140,38 +137,29 @@ test('Kowrap demo pauses and resumes across cached page transitions', async ({pa
 });
 
 
-test('studio roles remain keyboard accessible and playback stops when detached', async ({page})=>{
-  await page.goto('/ko/');
-  const stage=page.locator('[data-agent-stage]');
-  const roles=stage.locator('[data-agent-index]');
-  await expect(roles).toHaveCount(7);
-  await expect(roles.first()).toHaveText('Lead');
-  await roles.nth(2).focus();
-  await page.keyboard.press('Enter');
-  await expect(roles.nth(2)).toHaveAttribute('aria-pressed','true');
-  await expect(stage.locator('[data-agent-output]:visible')).toHaveCount(1);
-  await expect(stage.locator('[data-agent-output]:visible')).toContainText('Triage');
-  const play=stage.locator('[data-agent-play]');
-  await play.click();
-  await expect(play).toHaveAttribute('aria-pressed','true');
-  await page.evaluate(()=>{
-    const stage=document.querySelector('[data-agent-stage]')!;
-    document.body.dataset.detachedStage='pending';
-    const play=stage.querySelector('[data-agent-play]')!;
-    const observer=new MutationObserver(()=>{
-      if(play.getAttribute('aria-pressed')==='false'){
-        document.body.dataset.detachedStage='stopped';
-        observer.disconnect();
+test('Korean editorial text uses Kowrap across viewport sizes and preserves content', async ({page, browser})=>{
+  const plain = await browser.newContext({javaScriptEnabled:false});
+  const fallback = await plain.newPage();
+  const normalize = (value:string) => value.replace(/\s+/g,'');
+  try {
+    for(const route of ['/ko/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
+      await fallback.goto('http://127.0.0.1:4322'+route);
+      await page.goto(route);
+      await expect(page.locator('[data-kowrap-applied]').first()).toBeVisible();
+      for(const width of [320,390,768,1440]){
+        await page.setViewportSize({width,height:900});
+        await expect.poll(()=>page.locator('[data-kowrap-applied]').evaluateAll(nodes=>nodes.every(el=>el.scrollWidth<=el.clientWidth+1))).toBe(true);
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       }
-    });
-    observer.observe(play,{attributes:true});
-    stage.remove();
-  });
-  await expect(page.locator('body')).toHaveAttribute('data-detached-stage','stopped');
-  await page.emulateMedia({reducedMotion:'reduce'});
-  await page.reload();
-  await expect(roles).toHaveCount(7);
-  await expect(play).toBeHidden();
-  await roles.last().click();
-  await expect(roles.last()).toHaveAttribute('aria-pressed','true');
+      const original = await fallback.locator('main h1, main h2, main h3, main p, main li, main figcaption').allTextContents();
+      const applied = await page.locator('[data-kowrap-applied]').allTextContents();
+      expect(applied.length).toBeGreaterThan(0);
+      for(const text of applied) expect(original.map(normalize)).toContain(normalize(text));
+      await expect(page.locator('[data-agent-stage]')).toHaveCount(0);
+    }
+    await page.setViewportSize({width:320,height:900});
+    await page.goto('/ko/');
+    await expect.poll(()=>page.locator('#hero-title br').count()).toBeGreaterThan(0);
+    await expect(fallback.locator('[data-kowrap-applied]')).toHaveCount(0);
+  } finally { await plain.close(); }
 });
