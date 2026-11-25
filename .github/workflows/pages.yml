@@ -1,8 +1,6 @@
-name: Deploy GitHub Pages
+name: Deploy Pages
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
@@ -12,6 +10,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +20,6 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
-      - run: pnpm run check
       - run: pnpm run build
         env:
           ODDMASH_PUBLIC_LAUNCH: 'true'

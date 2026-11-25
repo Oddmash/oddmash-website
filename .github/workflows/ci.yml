@@ -1,4 +1,4 @@
-name: Website checks
+name: CI
 on:
   pull_request:
     branches: [main]
@@ -43,7 +43,7 @@ jobs:
   verify:
     needs: [scope, website-tests]
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Require metadata and website checks
         env:
