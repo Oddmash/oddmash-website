@@ -35,14 +35,14 @@ const guide = {
   ],
 }[locale];
 ---
-<article class="contribution-guide">
+<article class="contribution-guide om-prose">
   <header class="detail-head"><p class="eyebrow">Oddmash</p><h1>{t.guide}</h1><p class="lead">{t.contributeText}</p></header>
   <ol aria-label={t.guide}>
     {guide.map(([title, body], index) => <li><h2>{index + 1}. {title}</h2><p>{body}</p></li>)}
   </ol>
   <div class="actions">
-    <a class="button primary" href="https://github.com/search?q=org%3AOddmash+is%3Aissue+is%3Aopen&type=issues">{t.contribute}</a>
-    <a class="button secondary" href="https://github.com/Oddmash/.github/tree/main/.github/ISSUE_TEMPLATE">{templateLabel}</a>
-    <a class="button secondary" href="https://github.com/Oddmash/.github/blob/main/AGENTS.md">AGENTS.md</a>
+    <a class="button primary om-button om-button--link om-button--primary om-button--md" href="https://github.com/search?q=org%3AOddmash+is%3Aissue+is%3Aopen&type=issues">{t.contribute}</a>
+    <a class="button secondary om-button om-button--link om-button--secondary om-button--md" href="https://github.com/Oddmash/.github/tree/main/.github/ISSUE_TEMPLATE">{templateLabel}</a>
+    <a class="button secondary om-button om-button--link om-button--secondary om-button--md" href="https://github.com/Oddmash/.github/blob/main/AGENTS.md">AGENTS.md</a>
   </div>
 </article>
