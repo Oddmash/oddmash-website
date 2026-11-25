@@ -1,6 +1,6 @@
 @import '@oddmash/ui/styles.css' layer(oddmash-ui);
 
-.language-select, .language-picker-fallback {
+.language-select {
   position: relative;
   z-index: 12;
   flex: 0 0 auto;
@@ -10,32 +10,60 @@
   color-scheme: dark;
 }
 
-.language-select .om-select-dropdown-trigger, .language-picker-fallback > summary {
+.language-select .om-select-dropdown-trigger,
+.language-select .om-locale-fallback summary {
   min-block-size: 44px;
-  font: var(--om-semantic-font-size) / var(--om-semantic-font-line)
-    var(--om-semantic-font-family);
+  font: var(--om-semantic-font-size) / var(--om-semantic-font-line) var(--om-semantic-font-family);
   color: var(--om-semantic-color-text);
 }
 
-.language-picker-fallback { display: block; }
-.language-picker-fallback > summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; }
-.language-picker-fallback > summary::-webkit-details-marker { display: none; }
-.header .language-picker-fallback > nav { position: absolute; z-index: 12; inset-inline: 0; top: calc(100% + 4px); display: grid; grid-template-columns: minmax(0,1fr); gap: 0; padding: 4px; border: 1px solid var(--control-line); border-radius: 8px; background: var(--paper); }
-.header .language-picker-fallback:not([open]) > nav { display: none; }
-.language-picker-fallback > nav a { padding-inline: 8px; }
-.language-picker-fallback > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-
+.language-select .om-locale-fallback summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-inline: 12px;
+  list-style: none;
+}
+.language-select .om-locale-fallback summary::-webkit-details-marker { display: none; }
+.language-select .om-locale-fallback summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-inline-end: 1.5px solid currentColor;
+  border-block-end: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-block-end: 4px;
+  flex-shrink: 0;
+}
+.language-select .om-locale-options {
+  position: absolute;
+  z-index: 12;
+  inset-inline: 0;
+  top: calc(100% + 4px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+  background: var(--paper);
+  border-color: var(--control-line);
+  border-radius: 8px;
+}
+.language-select .om-locale-options a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+}
+.language-select .om-locale-fallback:not([open]) > .om-locale-options { display: none; }
+.language-select .om-locale-fallback summary:focus-visible,
 .language-select .om-select-dropdown-trigger:focus-visible {
   outline: 3px solid var(--om-semantic-color-focus);
   outline-offset: 3px;
 }
-
-.language-select .om-select-dropdown > [role='listbox'] {
-  min-inline-size: 100%;
-}
+.language-select .om-select-dropdown > [role='listbox'] { min-inline-size: 100%; }
 
 @media (max-width: 650px) {
-  .language-select, .language-picker-fallback {
+  .language-select {
     inline-size: 118px;
     min-inline-size: 118px;
   }
