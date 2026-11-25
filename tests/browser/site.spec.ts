@@ -300,6 +300,10 @@ test('cinematic workflow repeats automatically with hover and focus pause',async
   await expect(workflow).toHaveAttribute('data-active-scene',paused!);
   await page.mouse.move(0,0);
   await expect(workflow).toHaveAttribute('data-playing','true');
+  await workflow.locator('.film-player').focus();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await workflow.locator('#workflow-title').focus();
+  await expect(workflow).toHaveAttribute('data-playing','true');
   await expect(workflow).toHaveAttribute('data-active-scene','5',{timeout:30000});
   await expect(workflow).toHaveAttribute('data-active-scene','0',{timeout:10000});
   await page.screenshot({path:testInfo.outputPath('desktop-workflow-scene.png')});
