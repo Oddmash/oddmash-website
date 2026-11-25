@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 const prefixes=['','ko/','ja/','zh-cn/'];
 const langs=['en','ko','ja','zh-CN'];
-const pages=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+const pages=['','projects/','studio/','contribute/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
 test('all locale paths contain static copy, correct metadata and local assets',()=>{
   for(const [i,prefix] of prefixes.entries()) for(const path of pages){
     const html=readFileSync('build/'+prefix+path+'index.html','utf8');

@@ -72,7 +72,7 @@ test('copy feedback and live Kowrap width', async ({page})=>{
   await expect(page.locator('#width-value')).toHaveText(chosen+' px');
   expect(await page.locator('.sample').evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().width))).toEqual([chosen,chosen]);
   await page.locator('#share').click();
-  await expect(page.locator('#share-status')).toHaveText('링크를 복사했습니다.');
+  await expect(page.locator('#copy-toast .om-toast')).toContainText('링크를 복사했습니다.');
 });
 
 test('legacy privacy locale and copy fallback',async ({page})=>{
@@ -80,7 +80,7 @@ test('legacy privacy locale and copy fallback',async ({page})=>{
   await page.goto('/privacy.html?lang=ja');
   await expect(page).toHaveURL(/\/ja\/privacy\/$/);
   await page.getByRole('button',{name:'リンクをコピー'}).click();
-  await expect(page.locator('#share-status')).toHaveText('アドレスバーからリンクをコピーしてください。');
+  await expect(page.locator('#copy-toast .om-toast')).toContainText('アドレスバーからリンクをコピーしてください。');
   await expect(page.getByRole('textbox',{name:'ページリンク'})).toHaveValue('http://127.0.0.1:4322/ja/privacy/');
   await chooseLanguage(page,'zh-CN');
   await expect(page).toHaveURL(/\/zh-cn\/privacy\/$/);
@@ -279,7 +279,7 @@ test('custom language menu supports keyboard, chevron and narrow viewport', asyn
   await expect(list).toBeHidden();
 });
 
-test('cinematic workflow repeats automatically with only a pause control',async ({page},testInfo)=>{
+test('cinematic workflow repeats automatically with hover and focus pause',async ({page},testInfo)=>{
   test.setTimeout(65_000);
   await page.setViewportSize({width:1440,height:900});
   await page.emulateMedia({reducedMotion:'no-preference'});
@@ -288,17 +288,17 @@ test('cinematic workflow repeats automatically with only a pause control',async 
   await expect(workflow).toHaveAttribute('data-film-ready','true');
   await expect(workflow.locator('.film-step')).toHaveCount(6);
   await expect(workflow.locator('.film-player')).toBeVisible();
-  await expect(workflow.locator('.film-controls button')).toHaveCount(1);
+  await expect(workflow.locator('.film-controls button')).toHaveCount(0);
   await expect(workflow.locator('progress, .film-timeline, .film-step-number')).toHaveCount(0);
   await workflow.locator('.film-screen').scrollIntoViewIfNeeded();
   await expect(workflow).toHaveAttribute('data-playing','true');
   await expect(workflow).toHaveAttribute('data-active-scene','1',{timeout:15000});
-  await workflow.locator('[data-film-toggle]').click();
+  await workflow.locator('.film-player').hover();
   await expect(workflow).toHaveAttribute('data-playing','false');
   const paused=await workflow.getAttribute('data-active-scene');
   await page.waitForTimeout(6000);
   await expect(workflow).toHaveAttribute('data-active-scene',paused!);
-  await workflow.locator('[data-film-toggle]').click();
+  await page.mouse.move(0,0);
   await expect(workflow).toHaveAttribute('data-playing','true');
   await expect(workflow).toHaveAttribute('data-active-scene','5',{timeout:30000});
   await expect(workflow).toHaveAttribute('data-active-scene','0',{timeout:10000});
@@ -460,10 +460,9 @@ test('homepage sections are navigable and every public product appears once',asy
     await expect.poll(()=>badge.evaluate((el:HTMLImageElement)=>el.complete&&el.naturalWidth>0)).toBe(true);
   }
   await expect(workflow.locator('.film-step')).toHaveCount(6);
-  for(const fragment of ['method','contribute']){
-    await page.locator('header nav a[href$="#'+fragment+'"]').click();
-    await expect(page).toHaveURL(new RegExp('/ko/#'+fragment+'$'));
-  }
+  await page.locator('header nav a[href="/ko/contribute/"]').click();
+  await expect(page).toHaveURL(/\/ko\/contribute\/$/);
+  await expect(page.locator('.contribution-guide li')).toHaveCount(5);
   await page.locator('header nav a[href="/ko/projects/"]').click();
   await expect(page).toHaveURL(/\/ko\/projects\/$/);
   await expect(page.locator('.catalog-entry')).toHaveCount(4);
@@ -665,12 +664,16 @@ test('skill copy and install affordances provide actionable content',async ({pag
   await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async(text:string)=>{document.documentElement.dataset.copiedSkill=text;}}}));
   await page.goto('/ko/skills/');
   const quality=page.locator('[data-stage-select="quality"]');
+  await quality.hover();
+  await expect(quality).toHaveAttribute('aria-pressed','false');
   await quality.focus();
+  await expect(quality).toHaveAttribute('aria-pressed','false');
+  await quality.press('Enter');
   await expect(page.locator('[data-stage-panel="quality"]')).toBeVisible();
   await page.locator('a[href="/ko/skills/accessibility/"]').click();
   await page.locator('[data-copy="markdown"]').click();
   await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/^---\nname: oddmash-accessibility/);
-  await expect(page.locator('.skill-actions [data-copy-status]')).toHaveText('복사했습니다');
+  await expect(page.locator('#copy-toast .om-toast')).toContainText('복사했습니다');
   await page.locator('a[href="#skill-install"]').click();
   await expect(page).toHaveURL(/#skill-install$/);
   await page.locator('[data-copy="commands"]').click();

@@ -29,7 +29,7 @@ const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https
       <button type="button" class="button secondary" data-copy="markdown" data-success={labels.copied} data-failure={labels.failed}>{labels.copy}</button>
       <a class="button primary" href="#skill-install">{labels.add}</a>
       <textarea data-copy-source="markdown" class="skill-copy-source" hidden readonly aria-label={labels.copy}>{markdown}</textarea>
-      <p role="status" data-copy-status></p>
+      
     </div>
   </header>
   <section class="section agent-doc-section skill-reference">
@@ -43,7 +43,7 @@ const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https
     <h2>{labels.install}</h2><p>{labels.installBody}</p>
     <pre><code>{commands}</code></pre>
     <button type="button" class="button secondary" data-copy="commands" data-success={labels.copied} data-failure={labels.failed}>{labels.copyCommand}</button>
-    <textarea data-copy-source="commands" class="skill-copy-source" hidden readonly aria-label={labels.copyCommand}>{commands}</textarea><p role="status" data-copy-status></p>
+    <textarea data-copy-source="commands" class="skill-copy-source" hidden readonly aria-label={labels.copyCommand}>{commands}</textarea>
     <p>{labels.all}</p>
   </section>
 </article> : <div class="agent-doc skill-doc">
@@ -61,6 +61,7 @@ const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https
   <section class="section agent-doc-section"><a class="text-link" href={url(locale,'agents')}>{locale==='ko'?'에이전트 문서':locale==='ja'?'エージェント':locale==='zh-CN'?'智能体文档':'Agent documentation'} →</a></section>
 </div>}
 <script>
+import { notifyCopy } from '../copy-toast';
 const controls=document.querySelector<HTMLElement>('[data-skill-flow-controls]');
 if(controls){
   const buttons=[...controls.querySelectorAll<HTMLButtonElement>('[data-stage-select]')];
@@ -74,18 +75,15 @@ if(controls){
   for(const button of buttons){
     const activate=()=>{if(button.dataset.stageSelect) setStage(button.dataset.stageSelect);};
     button.addEventListener('click',activate);
-    button.addEventListener('focus',activate);
-    button.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse'&&!panels.some(panel=>panel.contains(document.activeElement)))activate();});
   }
 }
 for(const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')){
   button.addEventListener('click',async()=>{
     const scope=button.closest('[data-copy-scope]');
     const input=scope?.querySelector<HTMLTextAreaElement>('[data-copy-source="'+button.dataset.copy+'"]');
-    const status=scope?.querySelector<HTMLElement>('[data-copy-status]');
-    if(!input||!status)return;
-    try{await navigator.clipboard.writeText(input.value);status.textContent=button.dataset.success??'';}
-    catch{input.hidden=false;input.focus();input.select();status.textContent=button.dataset.failure??'';}
+    if(!input)return;
+    try{await navigator.clipboard.writeText(input.value);input.hidden=true;notifyCopy(button.dataset.success??'');}
+    catch{input.hidden=false;input.focus();input.select();notifyCopy(button.dataset.failure??'',true);}
   });
 }
 </script>
