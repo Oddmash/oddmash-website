@@ -34,7 +34,7 @@ const guide = {
       </div>
       <div class="agent-doc-art"><AgentCharacter id={role.id} color={role.color} /></div>
     </header>
-    <section class="section agent-doc-section" aria-labelledby="agent-usage">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-usage">
       <h2 id="agent-usage">{t.focus}</h2>
       <p>{detail.focus}</p>
       <div class="agent-command-card">
@@ -49,19 +49,19 @@ const guide = {
       </div>
       <p>{t.commandBody}</p>
     </section>
-    <section class="section agent-doc-section" aria-labelledby="agent-checks">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-checks">
       <h2 id="agent-checks">{t.checks}</h2>
       <ul class="feature-list">{detail.checks.map(check => <li>{check}</li>)}</ul>
     </section>
-    <section class="section agent-doc-section" aria-labelledby="agent-output">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-output">
       <h2 id="agent-output">{t.output}</h2>
       <p>{detail.output}</p>
     </section>
-    <section class="section agent-doc-section" aria-labelledby="agent-example">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-example">
       <h2 id="agent-example">{t.example}</h2>
       <p>{detail.example}</p>
     </section>
-    <section class="section agent-doc-section" aria-labelledby="agent-boundary">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-boundary">
       <h2 id="agent-boundary">{t.boundary}</h2>
       <p>{detail.boundary}</p>
       <div class="actions">
@@ -77,16 +77,16 @@ const guide = {
       <h1>{t.title}</h1>
       <p class="lead">{t.intro}</p>
       <div class="actions agent-doc-links">
-        <a class="button secondary" href="https://github.com/Oddmash/oddmash-agents">{t.repository}<span aria-hidden="true">↗</span></a>
-        <a class="button secondary" href={url(locale,'skills')}>{t.skills}<span aria-hidden="true">↗</span></a>
+        <a class="button secondary om-button om-button--link om-button--secondary om-button--md" href="https://github.com/Oddmash/oddmash-agents">{t.repository}<span aria-hidden="true">↗</span></a>
+        <a class="button secondary om-button om-button--link om-button--secondary om-button--md" href={url(locale,'skills')}>{t.skills}<span aria-hidden="true">↗</span></a>
       </div>
     </header>
     <AgentRoster locale={locale} compact={false} />
-    <section class="section agent-doc-section" aria-labelledby="agent-invocation">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-invocation">
       <h2 id="agent-invocation">{t.invocation}</h2>
-      <p>{t.invocationBody}</p><h3>{guide.title}</h3><p>{guide.body}</p><pre><code>/review</code></pre><p>{guide.example}</p><h3>{guide.results}</h3><p>{guide.resultBody}</p><h3>{guide.skills}</h3><p>{guide.skillsBody}</p><a class="text-link" href={url(locale,'skills')}>{t.skills} →</a>
+      <p>{t.invocationBody}</p><h3>{guide.title}</h3><p>{guide.body}</p><div class="om-code-block"><pre class="om-code-block-content" tabindex="0" role="region" aria-label={guide.title}><code>/review</code></pre></div><p>{guide.example}</p><h3>{guide.results}</h3><p>{guide.resultBody}</p><h3>{guide.skills}</h3><p>{guide.skillsBody}</p><a class="text-link" href={url(locale,'skills')}>{t.skills} →</a>
     </section>
-    <section class="section agent-doc-section" aria-labelledby="agent-guardrails">
+    <section class="section agent-doc-section om-prose" aria-labelledby="agent-guardrails">
       <h2 id="agent-guardrails">{t.guardrailTitle}</h2>
       <p>{t.guardrail}</p>
       <a class="text-link" href={url(locale) + '#method'}>{labCopy[locale].methodNav}<span aria-hidden="true">→</span></a>
