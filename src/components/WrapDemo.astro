@@ -13,12 +13,18 @@ const samples: Record<Locale,string> = {
 };
 const sample = samples[locale];
 const languageLabel = {en:'Example language',ko:'예제 언어',ja:'例文の言語','zh-CN':'示例语言'}[locale];
+const widthDescription = {
+  en: 'The dashed guides mark the same text width in both examples.',
+  ko: '점선은 두 예제에서 동일한 텍스트 폭을 표시합니다.',
+  ja: '点線は両方の例文で同じテキスト幅を示します。',
+  'zh-CN': '虚线标记两个示例中相同的文本宽度。',
+}[locale];
 ---
 <section class="section demo" aria-labelledby="demo-title" data-om-theme="dark">
   <p class="eyebrow">Juliya / Live</p><h2 id="demo-title">{t.demo}</h2><p>{t.demoNote}</p>
   <p id="demo-fallback">{l.demoFallback}</p>
   <div class="demo-language-control" id="demo-language-control" hidden><span id="demo-language-label">{languageLabel}</span><div id="demo-language-host" data-locale={locale} data-options={JSON.stringify(locales.map(lang=>({value:lang,label:languageNames[lang],lang})))} data-samples={JSON.stringify(samples)}></div></div>
-  <div class="width-control" id="demo-control" hidden><label for="demo-width">{l.width}</label><output id="width-value" for="demo-width">220 px</output><div id="demo-slider-host"></div></div>
+  <div class="width-control" id="demo-control" hidden><label for="demo-width">{l.width}</label><output id="width-value" for="demo-width">220 px</output><div id="demo-slider-host"></div><p id="demo-width-description">{widthDescription}</p></div>
   <div class="demo-pair" id="demo-pair" hidden>
     <div><p class="tag">{t.before}</p><p id="native-wrap" class="sample" lang={locale}>{sample}</p></div>
     <div><p class="tag">{t.after}</p><p id="optimized-wrap" class="sample" lang={locale}>{sample}</p></div>
@@ -28,6 +34,8 @@ const languageLabel = {en:'Example language',ko:'예제 언어',ja:'例文の言
 </section>
 <style>
   #demo-fallback[hidden] ~ .demo-fallback-link { display: none; }
+  #demo-width-description { flex-basis: 100%; margin: 0; font-size: .875rem; font-weight: 400; color: var(--muted); }
+  #demo-pair .sample { outline: 1px dashed var(--om-semantic-color-border); outline-offset: 3px; }
 </style>
 <script>
 import { mountKowrap as mountJuliya } from '@oddmash/juliya/dom';
@@ -82,7 +90,7 @@ if (sliderHost && languageHost && pair && value && title && native && languageCo
         id:'demo-language', 'aria-labelledby':'demo-language-label', options, defaultValue:selectedLanguage,
         onValueChange: lang => { selectedLanguage = lang; if (cleanup) applySample(); },
       }));
-      sliderRoot.render(createElement(Slider, {id:'demo-width',min:160,max:320,step:10,defaultValue:220}));
+      sliderRoot.render(createElement(Slider, {id:'demo-width','aria-describedby':'demo-width-description',min:160,max:320,step:10,defaultValue:220}));
     });
     range = sliderHost.querySelector<HTMLInputElement>('#demo-width');
     if (!range || !languageHost.querySelector('#demo-language')) throw new Error('Missing demo controls');
