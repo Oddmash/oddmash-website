@@ -30,17 +30,17 @@
 }
 
 .lab-method .method-list {
-  border-top: 1px solid var(--line);
+  border-top: var(--om-semantic-border-width) solid var(--line);
 }
 
 .lab-method .method-item {
   display: grid;
   grid-template-columns: clamp(42px, 7vw, 104px) minmax(0, .86fr) minmax(0, 1.14fr);
   column-gap: clamp(18px, 4vw, 56px);
-  row-gap: 12px;
+  row-gap: var(--om-semantic-space-md);
   align-items: baseline;
   padding-block: clamp(28px, 4vw, 52px);
-  border-bottom: 1px solid var(--line);
+  border-bottom: var(--om-semantic-border-width) solid var(--line);
 }
 
 .lab-method .method-number,
@@ -92,7 +92,7 @@
   min-width: 0;
   width: min(100%, 70rem);
   margin-inline: auto;
-  border: 1px solid var(--line);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: clamp(20px, 2.5vw, 28px);
   background: #101010;
   box-shadow: 0 24px 70px #0005;
@@ -115,7 +115,7 @@
 .lab-workflow .film-scene {
   min-width: 0;
   display: grid;
-  border-inline-end: 1px solid var(--line);
+  border-inline-end: var(--om-semantic-border-width) solid var(--line);
 }
 
 .lab-workflow .film-step {
@@ -125,7 +125,7 @@
   gap: clamp(24px, 4vw, 44px);
   min-width: 0;
   padding-block: clamp(26px, 4vw, 44px);
-  border-top: 1px solid var(--line);
+  border-top: var(--om-semantic-border-width) solid var(--line);
 }
 
 .lab-workflow .film-step-copy {
@@ -133,7 +133,7 @@
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: 12px;
+  gap: var(--om-semantic-space-md);
 }
 
 .lab-workflow .film-visual .film-step-copy {
@@ -160,7 +160,7 @@
   max-width: 100%;
   padding: 7px 11px;
   margin-top: 6px;
-  border: 1px solid var(--line);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 8px;
   color: var(--muted);
   font-size: .8rem;
@@ -171,7 +171,7 @@
 .lab-workflow .film-inline {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 20px;
   background: #0d0d0d;
 }
@@ -211,7 +211,7 @@
   justify-content: space-between;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: var(--om-semantic-space-sm) 14px;
   width: 100%;
   color: var(--muted);
   font: 500 .72rem/1.5 var(--om-primitive-font-mono-family, monospace);
@@ -261,7 +261,7 @@
   min-width: 0;
   min-height: 66px;
   padding: clamp(8px, 1.25vw, 13px);
-  border: 1px solid #414141;
+  border: var(--om-semantic-border-width) solid #414141;
   border-radius: 12px;
   background: #171717;
   color: #c6c6c6;
@@ -284,7 +284,7 @@
   width: clamp(30px, 4.1vw, 44px);
   max-width: 100%;
   aspect-ratio: 1;
-  border: 1px solid #555;
+  border: var(--om-semantic-border-width) solid #555;
   border-radius: 10px;
   color: var(--scene-accent);
   font-size: clamp(.95rem, 1.8vw, 1.4rem);
@@ -296,7 +296,7 @@
   max-width: 100%;
   height: auto;
   aspect-ratio: 1;
-  border: 1px solid var(--line);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 10px;
   object-fit: contain;
 }
@@ -329,7 +329,7 @@
   min-width: 26px;
   width: clamp(30px, 3.2vw, 42px);
   aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--scene-accent) 30%, #454545);
+  border: var(--om-semantic-border-width) solid color-mix(in srgb, var(--scene-accent) 30%, #454545);
   border-radius: 8px;
   font-size: clamp(.85rem, 1.6vw, 1.35rem);
   font-weight: 600;
@@ -404,7 +404,7 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: 5px 7px;
   padding: 7px;
-  border: 1px solid #414141;
+  border: var(--om-semantic-border-width) solid #414141;
   border-radius: 7px;
 }
 
@@ -438,7 +438,7 @@
 .lab-workflow .artifact-deployment {
   display: grid;
   overflow: hidden;
-  border: 1px solid #555;
+  border: var(--om-semantic-border-width) solid #555;
   border-radius: 7px;
 }
 
@@ -446,7 +446,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 8px;
+  padding: var(--om-semantic-space-sm);
 }
 
 .lab-workflow .artifact-deployment > span:first-child { background: #323232; }
@@ -456,10 +456,10 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: var(--om-semantic-space-sm);
   max-width: 100%;
-  padding: 7px 12px;
-  border: 1px solid color-mix(in srgb, var(--scene-accent) 35%, #333);
+  padding: 7px var(--om-semantic-space-md);
+  border: var(--om-semantic-border-width) solid color-mix(in srgb, var(--scene-accent) 35%, #333);
   border-radius: 999px;
   color: color-mix(in srgb, var(--scene-accent) 70%, white);
   background: #121212;
@@ -480,14 +480,14 @@
 .lab-workflow .film-controls {
   display: flex;
   justify-content: flex-end;
-  padding: 8px 18px;
-  border-top: 1px solid var(--line);
+  padding: var(--om-semantic-space-sm) 18px;
+  border-top: var(--om-semantic-border-width) solid var(--line);
 }
 .lab-workflow .film-toggle {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
-  gap: 8px;
+  gap: var(--om-semantic-space-sm);
   padding: 6px 10px;
   border: 0;
   color: var(--muted);
@@ -573,7 +573,7 @@
 @media (max-width: 759px) {
   .lab-method .method-item {
     grid-template-columns: 42px minmax(0, 1fr);
-    column-gap: 16px;
+    column-gap: var(--om-semantic-space-lg);
   }
 
   .lab-method .method-item p,
@@ -587,7 +587,7 @@
   }
 
   .lab-workflow .film-visual { min-height: 0; }
-  .lab-workflow .film-scene { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  .lab-workflow .film-scene { border-inline-end: 0; border-bottom: var(--om-semantic-border-width) solid var(--line); }
   .lab-workflow .film-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
@@ -598,7 +598,7 @@
   .lab-workflow .scene-endpoint[data-endpoint='right'] { grid-row: 1; grid-column: 2; }
   .lab-workflow .scene-node { font-size: .75rem; }
   .lab-workflow .film-toolbar button { padding: 7px 9px; }
-  .lab-workflow .film-toolbar { gap: 8px; }
+  .lab-workflow .film-toolbar { gap: var(--om-semantic-space-sm); }
   .lab-workflow .film-timeline button { grid-template-columns: minmax(0, 1fr); gap: 3px; }
 }
 
@@ -617,9 +617,9 @@
 
 
 .lab-workflow .film-player:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
-.lab-workflow .film-hint { padding: 12px 18px; color: var(--muted); font-size: .875rem; text-align: center; border-top: 1px solid var(--line); }
+.lab-workflow .film-hint { padding: var(--om-semantic-space-md) 18px; color: var(--muted); font-size: .875rem; text-align: center; border-top: var(--om-semantic-border-width) solid var(--line); }
 
-.lab-workflow .film-pause { display: block; margin: 12px auto 0; min-height: 44px; padding: 8px 14px; color: var(--muted); background: transparent; border: 1px solid var(--control-line); border-radius: 8px; font-size: .875rem; }
+.lab-workflow .film-pause { display: block; margin: var(--om-semantic-space-md) auto 0; min-height: 44px; padding: var(--om-semantic-space-sm) 14px; color: var(--muted); background: transparent; border: var(--om-semantic-border-width) solid var(--control-line); border-radius: 8px; font-size: .875rem; }
 .lab-workflow .film-pause:hover { color: var(--ink); background: var(--hover); }
 .lab-workflow .film-outcome { font-size: .875rem; }
 .lab-workflow .scene-caption { font-size: .8125rem; }
