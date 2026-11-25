@@ -1,6 +1,10 @@
 ---
 import '../styles/site.scss';
 import '../styles/language-select.scss';
+import '../styles/shared-ui.scss';
+import { LocalePicker } from '@oddmash/ui/locale-picker';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 import { copy, labels, locales, languageNames, url, type Locale } from '../content';
 import { absolute, indexable } from '../site';
 import { skillCopy } from '../skill-content';
@@ -11,9 +15,11 @@ const t = copy[locale];
 const l = labels[locale];
 const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
+const localeOptions = locales.map(lang => ({ value: lang, label: languageNames[lang], lang, href: url(lang,path)+(lang==='en' && path==='' ? '?lang=en' : '') }));
+const localePickerProps = { label: t.language, value: locale, options: localeOptions, selectProps: { id: 'language-select' } };
 ---
 <!doctype html>
-<html lang={locale} data-page={path === '' && !noIndex ? 'home' : undefined}>
+<html lang={locale} data-om-theme="dark" data-page={path === '' && !noIndex ? 'home' : undefined}>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -64,71 +70,46 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 </head>
 <body>
 <a class="skip" href="#main">{t.skip}</a>
-<header class="shell header">
+<header class="shell header om-site-header om-site-header-inner">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
-  <nav class="primary-navigation" aria-label={l.navigation}><a href={home} aria-current={path===''?'page':undefined}>{({en:'Home',ko:'홈',ja:'ホーム','zh-CN':'首页'})[locale]}</a><a href={url(locale,'projects')} aria-current={path==='projects'||path.startsWith('projects/')?'page':undefined}>{t.nav[0]}</a><a href={url(locale,'agents')} aria-current={path==='agents'||path.startsWith('agents/')?'page':undefined}>{agentDocsCopy[locale].nav}</a><a href={url(locale,'skills')} aria-current={path==='skills'||path.startsWith('skills/')?'page':undefined}>{skillCopy[locale].nav}</a><a href={url(locale,'contribute')} aria-current={path==='contribute'?'page':undefined}>{t.nav[2]}</a></nav>
-  <div class="language-select" data-om-theme="dark" hidden></div>
-  <details class="language-fallback language-picker-fallback" data-om-theme="dark">
-    <summary class="om-select-dropdown-trigger" aria-label={t.language}>{languageNames[locale]}</summary>
-    <nav aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)+(lang==='en' && path==='' ? '?lang=en' : '')} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
-  </details>
+  <nav class="primary-navigation om-site-nav" aria-label={l.navigation}><a href={home} aria-current={path===''?'page':undefined}>{({en:'Home',ko:'홈',ja:'ホーム','zh-CN':'首页'})[locale]}</a><a href={url(locale,'projects')} aria-current={path==='projects'||path.startsWith('projects/')?'page':undefined}>{t.nav[0]}</a><a href={url(locale,'agents')} aria-current={path==='agents'||path.startsWith('agents/')?'page':undefined}>{agentDocsCopy[locale].nav}</a><a href={url(locale,'skills')} aria-current={path==='skills'||path.startsWith('skills/')?'page':undefined}>{skillCopy[locale].nav}</a><a href={url(locale,'contribute')} aria-current={path==='contribute'?'page':undefined}>{t.nav[2]}</a></nav>
+  <div class="language-select language-picker-fallback" data-locale-picker={JSON.stringify(localePickerProps)}>
+    <Fragment set:html={renderToString(createElement(LocalePicker, localePickerProps))} />
+  </div>
 </header>
 <main id="main" class="shell" tabindex="-1"><slot /></main>
-<footer class="shell footer">
+<footer class="shell footer om-site-footer om-site-footer-inner">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="30" height="30" alt="" /><span>oddmash.</span></a>
   <p>© {new Date().getFullYear()} Oddmash</p>
-  <nav aria-label={l.footer}><a href={url(locale,'privacy')} aria-current={path==='privacy'?'page':undefined}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a></nav>
+  <nav class="om-site-nav" aria-label={l.footer}><a href={url(locale,'privacy')} aria-current={path==='privacy'?'page':undefined}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a></nav>
 </footer>
 <div id="copy-toast" data-om-theme="dark"></div>
 <script>
-import { SelectDropdown } from '@oddmash/ui/select';
+import { LocalePicker, type LocalePickerProps } from '@oddmash/ui/locale-picker';
 import { createElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import { flushSync } from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
 
-const picker = document.querySelector<HTMLElement>('.language-select');
-const fallbackLinks = document.querySelector<HTMLElement>('.language-fallback');
-if(picker && fallbackLinks) {
-  const links = [...fallbackLinks.querySelectorAll<HTMLAnchorElement>('a[data-locale]')];
-  const remember = (value: string) => {
+const picker = document.querySelector<HTMLElement>('[data-locale-picker]');
+if (picker?.dataset.localePicker) {
+  const config = JSON.parse(picker.dataset.localePicker) as Pick<LocalePickerProps, 'label' | 'value' | 'options' | 'selectProps'>;
+  const selectLanguage = (value: string, option: { href: string }) => {
     try { localStorage.setItem('oddmash-language', value); } catch {}
-  };
-  links.forEach(link => link.addEventListener('click', () => remember(link.dataset.locale ?? 'en')));
-  const options = links.map(link => ({
-    value: link.dataset.locale ?? '',
-    label: link.textContent?.trim() ?? '',
-  }));
-  const selectLanguage = (value: string) => {
-    const link = links.find(anchor => anchor.dataset.locale === value);
-    if(!link) return;
-    remember(value);
-    const destination = new URL(link.href);
+    const destination = new URL(option.href, location.href);
     destination.hash = location.hash;
     location.assign(destination.href);
   };
-  const enhance = () => {
-    if (fallbackLinks.contains(document.activeElement) || fallbackLinks.hasAttribute('open')) return;
-    try {
-    const root = createRoot(picker);
-    flushSync(() => {
-      root.render(createElement(SelectDropdown, {
-        id: 'language-select',
-        'aria-label': fallbackLinks.querySelector('summary')?.getAttribute('aria-label') ?? 'Language',
-        options,
-        value: document.documentElement.lang,
-        onValueChange: selectLanguage,
-      }));
-    });
-    if(picker.querySelector('#language-select')) {
-      picker.hidden = false;
-      fallbackLinks.hidden = true;
-    }
-    } catch {
-      picker.hidden = true;
-      fallbackLinks.hidden = false;
-    }
-  };
-  enhance();
+  picker.addEventListener('click', event => {
+    const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[hreflang]') : null;
+    if (!target || event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const option = config.options.find(item => item.value === target.hreflang);
+    if (!option) return;
+    event.preventDefault();
+    selectLanguage(option.value, option);
+  });
+  const fallback = picker.querySelector('details');
+  if (!fallback?.open && !fallback?.contains(document.activeElement)) {
+    hydrateRoot(picker, createElement(LocalePicker, { ...config, onValueChange: selectLanguage }));
+  }
 }
 </script>
 <style is:global>
