@@ -699,3 +699,26 @@ test('skill flow heading is centered and the development map is discoverable',as
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   }
 });
+
+test('workflow touch pause is reversible and keyboard focus does not retain touch pause', async ({ page }) => {
+  await page.setViewportSize({width: 1200, height: 900});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/ko/');
+  const workflow = page.locator('#workflow');
+  const player = workflow.locator('.film-player');
+  await player.locator('.film-screen').scrollIntoViewIfNeeded();
+  await expect(workflow).toHaveAttribute('data-playing','true');
+  await player.dispatchEvent('pointerup', {pointerType:'touch'});
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await player.dispatchEvent('pointerup', {pointerType:'touch'});
+  await expect(workflow).toHaveAttribute('data-playing','true');
+  await player.dispatchEvent('pointerup', {pointerType:'touch'});
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await workflow.locator('#workflow-title').focus();
+  await page.keyboard.press('Tab');
+  await expect(player).toBeFocused();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await page.keyboard.press('Tab');
+  await expect(player).not.toBeFocused();
+  await expect(workflow).toHaveAttribute('data-playing','true');
+});
