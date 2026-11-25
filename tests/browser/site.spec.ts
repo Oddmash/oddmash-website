@@ -467,6 +467,7 @@ test('homepage sections are navigable and every public product appears once',asy
   await page.locator('header nav a[href="/ko/contribute/"]').click();
   await expect(page).toHaveURL(/\/ko\/contribute\/$/);
   await expect(page.locator('.contribution-guide li')).toHaveCount(5);
+  await expect(page.getByRole('link', { name: '이슈 템플릿' })).toHaveAttribute('href', 'https://github.com/Oddmash/.github/tree/main/.github/ISSUE_TEMPLATE');
   await page.locator('header nav a[href="/ko/projects/"]').click();
   await expect(page).toHaveURL(/\/ko\/projects\/$/);
   await expect(page.locator('.catalog-entry')).toHaveCount(4);

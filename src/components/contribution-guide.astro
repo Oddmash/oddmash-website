@@ -3,6 +3,7 @@ import { copy, type Locale } from '../content';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = copy[locale];
+const templateLabel = { en: 'Issue templates', ko: '이슈 템플릿', ja: 'Issue テンプレート', 'zh-CN': '议题模板' }[locale];
 const guide = {
   en: [
     ['Choose an issue', 'Search existing issues before opening a new one. Choose the Bug, Feature, Fix, Documentation or Test template that matches your work. Explain the problem, reproduction or proposal, and measurable acceptance criteria.'],
@@ -41,7 +42,7 @@ const guide = {
   </ol>
   <div class="actions">
     <a class="button primary" href="https://github.com/search?q=org%3AOddmash+is%3Aissue+is%3Aopen&type=issues">{t.contribute}</a>
-    <a class="button secondary" href="https://github.com/Oddmash/.github/tree/main/.github/ISSUE_TEMPLATE">Issue templates</a>
+    <a class="button secondary" href="https://github.com/Oddmash/.github/tree/main/.github/ISSUE_TEMPLATE">{templateLabel}</a>
     <a class="button secondary" href="https://github.com/Oddmash/.github/blob/main/AGENTS.md">AGENTS.md</a>
   </div>
 </article>
