@@ -21,8 +21,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-inline: 12px;
+  gap: var(--om-semantic-space-sm);
+  padding-inline: var(--om-semantic-space-md);
   list-style: none;
 }
 .language-select .om-locale-fallback summary::-webkit-details-marker { display: none; }
@@ -33,7 +33,7 @@
   border-inline-end: 1.5px solid currentColor;
   border-block-end: 1.5px solid currentColor;
   transform: rotate(45deg);
-  margin-block-end: 4px;
+  margin-block-end: var(--om-semantic-space-xs);
   flex-shrink: 0;
 }
 .language-select .om-locale-options {

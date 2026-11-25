@@ -20,7 +20,7 @@
 .agent-roster {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--om-semantic-space-md);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -44,7 +44,7 @@
   justify-content: flex-start;
   padding: clamp(16px, 2.5vw, 28px) 12px;
   gap: 14px;
-  border: 1px solid var(--line);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 18px;
   background: var(--paper);
   text-align: center;
@@ -109,7 +109,7 @@
   grid-template-columns: minmax(0, 1fr);
   justify-items: stretch;
   align-content: start;
-  gap: 8px;
+  gap: var(--om-semantic-space-sm);
   min-width: 0;
   width: 100%;
 }
@@ -173,8 +173,8 @@
 }
 
 .agent-doc-art {
-  padding: 16px;
-  border: 1px solid var(--line);
+  padding: var(--om-semantic-space-lg);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 22px;
   background: var(--paper);
 }
@@ -201,7 +201,7 @@
 }
 
 .agent-doc-section .text-link {
-  margin-top: 16px;
+  margin-top: var(--om-semantic-space-lg);
 }
 
 .agent-doc-section .actions {
@@ -211,8 +211,8 @@
 .agent-command-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-  border: 1px solid var(--line);
+  gap: var(--om-semantic-space-lg);
+  border: var(--om-semantic-border-width) solid var(--line);
   border-radius: 14px;
   background: var(--paper);
   padding: clamp(16px, 3vw, 24px);
@@ -225,7 +225,7 @@
 
 .agent-command-card code {
   display: inline-block;
-  padding: 4px 8px;
+  padding: var(--om-semantic-space-xs) var(--om-semantic-space-sm);
   border-radius: 6px;
   background: var(--hover);
   overflow-wrap: anywhere;
@@ -254,7 +254,7 @@
 
 @media (max-width: 380px) {
   .agent-roster {
-    gap: 8px;
+    gap: var(--om-semantic-space-sm);
   }
 
   .agent-profile-link {
