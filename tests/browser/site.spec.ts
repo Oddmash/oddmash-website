@@ -119,13 +119,26 @@ test('agent role names and descriptions keep stable card widths', async ({page})
         for (const heading of await captions.locator('h3').all()) {
           await expect(heading).not.toHaveAttribute('data-juliya-applied','true');
           await expect(heading.locator('br')).toHaveCount(0);
-          expect(await heading.evaluate(el=>{
+          const geometry = await heading.evaluate(el=>{
             const range = document.createRange();
             range.selectNodeContents(el);
+            const rectangles = [...range.getClientRects()];
             const text = range.getBoundingClientRect();
             const bounds = el.getBoundingClientRect();
-            return text.left >= bounds.left - 1 && text.right <= bounds.right + 1 && text.height <= parseFloat(getComputedStyle(el).lineHeight)+1;
-          })).toBe(true);
+            return {
+              label: el.textContent,
+              rectangles: rectangles.length,
+              left: text.left - bounds.left,
+              right: bounds.right - text.right,
+              blockHeight: bounds.height,
+              lineHeight: parseFloat(getComputedStyle(el).lineHeight),
+            };
+          });
+          const caseLabel = `${route || '/'} ${width}px: ${JSON.stringify(geometry)}`;
+          expect(geometry.rectangles,caseLabel).toBe(1);
+          expect(geometry.left,caseLabel).toBeGreaterThanOrEqual(-1);
+          expect(geometry.right,caseLabel).toBeGreaterThanOrEqual(-1);
+          expect(geometry.blockHeight,caseLabel).toBeLessThanOrEqual(geometry.lineHeight+1);
         }
         if (route.endsWith('agents/')) {
           const descriptions = captions.locator('p');
