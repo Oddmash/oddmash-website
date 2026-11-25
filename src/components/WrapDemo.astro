@@ -14,11 +14,11 @@ const samples: Record<Locale,string> = {
 const sample = samples[locale];
 const languageLabel = {en:'Example language',ko:'예제 언어',ja:'例文の言語','zh-CN':'示例语言'}[locale];
 ---
-<section class="section demo" aria-labelledby="demo-title">
+<section class="section demo" aria-labelledby="demo-title" data-om-theme="dark">
   <p class="eyebrow">Juliya / Live</p><h2 id="demo-title">{t.demo}</h2><p>{t.demoNote}</p>
   <p id="demo-fallback">{l.demoFallback}</p>
-  <label class="demo-language-control" id="demo-language-control" hidden>{languageLabel}<select id="demo-language">{locales.map(lang=><option value={lang} selected={lang===locale} data-sample={samples[lang]}>{languageNames[lang]}</option>)}</select></label>
-  <label class="width-control" for="demo-width" id="demo-control" hidden>{l.width} <output id="width-value" for="demo-width">220 px</output><input id="demo-width" type="range" min="160" max="320" step="10" value="220" /></label>
+  <div class="demo-language-control" id="demo-language-control" hidden><span id="demo-language-label">{languageLabel}</span><div id="demo-language-host" data-locale={locale} data-options={JSON.stringify(locales.map(lang=>({value:lang,label:languageNames[lang],lang})))} data-samples={JSON.stringify(samples)}></div></div>
+  <div class="width-control" id="demo-control" hidden><label for="demo-width">{l.width}</label><output id="width-value" for="demo-width">220 px</output><div id="demo-slider-host"></div></div>
   <div class="demo-pair" id="demo-pair" hidden>
     <div><p class="tag">{t.before}</p><p id="native-wrap" class="sample" lang={locale}>{sample}</p></div>
     <div><p class="tag">{t.after}</p><p id="optimized-wrap" class="sample" lang={locale}>{sample}</p></div>
@@ -31,17 +31,26 @@ const languageLabel = {en:'Example language',ko:'예제 언어',ja:'例文の言
 </style>
 <script>
 import { mountKowrap as mountJuliya } from '@oddmash/juliya/dom';
-const range = document.querySelector<HTMLInputElement>('#demo-width');
+import { SelectDropdown, type SelectDropdownOption } from '@oddmash/ui/select';
+import { Slider } from '@oddmash/ui/slider';
+import { createElement } from 'react';
+import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
+const sliderHost = document.querySelector<HTMLElement>('#demo-slider-host');
+const languageHost = document.querySelector<HTMLElement>('#demo-language-host');
 const pair = document.querySelector<HTMLElement>('#demo-pair');
 const value = document.querySelector<HTMLOutputElement>('#width-value');
 const title = document.querySelector<HTMLElement>('#optimized-wrap');
 const native = document.querySelector<HTMLElement>('#native-wrap');
-const language = document.querySelector<HTMLSelectElement>('#demo-language');
 const languageControl = document.querySelector<HTMLElement>('#demo-language-control');
 const control = document.querySelector<HTMLElement>('#demo-control');
 const fallback = document.querySelector<HTMLElement>('#demo-fallback');
 const status = document.querySelector<HTMLElement>('#demo-status');
-if (range && pair && value && title && native && language && languageControl && control && fallback && status) {
+if (sliderHost && languageHost && pair && value && title && native && languageControl && control && fallback && status) {
+  const samples = JSON.parse(languageHost.dataset.samples ?? '{}') as Record<string,string>;
+  const options = JSON.parse(languageHost.dataset.options ?? '[]') as SelectDropdownOption[];
+  let selectedLanguage = languageHost.dataset.locale ?? 'en';
+  let range: HTMLInputElement | null = null;
   pair.hidden = false;
   const updateLimit = () => {
     const widths = Array.from(pair.children, panel => {
@@ -49,14 +58,14 @@ if (range && pair && value && title && native && language && languageControl && 
       return panel.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
     });
     const max = Math.max(160, Math.min(320, Math.floor(Math.min(...widths) / 10) * 10));
-    range.max = String(max);
+    if (range) range.max = String(max);
   };
-  const update = () => { pair.style.setProperty('--sample-width', range.value+'px'); value.value = range.value+' px'; };
+  const update = () => { if (range) { pair.style.setProperty('--sample-width', range.value+'px'); value.value = range.value+' px'; } };
   let controller: ReturnType<typeof mountJuliya> | undefined;
   const applySample = () => {
-    const lang = language.value;
+    const lang = selectedLanguage;
     const locale = lang === 'zh-CN' ? 'zh-Hans' : lang === 'ko' || lang === 'ja' ? lang : 'en';
-    const text = language.selectedOptions[0]?.dataset.sample ?? '';
+    const text = samples[lang] ?? '';
     native.textContent = text;
     native.lang = lang;
     title.lang = lang;
@@ -64,9 +73,26 @@ if (range && pair && value && title && native && language && languageControl && 
     else controller = mountJuliya(title,{text,locale});
   };
   let cleanup: (() => void) | undefined;
+  const mountControls = () => {
+    if (range) return;
+    const selectRoot = createRoot(languageHost);
+    const sliderRoot = createRoot(sliderHost);
+    flushSync(() => {
+      selectRoot.render(createElement(SelectDropdown, {
+        id:'demo-language', 'aria-labelledby':'demo-language-label', options, defaultValue:selectedLanguage,
+        onValueChange: lang => { selectedLanguage = lang; if (cleanup) applySample(); },
+      }));
+      sliderRoot.render(createElement(Slider, {id:'demo-width',min:160,max:320,step:10,defaultValue:220}));
+    });
+    range = sliderHost.querySelector<HTMLInputElement>('#demo-width');
+    if (!range || !languageHost.querySelector('#demo-language')) throw new Error('Missing demo controls');
+  };
   const start = () => {
     if (cleanup) return;
     try {
+      mountControls();
+      if (!range) throw new Error('Missing demo slider');
+      const input = range;
       pair.hidden = false;
       updateLimit();
       update();
@@ -74,13 +100,11 @@ if (range && pair && value && title && native && language && languageControl && 
       const observer = new ResizeObserver(() => { updateLimit(); update(); });
       cleanup = () => {
         observer.disconnect();
-        range.removeEventListener('input', update);
-        language.removeEventListener('change', applySample);
+        input.removeEventListener('input', update);
         cleanup = undefined;
       };
       for (const panel of pair.children) observer.observe(panel);
-      range.addEventListener('input', update);
-      language.addEventListener('change', applySample);
+      input.addEventListener('input', update);
       control.hidden = false;
       languageControl.hidden = false;
       fallback.hidden = true;

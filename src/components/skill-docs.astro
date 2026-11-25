@@ -2,6 +2,9 @@
 import { url, type Locale } from '../content';
 import { skills, skillCopy, skillName, skillSummary, findSkill, skillRevision } from '../skill-content';
 import { guideFor, skillStages } from '../skill-guide';
+import { Button } from '@oddmash/ui/button';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 interface Props { locale: Locale; path: string }
 const { locale, path } = Astro.props;
@@ -76,15 +79,19 @@ const stageIndex=stage ? skillStages.indexOf(stage) : 0;
 const skillId=skill ? 'oddmash-'+skill.id : '';
 const markdown=skill ? '---\nname: '+skillId+'\ndescription: '+JSON.stringify(skill.description)+'\n---\n\n'+skill.source+'\n' : '';
 const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https://github.com/Oddmash/oddmash-skills.git "$HOME/.oddmash-skills"','mkdir -p "$HOME/.agents/skills"','test -f "$HOME/.oddmash-skills/skills/'+skillId+'/SKILL.md" && test ! -e "$HOME/.agents/skills/'+skillId+'" && test ! -L "$HOME/.agents/skills/'+skillId+'" && ln -s "$HOME/.oddmash-skills/skills/'+skillId+'" "$HOME/.agents/skills/'+skillId+'"'].join('\n') : '';
+const copyButton = (kind: string, label: string) => {
+  const props = {type:'button', variant:'secondary', 'data-copy':kind, 'data-success':labels.copied, 'data-failure':labels.failed} as const;
+  return renderToStaticMarkup(createElement(Button, props, label));
+};
 ---
-{skill ? <article class="agent-doc skill-doc">
+{skill ? <article class="agent-doc skill-doc" data-om-theme="dark">
   <header class="detail-head agent-doc-heading">
     <a class="text-link" href={url(locale,'skills')}>← {t.back}</a>
     <p class="eyebrow">Oddmash Skills {stage && ' / '+stage[locale]}</p>
     <h1>{skillName(skill,locale)}</h1>
     <p class="lead" lang={locale}>{skillSummary(skill,locale)}</p>
     <div class="actions skill-actions" data-copy-scope>
-      <button type="button" class="button secondary" data-copy="markdown" data-success={labels.copied} data-failure={labels.failed}>{labels.copy}</button>
+      <Fragment set:html={copyButton('markdown',labels.copy)} />
       <a class="button primary" href="#skill-install">{labels.add}</a>
       <textarea data-copy-source="markdown" class="skill-copy-source" hidden readonly aria-label={labels.copy}>{markdown}</textarea>
 
@@ -101,7 +108,7 @@ const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https
   <section class="section agent-doc-section skill-install" id="skill-install" data-copy-scope>
     <h2>{labels.install}</h2><p>{usage.setup}</p><p>{labels.installBody}</p>
     <pre><code>{commands}</code></pre>
-    <button type="button" class="button secondary" data-copy="commands" data-success={labels.copied} data-failure={labels.failed}>{labels.copyCommand}</button>
+    <Fragment set:html={copyButton('commands',labels.copyCommand)} />
     <textarea data-copy-source="commands" class="skill-copy-source" hidden readonly aria-label={labels.copyCommand}>{commands}</textarea>
     <p>{labels.all}</p>
   </section>

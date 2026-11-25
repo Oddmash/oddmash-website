@@ -104,7 +104,7 @@ html[lang=ko] .hero h1 { max-width: 12em; font-size: clamp(2.6rem, 5.4vw, 5rem);
 .policy p:not(.eyebrow) { margin: 20px 0; line-height: 1.75; }
 .demo > p { margin-block: 12px; color: var(--muted); }
 .width-control { margin-block: 24px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-weight: 600; }
-.width-control input { width: min(100%, 260px); accent-color: var(--ink); min-height: 44px; }
+.width-control #demo-slider-host { width: min(100%, 260px); }
 .demo-pair { --sample-width: 220px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .demo-pair > div { border: 1px solid var(--line); background: var(--paper); padding: 18px; min-width: 0; border-radius: 16px; }
 .sample { width: min(100%, var(--sample-width)); font-size: 1.5rem; line-height: 1.45; overflow-wrap: anywhere; word-break: keep-all; margin-top: 20px; min-height: 6em; }
@@ -131,7 +131,7 @@ html[lang=ko] { word-break: keep-all; overflow-wrap: anywhere; }
   .footer { justify-content: flex-start; }
   .footer nav { width: 100%; flex-wrap: wrap; }
   .footer > p { margin-left: auto; }
-  .width-control input { flex-basis: 100%; }
+  .width-control #demo-slider-host { flex-basis: 100%; }
   .demo-pair > div { padding: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
@@ -651,6 +651,6 @@ html[data-page=home] main > .closing-cta { align-items: center; }
 
 .detail-hero .detail-image img.juliya-preview, .catalog-identity img.juliya-preview { object-fit: contain; width: 100%; height: auto; }
 .demo-language-control { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-block: 16px; color: var(--muted); }
-.demo-language-control select { min-height: 44px; max-width: 100%; padding: 8px 12px; color: var(--ink); background: var(--paper); border: 1px solid var(--control-line); border-radius: 8px; }
-.demo-language-control select:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.demo-language-control #demo-language-host { width: min(160px, 100%); }
+.demo-language-control .om-select-dropdown-trigger, .width-control .om-slider { min-block-size: 44px; }
 .sample:lang(en), .sample:lang(ja), .sample:lang(zh-CN) { word-break: normal; }

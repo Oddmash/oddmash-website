@@ -108,6 +108,7 @@ test('live Juliya width and clean footer', async ({page})=>{
   await page.goto('/ko/projects/juliya/');
   const range=page.locator('#demo-width');
   await expect(range).toBeVisible();
+  await expect(range).toHaveClass(/om-slider/);
   await expect(page.locator('#demo-fallback')).toBeHidden();
   await expect(page.locator('.demo-fallback-link')).toBeHidden();
   await range.focus();
@@ -742,11 +743,13 @@ test('skill copy and install affordances provide actionable content',async ({pag
   await expect(page.locator('[data-stage-panel="quality"]')).toBeVisible();
   await page.locator('a[href="/ko/skills/accessibility/"]').click();
   await page.locator('[data-copy="markdown"]').click();
+  await expect(page.locator('[data-copy="markdown"]')).toHaveClass(/om-button/);
   await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/^---\nname: oddmash-accessibility/);
   await expect(page.locator('#copy-toast .om-toast')).toContainText('복사했습니다');
   await page.locator('a[href="#skill-install"]').click();
   await expect(page).toHaveURL(/#skill-install$/);
   await page.locator('[data-copy="commands"]').click();
+  await expect(page.locator('[data-copy="commands"]')).toHaveClass(/om-button/);
   await expect(page.locator('html')).toHaveAttribute('data-copied-skill',/oddmash-accessibility\/SKILL\.md/);
 });
 
@@ -862,8 +865,12 @@ test('project detail explains problems, workflow, outcomes and scope in each loc
 test('Juliya comparison supports each language and retains content across navigation', async ({page})=>{
   await page.goto('/ko/projects/juliya/');
   const language = page.locator('#demo-language');
+  await expect(language).toHaveClass(/om-select-dropdown-trigger/);
+  await expect(language).toHaveRole('combobox');
   for (const locale of ['ko','en','ja','zh-CN']) {
-    await language.selectOption(locale);
+    await language.press('Enter');
+    await expect(language).toHaveAttribute('aria-expanded','true');
+    await page.locator('#demo-language-host').getByRole('option',{name:languageNames[locale as Language],exact:true}).click();
     await expect(page.locator('#native-wrap')).toHaveAttribute('lang',locale);
     await expect(page.locator('#optimized-wrap')).toHaveAttribute('lang',locale);
     await expect.poll(async()=>await page.locator('#optimized-wrap').textContent()).toBe(await page.locator('#native-wrap').textContent());
