@@ -30,7 +30,7 @@ const controls = {
     <h2 id="workflow-title" tabindex="-1">{c.workflowTitle}</h2>
     <p>{controls.lead}</p>
   </div>
-  <div class="film-player" hidden tabindex="0" aria-describedby="film-hint">
+  <div class="film-player" hidden tabindex="0" role="region" aria-labelledby="workflow-title" aria-describedby="film-hint">
     <div class="film-screen">
       {c.steps.map((step, index) => <article class="film-visual" data-film-visual={index} hidden={index !== 0}>
         <div class="film-scene" aria-hidden="true"><FilmScene locale={locale} index={index} /></div>
@@ -119,7 +119,7 @@ if (root && 'IntersectionObserver' in window) {
     };
     player.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') { hovered = true; sync(); } });
     player.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') { hovered = false; sync(); } });
-    player.addEventListener('focusin', () => { focused = true; sync(); });
+    player.addEventListener('focusin', () => { focused = true; if (player.matches(':focus-visible')) touchPaused = false; sync(); });
     player.addEventListener('focusout', () => { focused = false; sync(); });
     player.addEventListener('pointerup', event => { if (event.pointerType === 'touch') { focused = false; touchPaused = !touchPaused; sync(); } });
     const observer = new IntersectionObserver(entries => {
