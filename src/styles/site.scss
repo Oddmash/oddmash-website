@@ -575,14 +575,14 @@ html[lang=ko] main :is(h1,h2,h3,h4):not([data-juliya-applied]) { text-wrap: bala
 html[lang=ko] .film-step-copy h3 { max-width: 100%; }
 
 .skill-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-.skill-item { display:block; padding:20px; background:var(--paper); border:1px solid var(--line); border-radius:14px; min-width:0; }
+.skill-item { display:block; padding:20px; background-color:var(--paper); border:1px solid var(--line); border-radius:14px; min-width:0; }
 .skill-item:hover,.skill-item:focus-visible { border-color:var(--muted); }
 .skill-item h3 { font-size:1.15rem; margin-bottom:10px; }
 .skill-item p { font-size:.95rem; line-height:1.65; }
 .skill-reference h3 { margin-top:32px; margin-bottom:12px; font-size:1.3rem; }
-.skill-reference p,.skill-reference ul,.skill-reference pre,.skill-table { margin-block:14px; }
+.skill-reference p,.skill-reference ul,.skill-reference pre:not(.om-code-block-content),.skill-table { margin-block:14px; }
 .skill-reference pre,.skill-table { overflow-x:auto; max-width:100%; }
-.skill-reference pre { padding:16px; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
+.skill-reference pre:not(.om-code-block-content) { padding:16px; white-space:pre-wrap; overflow-wrap:anywhere; background:var(--paper); border:1px solid var(--line); border-radius:10px; }
 .skill-table table { width:100%; border-collapse:collapse; font-size:.9rem; }
 .skill-table :is(th,td) { text-align:left; padding:10px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
 @media(max-width:760px){.skill-grid{grid-template-columns:minmax(0,1fr);}}
@@ -611,7 +611,7 @@ html[lang=ko] .film-step-copy h3 { max-width: 100%; }
 .skill-reference h2:not(:first-child){margin-top:30px}
 .skill-related{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
 .skill-related h3{flex-basis:100%}
-.skill-install pre{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:var(--paper);border-radius:12px;border:1px solid var(--line);margin-block:20px}
+.skill-install .om-code-block{margin-block:20px}
 .skill-install{scroll-margin-top:100px}
 @media(max-width:760px){.skill-flow-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-flow-controls button::after{display:none}}
 @media(max-width:420px){.skill-flow-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -634,8 +634,6 @@ html[data-page=home] main > .closing-cta { align-items: center; }
 }
 @media(prefers-reduced-motion:no-preference) {
   .skill-flow-panel:not([hidden]) { animation: skill-panel-enter .24s ease-out; }
-  .skill-item { transition: border-color .18s, background .18s; }
-  .skill-item:hover { background: var(--hover); }
 }
 @keyframes skill-panel-enter { from { transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .contribution-guide { max-width: 900px; margin-inline: auto; }
