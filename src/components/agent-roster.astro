@@ -26,7 +26,7 @@ const lab = labCopy[locale];
         <a href={url(locale, 'agents/' + role.id)} class="agent-profile-link" style={`--agent-accent:${role.color}`}>
           <AgentCharacter id={role.id} color={role.color} />
           <div class="agent-caption">
-            <h3>{role.name}</h3>
+            <h3 data-no-wrap>{role.name}</h3>
             <span class="agent-mode">{role.id === 'lead' ? lab.reviewMode : role.id === 'triage' ? lab.issueMode : lab.advisoryMode}</span>
             {!compact && <p>{lab.agentDescriptions[role.id]}</p>}
           </div>
