@@ -18,7 +18,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
-a { color: inherit; text-decoration: none; }
+a:where(:not(.om-platform-link)) { color: inherit; text-decoration: none; }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 button, a, input { touch-action: manipulation; }
