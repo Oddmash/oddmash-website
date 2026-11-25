@@ -118,7 +118,7 @@
   font-size: clamp(1.1rem, 1.7vw, 1.35rem);
   line-height: 1.2;
   letter-spacing: -.025em;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .agent-caption p {
@@ -231,7 +231,7 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1120px) {
   .agent-section-compact .agent-roster {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
