@@ -34,6 +34,32 @@ test('root chooses the first supported browser language and remembers explicit s
     } finally { await context.close(); }
   }
 });
+test('initial language selection remains usable without storage or JavaScript', async ({browser})=>{
+  const blocked = await browser.newContext();
+  try {
+    await blocked.addInitScript(()=>{
+      Object.defineProperty(navigator,'languages',{value:['ja-JP']});
+      Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage unavailable');}});
+    });
+    const page=await blocked.newPage();
+    await page.goto('http://127.0.0.1:4322/');
+    await expect(page).toHaveURL('http://127.0.0.1:4322/ja/');
+    await chooseLanguage(page,'en');
+    await expect(page).toHaveURL('http://127.0.0.1:4322/');
+    await expect(page.locator('html')).toHaveAttribute('lang','en');
+  } finally { await blocked.close(); }
+  const noScript = await browser.newContext({javaScriptEnabled:false,locale:'ko-KR'});
+  try {
+    const page=await noScript.newPage();
+    await page.goto('http://127.0.0.1:4322/');
+    await expect(page.locator('html')).toHaveAttribute('lang','en');
+    await expect(page.locator('.language-picker-fallback summary')).toBeVisible();
+    await page.locator('.language-picker-fallback summary').focus();
+    await page.keyboard.press('Enter');
+    await page.getByRole('link',{name:'한국어',exact:true}).click();
+    await expect(page).toHaveURL('http://127.0.0.1:4322/ko/');
+  } finally { await noScript.close(); }
+});
 test('project catalog, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
   await expect(page).toHaveURL(/\/ko\/$/);
