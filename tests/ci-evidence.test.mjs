@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { findMergedTreeEvidence } from '../scripts/ci-evidence.mjs';
 
 const hash = character => character.repeat(40);
@@ -88,4 +90,20 @@ test('missing access, invalid identifiers and missing evidence require full veri
   }
   const data=fixture(); data.runs=[];
   assert.equal(await findMergedTreeEvidence(mockedApi(data),input),null);
+});
+
+test('aggregate verify accepts full fallback success and rejects a skipped suite without evidence',()=>{
+  const workflow=readFileSync(new URL('../.github/workflows/ci.yml',import.meta.url),'utf8');
+  const script=workflow.match(/\n  verify:\n[\s\S]*?        run: \|\n((?:          .*\n?)+)/)?.[1];
+  assert.ok(script);
+  const validate=(EVENT,WEBSITE,EVIDENCE,PRIOR_RUN='',SCOPE='success')=>spawnSync('bash',['-e','-c',script],{env:{...process.env,EVENT,WEBSITE,EVIDENCE,PRIOR_RUN,SCOPE}}).status===0;
+  assert.ok(validate('pull_request','success','skipped'));
+  assert.ok(validate('push','success','failure'));
+  assert.ok(validate('push','success','success'));
+  assert.ok(validate('push','skipped','success','100'));
+  assert.equal(validate('pull_request','skipped','success','100'),false);
+  assert.equal(validate('push','skipped','success'),false);
+  assert.equal(validate('push','skipped','failure','100'),false);
+  assert.equal(validate('push','failure','success','100'),false);
+  assert.equal(validate('push','success','success','','failure'),false);
 });
