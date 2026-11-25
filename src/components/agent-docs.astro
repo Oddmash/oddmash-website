@@ -30,7 +30,7 @@ const guide = {
         <a class="text-link agent-back-link" href={url(locale, 'agents')}>{t.back}</a>
         <p class="eyebrow">{role.id === 'lead' ? t.auto : t.request}</p>
         <h1>{role.name}</h1>
-        <p class="lead">{labCopy[locale].agentDescriptions[role.id]}</p>
+        <p class="lead">{detail.description}</p>
       </div>
       <div class="agent-doc-art"><AgentCharacter id={role.id} color={role.color} /></div>
     </header>
