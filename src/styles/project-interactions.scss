@@ -1,7 +1,8 @@
 .platform-links {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  --om-platform-link-size: 48px;
+  --om-platform-link-muted: var(--muted);
+  --om-platform-link-color: var(--ink);
+  --om-platform-link-pulse-duration: 1700ms;
   gap: 6px;
   flex-shrink: 0;
   max-width: 100%;
@@ -9,35 +10,13 @@
   z-index: 2;
 }
 .platform-link {
-  --platform-color: #f5f5f5;
   position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  border: 1px solid transparent;
   border-radius: 12px;
-  color: var(--muted);
-  transition: color 220ms ease, background-color 220ms ease, border-color 220ms ease;
-}
-.platform-link[data-platform=npm] {
-  --platform-color: #cb3837;
-}
-.platform-link svg {
-  display: block;
-  max-width: 28px;
-  transform-origin: center;
-  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
 }
 .platform-link:focus-visible,
 .platform-link:active {
-  color: var(--platform-color);
   border-color: var(--line);
   background: var(--hover);
-}
-.platform-link:active svg {
-  transform: scale(.95);
 }
 .project .project-body .platform-links {
   margin-top: auto;
@@ -117,6 +96,7 @@
   font-size: .9rem;
   border-color: var(--control-line);
 }
+.platform-links-labeled .platform-link[data-platform=github]::after { content: 'GitHub'; }
 .ecosystem-grid .platform-link[data-platform=docs] {
   position: static;
 }
@@ -143,16 +123,8 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .platform-link:hover {
-    color: var(--platform-color);
     border-color: var(--line);
     background: var(--hover);
-  }
-  .platform-link:hover svg {
-    animation: platform-pulse 1700ms cubic-bezier(.45,0,.55,1) 1;
-  }
-  .platform-link:active svg {
-    animation: none;
-    transform: scale(.95);
   }
   .project-destination:hover { color: var(--ink); }
   .project-gallery .project:has(.project-destination:hover) {
@@ -190,12 +162,6 @@
     transform: scale(1.05);
   }
 }
-@keyframes platform-pulse {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.07); }
-  68% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
 @media (min-width: 960px) and (min-height: 701px) and (prefers-reduced-motion: no-preference) {
   html[data-page=home] { scroll-behavior: smooth; }
 }
@@ -210,8 +176,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .platform-link:hover svg,
-  .platform-link:active svg,
   .brand:hover img,
   .brand:focus-visible img,
   .button:hover,
@@ -220,18 +184,6 @@
     animation: none;
   }
 }
-@media (forced-colors: active) {
-  .platform-link {
-    color: LinkText;
-    border-color: ButtonText;
-  }
-  .platform-link:hover,
-  .platform-link:focus-visible {
-    color: HighlightText;
-    background: Highlight;
-  }
-}
-
 .projects-overview {
   padding-block: clamp(60px, 8vw, 112px);
 }
