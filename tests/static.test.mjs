@@ -73,6 +73,10 @@ test('all localized agent documentation pages are linked without private impleme
     for(const role of ['lead','impact','triage','qa','docs','architect','release']){
       assert.ok(overview.includes('href="/'+prefix+'agents/'+role+'/"'));
       const detail=readFileSync('build/'+prefix+'agents/'+role+'/index.html','utf8');
+      const summary=detail.match(/<p class="lead"[^>]*>([^<]+)<\/p>/)?.[1];
+      const meta=detail.match(/<meta name="description" content="([^"]+)"/)?.[1];
+      assert.ok(summary && summary.length >= 40, `${prefix}${role} has a substantive description`);
+      assert.equal(meta,summary, `${prefix}${role} metadata matches the visible description`);
       assert.doesNotMatch(detail,/github\.com\/Oddmash\/oddmash-(agents|skills)\/[^" ]*(?:\.env|secret|credential)/i);
     }
   }
