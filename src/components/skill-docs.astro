@@ -119,13 +119,13 @@ const commands=skill ? ['test -d "$HOME/.oddmash-skills/.git" || git clone https
   </section>
   <section class="section agent-doc-section"><a class="text-link" href={url(locale,'agents')}>{locale==='ko'?'에이전트 문서':locale==='ja'?'エージェント':locale==='zh-CN'?'智能体文档':'Agent documentation'} →</a></section>
 </div>}
-<script>
-import { notifyCopy } from '../copy-toast';
-const controls=document.querySelector<HTMLElement>('[data-skill-flow-controls]');
+<script is:inline>
+(() => {
+const controls=document.querySelector('[data-skill-flow-controls]');
 if(controls){
-  const buttons=[...controls.querySelectorAll<HTMLButtonElement>('[data-stage-select]')];
-  const panels=[...document.querySelectorAll<HTMLElement>('[data-stage-panel]')];
-  const setStage=(id:string)=>{
+  const buttons=[...controls.querySelectorAll('[data-stage-select]')];
+  const panels=[...document.querySelectorAll('[data-stage-panel]')];
+  const setStage=(id)=>{
     for(const button of buttons) button.setAttribute('aria-pressed',String(button.dataset.stageSelect===id));
     for(const panel of panels) panel.hidden=panel.dataset.stagePanel!==id;
   };
@@ -136,6 +136,10 @@ if(controls){
     button.addEventListener('click',activate);
   }
 }
+})();
+</script>
+<script>
+import { notifyCopy } from '../copy-toast';
 for(const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')){
   button.addEventListener('click',async()=>{
     const scope=button.closest('[data-copy-scope]');

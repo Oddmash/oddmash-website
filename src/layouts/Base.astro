@@ -19,6 +19,7 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#101010" />
 <meta name="color-scheme" content="dark" />
+<style is:inline>:root{color-scheme:dark;background:#080808;color:#f5f5f5}</style>
 <title>{title} | Oddmash</title>
 <meta name="description" content={description} />
 <meta name="robots" content={indexable && !noIndex ? 'index, follow' : 'noindex, nofollow'} />
@@ -40,7 +41,10 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="38" height="38" alt="" /><span>oddmash<span class="brand-dot">.</span></span></a>
   <nav class="primary-navigation" aria-label={l.navigation}><a href={home} aria-current={path===''?'page':undefined}>{({en:'Home',ko:'홈',ja:'ホーム','zh-CN':'首页'})[locale]}</a><a href={url(locale,'projects')} aria-current={path==='projects'||path.startsWith('projects/')?'page':undefined}>{t.nav[0]}</a><a href={url(locale,'agents')} aria-current={path==='agents'||path.startsWith('agents/')?'page':undefined}>{agentDocsCopy[locale].nav}</a><a href={url(locale,'skills')} aria-current={path==='skills'||path.startsWith('skills/')?'page':undefined}>{skillCopy[locale].nav}</a><a href={url(locale,'contribute')} aria-current={path==='contribute'?'page':undefined}>{t.nav[2]}</a></nav>
   <div class="language-select" data-om-theme="dark" hidden></div>
-  <nav class="language-fallback" aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
+  <details class="language-fallback language-picker-fallback" data-om-theme="dark">
+    <summary class="om-select-dropdown-trigger" aria-label={t.language}>{languageNames[locale]}</summary>
+    <nav aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
+  </details>
 </header>
 <main id="main" class="shell" tabindex="-1"><slot /></main>
 <footer class="shell footer">
@@ -73,12 +77,14 @@ if(picker && fallbackLinks) {
     destination.hash = location.hash;
     location.assign(destination.href);
   };
-  try {
+  const enhance = () => {
+    if (fallbackLinks.contains(document.activeElement) || fallbackLinks.hasAttribute('open')) return;
+    try {
     const root = createRoot(picker);
     flushSync(() => {
       root.render(createElement(SelectDropdown, {
         id: 'language-select',
-        'aria-label': fallbackLinks.getAttribute('aria-label') ?? 'Language',
+        'aria-label': fallbackLinks.querySelector('summary')?.getAttribute('aria-label') ?? 'Language',
         options,
         value: document.documentElement.lang,
         onValueChange: selectLanguage,
@@ -88,10 +94,12 @@ if(picker && fallbackLinks) {
       picker.hidden = false;
       fallbackLinks.hidden = true;
     }
-  } catch {
-    picker.hidden = true;
-    fallbackLinks.hidden = false;
-  }
+    } catch {
+      picker.hidden = true;
+      fallbackLinks.hidden = false;
+    }
+  };
+  enhance();
 }
 const share = document.querySelector<HTMLButtonElement>('#share');
 const fallback = document.querySelector<HTMLInputElement>('#share-fallback');
@@ -123,7 +131,7 @@ if (share) {
   }
 </style>
 <script>
-import { mountKowrap } from '@oddmash/kowrap/browser';
+import { mountKowrap as mountJuliya } from '@oddmash/juliya/dom';
 
 const root = document.querySelector<HTMLElement>('main');
 const eligible = 'h1, h2, h3, h4, h5, h6, p, li, figcaption, dt, dd, blockquote';
@@ -133,25 +141,25 @@ const inlineTags = new Set([
   'SUB', 'SUP', 'TIME', 'U', 'VAR', 'WBR',
 ]);
 const excluded = '.demo-pair, [hidden], [aria-hidden="true"], [role="status"], [aria-live]:not([aria-live="off"]), [contenteditable], [data-no-wrap], .sr';
-const controllers = new Map<HTMLElement, ReturnType<typeof mountKowrap>>();
+const controllers = new Map<HTMLElement, ReturnType<typeof mountJuliya>>();
 let observer: MutationObserver | undefined;
 let frame: number | undefined;
 
 const isEligible = (element: HTMLElement) => {
   const language = element.closest('[lang]')?.getAttribute('lang')?.toLowerCase();
-  if (language !== 'ko' || element.closest(excluded)) return false;
-  if (!/[가-힣]/.test(element.textContent ?? '')) return false;
+  if (!language || !['ko','en','ja','zh-cn'].includes(language) || element.closest(excluded)) return false;
+  if (!element.textContent?.trim() || element.clientWidth === 0) return false;
   return [...element.querySelectorAll<HTMLElement>('*')].every(child =>
     inlineTags.has(child.tagName) &&
     !child.matches(excluded) &&
-    (!child.hasAttribute('lang') || child.lang.toLowerCase() === 'ko') &&
+    (!child.hasAttribute('lang') || child.lang.toLowerCase() === language) &&
     (child.tagName === 'BR' || child.tagName === 'WBR' || getComputedStyle(child).display === 'inline')
   );
 };
 
-const unmount = (element: HTMLElement, controller: ReturnType<typeof mountKowrap>) => {
+const unmount = (element: HTMLElement, controller: ReturnType<typeof mountJuliya>) => {
   controller.destroy();
-  element.removeAttribute('data-kowrap-applied');
+  element.removeAttribute('data-juliya-applied');
   controllers.delete(element);
 };
 
@@ -168,16 +176,18 @@ const sync = () => {
       overflowWrap: element.style.overflowWrap,
     };
     try {
-      const controller = mountKowrap(element, {
+      const language = element.closest('[lang]')?.getAttribute('lang')?.toLowerCase();
+      const locale = language === 'zh-cn' ? 'zh-Hans' : language === 'ko' || language === 'ja' ? language : 'en';
+      const controller = mountJuliya(element, {
         inline: true,
-        breakLongWords: false,
+        locale,
+        breakLongWords: true,
       });
       controllers.set(element, controller);
-      element.style.overflowWrap = 'anywhere';
-      element.dataset.kowrapApplied = 'true';
+      element.dataset.juliyaApplied = 'true';
     } catch {
       Object.assign(element.style, original);
-      element.removeAttribute('data-kowrap-applied');
+      element.removeAttribute('data-juliya-applied');
     }
   }
 };
@@ -206,7 +216,6 @@ const stop = () => {
   observer = undefined;
   if (frame !== undefined) cancelAnimationFrame(frame);
   frame = undefined;
-  for (const [element, controller] of controllers) unmount(element, controller);
 };
 
 window.addEventListener('pagehide', stop);

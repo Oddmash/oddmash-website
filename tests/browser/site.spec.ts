@@ -14,10 +14,10 @@ test('project catalog, detail navigation, locale and legacy query', async ({page
   await expect(page.locator('html')).toHaveAttribute('lang','ko');
   await expect(page.locator('.project:visible')).toHaveCount(4);
   await page.getByRole('link',{name:'Juliya 프로젝트 상세',exact:true}).click();
-  await expect(page).toHaveURL(/\/ko\/projects\/kowrap\//);
+  await expect(page).toHaveURL(/\/ko\/projects\/juliya\//);
   await expect(page.locator('#language-select')).toHaveText(languageNames.ko);
   await chooseLanguage(page,'ja');
-  await expect(page).toHaveURL(/\/ja\/projects\/kowrap\//);
+  await expect(page).toHaveURL(/\/ja\/projects\/juliya\//);
   await expect(page.locator('html')).toHaveAttribute('lang','ja');
 });
 test('all localized pages reflow, load images and retain keyboard focus', async ({page})=>{
@@ -25,7 +25,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   await page.emulateMedia({reducedMotion:'reduce'});
   await page.setViewportSize({width:320,height:740});
   const prefixes=['','ko/','ja/','zh-cn/'];
-  const paths=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+  const paths=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/juliya/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
   const unexpected:string[]=[];
   page.on('pageerror',error=>unexpected.push(error.message));
   page.on('request',request=>{if(!request.url().startsWith('http://127.0.0.1:4322/')&&!request.url().startsWith('data:'))unexpected.push('Unexpected external request');});
@@ -52,9 +52,9 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   }
   expect(unexpected).toEqual([]);
 });
-test('copy feedback and live Kowrap width', async ({page})=>{
+test('copy feedback and live Juliya width', async ({page})=>{
   await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{}}}));
-  await page.goto('/ko/projects/kowrap/');
+  await page.goto('/ko/projects/juliya/');
   const range=page.locator('#demo-width');
   await expect(range).toBeVisible();
   await expect(page.locator('#demo-fallback')).toBeHidden();
@@ -93,6 +93,7 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await page.goto('http://127.0.0.1:4322/privacy.html?lang=ko');
     await expect(page).toHaveURL(/\/privacy\/$/);
     await expect(page.locator('#language-select')).toBeHidden();
+    await page.locator('.language-picker-fallback summary').click();
     await page.getByRole('link',{name:'한국어'}).click();
     await expect(page).toHaveURL(/\/ko\/privacy\/$/);
     await page.goto('http://127.0.0.1:4322/ko/');
@@ -137,8 +138,8 @@ test('representative light and dark product captures',async ({page},testInfo)=>{
   await page.screenshot({path:testInfo.outputPath('mobile-home-dark.png'),fullPage:true});
 });
 
-test('Kowrap demo pauses and resumes across cached page transitions', async ({page})=>{
-  await page.goto('/ko/projects/kowrap/');
+test('Juliya demo pauses and resumes across cached page transitions', async ({page})=>{
+  await page.goto('/ko/projects/juliya/');
   const range=page.locator('#demo-width');
   const output=page.locator('#width-value');
   await expect(range).toBeVisible();
@@ -161,32 +162,32 @@ test('Kowrap demo pauses and resumes across cached page transitions', async ({pa
 });
 
 
-test('Korean editorial wrapping preserves content and links across viewport sizes', async ({page, browser})=>{
+test('Juliya editorial wrapping preserves content and links across viewport sizes', async ({page, browser})=>{
   await page.emulateMedia({reducedMotion:'reduce'});
   const plain = await browser.newContext({javaScriptEnabled:false,reducedMotion:'reduce'});
   const fallback = await plain.newPage();
   const normalize = (value:string) => value.replace(/\s+/g,'');
   try {
-    for(const route of ['/ko/','/ko/projects/','/ko/agents/','/ko/agents/lead/','/ko/studio/','/ko/projects/kowrap/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
+    for(const route of ['/ko/','/ko/projects/','/ko/agents/','/ko/agents/lead/','/ko/studio/','/ko/projects/juliya/','/ko/projects/oddmash-ui/','/ko/projects/interaction-inspector/','/ko/projects/boundra/','/ko/privacy/']){
       await fallback.goto('http://127.0.0.1:4322'+route);
       await page.goto(route);
-      await expect(page.locator('[data-kowrap-applied]').first()).toBeVisible();
+      await expect(page.locator('[data-juliya-applied]').first()).toBeVisible();
       for(const width of [320,390,768,1440]){
         await page.setViewportSize({width,height:900});
-        await expect.poll(()=>page.locator('[data-kowrap-applied]').evaluateAll(nodes=>nodes.every(el=>el.scrollWidth<=el.clientWidth+1))).toBe(true);
+        await expect.poll(()=>page.locator('[data-juliya-applied]').evaluateAll(nodes=>nodes.every(el=>el.scrollWidth<=el.clientWidth+1))).toBe(true);
         expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       }
       const original = await fallback.locator('main h1, main h2, main h3, main h4, main h5, main h6, main p, main li, main figcaption, main dt, main dd, main blockquote').allTextContents();
-      const applied = await page.locator('[data-kowrap-applied]').allTextContents();
+      const applied = await page.locator('[data-juliya-applied]').allTextContents();
       expect(applied.length).toBeGreaterThan(0);
       for(const text of applied) expect(original.map(normalize)).toContain(normalize(text));
       expect(await page.locator('main a[href]').count()).toBe(await fallback.locator('main a[href]').count());
     }
     await page.setViewportSize({width:320,height:900});
     await page.goto('/ko/');
-    await expect(page.locator('#hero-title')).toHaveAttribute('data-kowrap-applied','true');
+    await expect(page.locator('#hero-title')).toHaveAttribute('data-juliya-applied','true');
     expect(await page.locator('#hero-title').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
-    await expect(fallback.locator('[data-kowrap-applied]')).toHaveCount(0);
+    await expect(fallback.locator('[data-juliya-applied]')).toHaveCount(0);
   } finally { await plain.close(); }
 });
 
@@ -221,7 +222,7 @@ test('cinematic opening and project scenes preserve navigation and reduced motio
   expect(await page.evaluate(()=>getComputedStyle(document.scrollingElement ?? document.documentElement).scrollBehavior)).toBe('auto');
   await page.getByRole('link',{name:'Juliya Project details',exact:true}).focus();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/projects\/kowrap\//);
+  await expect(page).toHaveURL(/\/projects\/juliya\//);
 });
 
 
@@ -328,7 +329,7 @@ test('workflow preserves inline scenes under reduced motion and fits narrow scre
   }
 });
 
-test('non-Kowrap project detail hero places real media next to the introduction on desktop', async ({page})=>{
+test('non-Juliya project detail hero places real media next to the introduction on desktop', async ({page})=>{
   await page.setViewportSize({width:1440,height:900});
   for(const project of ['boundra','oddmash-ui','interaction-inspector']){
     await page.goto('/ko/projects/'+project+'/');
@@ -372,7 +373,7 @@ test('project section navigation includes image and keyboard with independent pa
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/ko/');
   const cards=page.locator('.project-gallery .project');
-  const published:Record<string,string>={kowrap:'@oddmash/juliya','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
+  const published:Record<string,string>={juliya:'@oddmash/juliya','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
   for(const card of await cards.all()){
     const project=(await card.getAttribute('data-project'))!;
     const destination=card.locator('a.project-destination');
@@ -381,7 +382,7 @@ test('project section navigation includes image and keyboard with independent pa
     await expect(destination).toHaveAttribute('href','/ko/projects/'+project+'/');
     await expect(destination).toHaveAccessibleName(/\S/);
     await expect(github).toHaveAccessibleName(/GitHub/i);
-    await expect(github).toHaveAttribute('href',new RegExp('^https://github\\.com/Oddmash/'+(project==='kowrap'?'juliya':project)+'(?:/|$)'));
+    await expect(github).toHaveAttribute('href',new RegExp('^https://github\\.com/Oddmash/'+project+'(?:/|$)'));
     await expect(github.locator('svg')).toBeVisible();
     await expect(card.locator('a a, a button')).toHaveCount(0);
     if(published[project]){
@@ -451,7 +452,7 @@ test('homepage sections are navigable and every public product appears once',asy
   }
   await expect(work.locator('.project-gallery .project')).toHaveCount(4);
   await expect(work.locator('.project-arrow')).toHaveCount(0);
-  for(const project of ['kowrap','oddmash-ui','interaction-inspector','boundra']){
+  for(const project of ['juliya','oddmash-ui','interaction-inspector','boundra']){
     await expect(page.locator('main a[href="/ko/projects/'+project+'/"]')).toHaveCount(1);
   }
   await expect(method.locator('.method-item')).toHaveCount(4);
@@ -549,7 +550,7 @@ test('Oddmash UI documentation artwork is displayed completely in both themes an
 
 test('localized Juliya links follow upstream language routes',async ({page})=>{
   for(const [prefix,suffix] of [['','en/'],['ko/',''],['ja/','ja/'],['zh-cn/','zh/']] as const){
-    await page.goto('/'+prefix+'projects/kowrap/');
+    await page.goto('/'+prefix+'projects/juliya/');
     const live='https://oddmash.github.io/juliya/'+suffix;
     await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
     await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
@@ -627,19 +628,19 @@ test('localized agent pages describe official roles and preserve individual char
   await expect(page.locator('h1')).toHaveText('Triage');
 });
 
-test('visible workflow stages use Korean enhancement and other locales use native typography',async ({page})=>{
+test('visible workflow stages use multilingual enhancement and preserve native typography fallback',async ({page})=>{
   await page.setViewportSize({width:1200,height:900});
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.goto('/ko/');
   const player=page.locator('#workflow .film-player');
   await player.locator('.film-screen').scrollIntoViewIfNeeded();
   await expect(page.locator('#workflow')).toHaveAttribute('data-active-scene','1',{timeout:15000});
-  await expect(player.locator('[data-film-visual="1"] h3')).toHaveAttribute('data-kowrap-applied','true');
-  await expect(player.locator('[data-film-visual]:is([hidden]) [data-kowrap-applied]')).toHaveCount(0);
+  await expect(player.locator('[data-film-visual="1"] h3')).toHaveAttribute('data-juliya-applied','true');
+  await expect(player.locator('[data-film-visual]:is([hidden]) [data-juliya-applied]')).toHaveCount(0);
   for(const path of ['/ja/','/zh-cn/']){
     await page.goto(path);
     expect(await page.locator('main').evaluate(el=>getComputedStyle(el).lineBreak)).toBe('strict');
-    await expect(page.locator('[data-kowrap-applied]')).toHaveCount(0);
+    await expect(page.locator('[data-juliya-applied]').first()).toBeVisible();
   }
 });
 
@@ -660,7 +661,7 @@ test('skills are documented natively and localized routes remain usable',async (
     await expect(page.locator('a[href="#skill-install"]')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang',language);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-    if(language==='ko') await expect(page.locator('.skill-doc .lead')).toHaveAttribute('data-kowrap-applied','true');
+    await expect(page.locator('.skill-doc .lead')).toHaveAttribute('data-juliya-applied','true');
   }
 });
 
@@ -781,10 +782,77 @@ test('representative editorial text and controls have readable contrast', async 
 
 
 test('project quickstarts provide native actionable usage across locales', async ({page})=>{
-  for(const project of ['kowrap','oddmash-ui','interaction-inspector','boundra']){
+  for(const project of ['juliya','oddmash-ui','interaction-inspector','boundra']){
     await page.goto('/ko/projects/'+project+'/');
     const quickstart=page.locator('.project-quickstart');
     await expect(quickstart.locator('h2')).toHaveText('시작하기');
     await expect(quickstart.locator('pre code')).not.toBeEmpty();
   }
+});
+
+test('Juliya comparison supports each language and retains content across navigation', async ({page})=>{
+  await page.goto('/ko/projects/juliya/');
+  const language = page.locator('#demo-language');
+  for (const locale of ['ko','en','ja','zh-CN']) {
+    await language.selectOption(locale);
+    await expect(page.locator('#native-wrap')).toHaveAttribute('lang',locale);
+    await expect(page.locator('#optimized-wrap')).toHaveAttribute('lang',locale);
+    await expect.poll(async()=>await page.locator('#optimized-wrap').textContent()).toBe(await page.locator('#native-wrap').textContent());
+  }
+  await page.goto('/ko/projects/kowrap/');
+  await expect(page).toHaveURL(/\/ko\/projects\/juliya\/$/);
+});
+
+test('404 offers a keyboard-operable return to the public homepage', async ({page})=>{
+  await page.goto('/404.html');
+  await expect(page.locator('main h1')).toHaveText('404');
+  await page.locator('main a[href="/"]').focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('http://127.0.0.1:4322/');
+});
+
+test('initial language control preserves its reserved geometry before script enhancement', async ({page})=>{
+  await page.setViewportSize({width:1280,height:900});
+  let releaseScripts: (()=>void) | undefined;
+  const pending = new Promise<void>(resolve=>{releaseScripts=resolve;});
+  await page.route('**/_astro/*.js',async route=>{await pending;await route.continue();});
+  await page.goto('/ko/',{waitUntil:'commit'});
+  try {
+    const fallback=page.locator('.language-picker-fallback');
+    await expect(fallback).toBeVisible();
+    const before=await fallback.boundingBox();
+    expect(before).not.toBeNull();
+    releaseScripts?.();
+    await expect(page.locator('#language-select')).toBeVisible();
+    const after=await page.locator('.language-select').boundingBox();
+    expect(Math.abs(before!.width-after!.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(before!.x-after!.x)).toBeLessThanOrEqual(1);
+  } finally { releaseScripts?.(); }
+});
+
+test('multilingual wrapping preserves editorial text and links after resize and back navigation', async ({page,browser})=>{
+  const context=await browser.newContext({javaScriptEnabled:false});
+  const plain=await context.newPage();
+  const normalized=(text:string)=>text.replace(/\s+/g,'');
+  try {
+    for (const path of ['/','/ja/','/zh-cn/']) {
+      await page.setViewportSize({width:390,height:850});
+      await page.goto(path);
+      await plain.goto('http://127.0.0.1:4322'+path);
+      const originals=(await plain.locator('main h1, main h2, main h3, main h4, main p, main li, main figcaption').allTextContents()).map(normalized);
+      await expect(page.locator('#hero-title')).toHaveAttribute('data-juliya-applied','true');
+      for (const width of [320,1280]) {
+        await page.setViewportSize({width,height:850});
+        await expect.poll(()=>page.locator('[data-juliya-applied]').evaluateAll(nodes=>nodes.every(el=>el.scrollWidth<=el.clientWidth+1))).toBe(true);
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+        for(const value of await page.locator('[data-juliya-applied]').allTextContents()) expect(originals).toContain(normalized(value));
+      }
+    }
+    await page.goto('/ko/skills/');
+    await page.locator('[data-stage-select="quality"]').click();
+    await page.locator('a[href="/ko/skills/accessibility/"]').click();
+    await page.goBack();
+    await expect(page.locator('.skill-flow-section')).toBeVisible();
+    await expect(page.locator('[data-stage-panel]:visible')).toHaveCount(1);
+  } finally {await context.close();}
 });

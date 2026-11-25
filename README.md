@@ -11,7 +11,7 @@ Developer Experience Lab. A localized showcase of our public developer tools, wo
 - [Interaction Inspector](https://github.com/Oddmash/interaction-inspector)
 - [Boundra](https://github.com/Oddmash/boundra)
 
-Juliya is the public product brand. The website retains the historical Korean comparison and screenshot, with the published `@oddmash/kowrap@0.3.2` engine for improved Korean phrase wrapping; current multilingual documentation is hosted on the product site. Editorial Korean prose uses the available published engine; other locales use native browser wrapping; the current public package is `@oddmash/juliya`. The website's historical demo and editorial engine remain pinned until separately verified for migration.
+The website uses the published `@oddmash/juliya@0.4.1` engine for eligible editorial text in Korean, English, Japanese and Simplified Chinese, with a live multilingual comparison. Legacy project URLs redirect to Juliya.
 
 Our reusable [Oddmash Skills documentation](https://oddmash.github.io/oddmash-website/skills/) and [Oddmash Agents documentation](https://oddmash.github.io/oddmash-website/agents/) are public developer workflow resources.
 

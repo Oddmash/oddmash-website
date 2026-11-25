@@ -21,10 +21,10 @@ test('launch metadata only uses an explicitly enabled valid HTTPS origin',()=>{
     assert.match(read('index.html'),/noindex, nofollow/);
     assert.match(read('robots.txt'),/Disallow: \//);
     build('https://studio.example.test','true');
-    const page=read('ko/projects/kowrap/index.html');
+    const page=read('ko/projects/juliya/index.html');
     assert.match(page,/content="index, follow"/);
-    assert.match(page,/rel="canonical" href="https:\/\/studio\.example\.test\/ko\/projects\/kowrap\/"/);
-    assert.match(page,/property="og:image" content="https:\/\/studio\.example\.test\/assets\/kowrap-live\.jpg"/);
+    assert.match(page,/rel="canonical" href="https:\/\/studio\.example\.test\/ko\/projects\/juliya\/"/);
+    assert.match(page,/property="og:image" content="https:\/\/studio\.example\.test\/assets\/juliya-live\.png"/);
     assert.match(page,/property="og:image:alt"/);
     assert.match(read('projects/boundra/index.html'),/property="og:image" content="https:\/\/studio\.example\.test\/assets\/social\.png"/);
     assert.equal((page.match(/rel="alternate" hreflang=/g)??[]).length,5);

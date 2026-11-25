@@ -4,7 +4,7 @@ Astro renders all routes as static HTML. Node 24, pinned pnpm, TypeScript and SC
 
 The default build is a private preview: noindex, no canonical host and empty sitemap. Do not publish until approval, hosting access, asset rights and actual device/accessibility testing are verified. After explicit approval configure the verified HTTPS origin and `ODDMASH_PUBLIC_LAUNCH=true` in the build environment; review the rendered canonical, alternate links, sitemap and privacy notice. No tracking, auth, storage or runtime service is added.
 
-The lockfile pins the verified published `@oddmash/kowrap@0.3.2` release with its registry integrity. This dependency powers eligible Korean editorial prose and the historical Korean demo on the Juliya detail page. Current multilingual product documentation is hosted on the upstream product website. The exact-version minimum-release-age exception is restricted to this reviewed release. Remove it after the release satisfies the default maturity window.
+The lockfile pins `@oddmash/juliya@0.4.1` with registry integrity. The website uses its public DOM adapter across all supported locales. The exact-version release-age exception is restricted to this reviewed release and should be removed once mature.
 
 Follow the [organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md) and the shared skills. See [delivery evidence](docs/delivery.md) and [asset register](docs/assets.md).
 
