@@ -121,6 +121,7 @@ if (root && 'IntersectionObserver' in window) {
     player.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') { hovered = false; sync(); } });
     player.addEventListener('focusin', () => { focused = true; if (player.matches(':focus-visible')) touchPaused = false; sync(); });
     player.addEventListener('focusout', () => { focused = false; sync(); });
+    player.addEventListener('keydown', event => { if (event.key === 'Tab' && touchPaused) { touchPaused = false; sync(); } });
     player.addEventListener('pointerup', event => { if (event.pointerType === 'touch') { focused = false; touchPaused = !touchPaused; sync(); } });
     const observer = new IntersectionObserver(entries => {
       inView = !!entries[0]?.isIntersecting && entries[0].intersectionRatio >= .1;
