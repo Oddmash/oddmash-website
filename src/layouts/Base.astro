@@ -47,7 +47,7 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="30" height="30" alt="" /><span>oddmash.</span></a>
   <p>© {new Date().getFullYear()} Oddmash</p>
   <nav aria-label={l.footer}><a href={url(locale,'privacy')} aria-current={path==='privacy'?'page':undefined}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a>{!noIndex && <button id="share" hidden type="button" data-success={t.copied} data-failure={t.copyFailed}>{t.share}</button>}</nav>
-  
+
   <input id="share-fallback" type="url" readonly hidden aria-label={l.shareLink} />
 </footer>
 <div id="copy-toast" data-om-theme="dark"></div>
