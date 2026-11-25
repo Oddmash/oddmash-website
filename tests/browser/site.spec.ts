@@ -104,6 +104,50 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   }
   expect(unexpected).toEqual([]);
 });
+test('agent role names and descriptions keep stable card widths', async ({page})=>{
+  test.setTimeout(90_000);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for (const prefix of ['', 'ko/', 'ja/', 'zh-cn/']) {
+    for (const route of [prefix, prefix+'agents/']) {
+      for (const width of [320,375,701,1051,1280]) {
+        await page.setViewportSize({width,height:800});
+        await page.goto('/'+route+(route===''?'?lang=en':''));
+        const cards = page.locator('.agent-roster .agent-profile-link');
+        await expect(cards).toHaveCount(7);
+        await page.evaluate(()=>document.fonts.ready);
+        const captions = cards.locator('.agent-caption');
+        for (const heading of await captions.locator('h3').all()) {
+          await expect(heading).not.toHaveAttribute('data-juliya-applied','true');
+          await expect(heading.locator('br')).toHaveCount(0);
+          expect(await heading.evaluate(el=>{
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const text = range.getBoundingClientRect();
+            const bounds = el.getBoundingClientRect();
+            return text.left >= bounds.left - 1 && text.right <= bounds.right + 1 && text.height <= parseFloat(getComputedStyle(el).lineHeight)+1;
+          })).toBe(true);
+        }
+        if (route.endsWith('agents/')) {
+          const descriptions = captions.locator('p');
+          await expect(descriptions).toHaveCount(7);
+          for (const paragraph of await descriptions.all()) {
+            await expect(paragraph).toHaveAttribute('data-juliya-applied','true');
+            await expect.poll(()=>paragraph.evaluate(el=>{
+              const parent = el.parentElement!.getBoundingClientRect();
+              const bounds = el.getBoundingClientRect();
+              const max = parseFloat(getComputedStyle(el).fontSize)*12;
+              return bounds.width >= Math.min(parent.width,max)-1 && bounds.width <= parent.width+1 && el.scrollWidth<=el.clientWidth+1;
+            })).toBe(true);
+          }
+        }
+        await cards.first().focus();
+        await expect(cards.first()).toBeFocused();
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      }
+    }
+  }
+});
+
 test('live Juliya width and clean footer', async ({page})=>{
   await page.goto('/ko/projects/juliya/');
   const range=page.locator('#demo-width');
