@@ -101,7 +101,7 @@ const copyButton = (kind: string, label: string) => {
     <h2>{labels.when}</h2><p>{usage.when[stageIndex]}</p>
     <h2>{labels.how}</h2><p>{guideFor(skill.id,locale)}</p>
     <h2>{labels.result}</h2><p>{labels.outputs[stageIndex]}</p>
-    <h3>{usage.example}</h3><div class="om-code-block"><pre class="om-code-block-content" tabindex="0" role="region" aria-label={usage.example}><code>{'
+    <h3>{usage.example}</h3><div class="om-code-block"><pre class="om-code-block-content" tabindex="0" role="region" aria-label={usage.example}><code>{'$'+skillId+'\n'+usage.task}</code></pre></div>
     {stage && <div class="skill-related"><h3>{labels.flow}: {stage[locale]}</h3>{skills.filter(item=>stage.skills.includes(item.id)&&item.id!==skill.id).map(item=><a class="text-link" href={url(locale,'skills/'+item.id)}>{skillName(item,locale)} →</a>)}</div>}
     <a class="text-link" href={`https://github.com/Oddmash/oddmash-skills/blob/${skillRevision}/${skill.path}`}>{labels.original} ↗</a>
   </section>
@@ -153,62 +153,6 @@ for(const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]'))
     const input=scope?.querySelector<HTMLTextAreaElement>('[data-copy-source="'+button.dataset.copy+'"]');
     if(!input)return;
     try{await copyText(input.value);input.hidden=true;notifyCopy(button.dataset.success??'');}
-    catch{input.hidden=false;input.focus();input.select();notifyCopy(button.dataset.failure??'',true);}
-  });
-}
-</script>
-+skillId+'\n'+usage.task}</code></pre></div>
-    {stage && <div class="skill-related"><h3>{labels.flow}: {stage[locale]}</h3>{skills.filter(item=>stage.skills.includes(item.id)&&item.id!==skill.id).map(item=><a class="text-link" href={url(locale,'skills/'+item.id)}>{skillName(item,locale)} →</a>)}</div>}
-    <a class="text-link" href={`https://github.com/Oddmash/oddmash-skills/blob/${skillRevision}/${skill.path}`}>{labels.original} ↗</a>
-  </section>
-  <section class="section agent-doc-section skill-install" id="skill-install" data-copy-scope>
-    <h2>{labels.install}</h2><p>{usage.setup}</p><p>{labels.installBody}</p>
-    <pre><code>{commands}</code></pre>
-    <Fragment set:html={copyButton('commands',labels.copyCommand)} />
-    <textarea data-copy-source="commands" class="skill-copy-source" hidden readonly aria-label={labels.copyCommand}>{commands}</textarea>
-    <p>{labels.all}</p>
-  </section>
-</article> : <div class="agent-doc skill-doc">
-  <header class="detail-head agent-doc-heading"><p class="eyebrow">Oddmash</p><h1>{t.title}</h1><p class="lead">{t.intro}</p></header>
-  <section class="section skill-flow-section" aria-labelledby="skill-flow-title">
-    <div class="section-title"><h2 id="skill-flow-title">{labels.flow}</h2><p>{labels.hint}</p></div>
-    <div class="skill-flow-controls" data-skill-flow-controls hidden role="group" aria-label={labels.flow}>
-      {skillStages.map((item,index)=><button type="button" data-stage-select={item.id} aria-controls={'skill-stage-'+item.id} aria-pressed={index===0?'true':'false'}><span class="skill-flow-node" aria-hidden="true">{String(index+1).padStart(2,'0')}</span><strong>{item[locale]}</strong><span class="skill-flow-count">{item.skills.length}</span></button>)}
-    </div>
-    {skillStages.map(item=><section class="skill-flow-panel" id={'skill-stage-'+item.id} data-stage-panel={item.id} aria-labelledby={'skill-stage-title-'+item.id}>
-      <h3 id={'skill-stage-title-'+item.id}>{item[locale]}</h3>
-      <div class="skill-grid">{skills.filter(skill=>item.skills.includes(skill.id)).map(skill=><a class="skill-item" href={url(locale,'skills/'+skill.id)}><h4>{skillName(skill,locale)}</h4><p lang={locale}>{skillSummary(skill,locale)}</p></a>)}</div>
-    </section>)}
-  </section>
-  <section class="section agent-doc-section"><a class="text-link" href={url(locale,'agents')}>{locale==='ko'?'에이전트 문서':locale==='ja'?'エージェント':locale==='zh-CN'?'智能体文档':'Agent documentation'} →</a></section>
-</div>}
-<script is:inline>
-(() => {
-const controls=document.querySelector('[data-skill-flow-controls]');
-if(controls){
-  const buttons=[...controls.querySelectorAll('[data-stage-select]')];
-  const panels=[...document.querySelectorAll('[data-stage-panel]')];
-  const setStage=(id)=>{
-    for(const button of buttons) button.setAttribute('aria-pressed',String(button.dataset.stageSelect===id));
-    for(const panel of panels) panel.hidden=panel.dataset.stagePanel!==id;
-  };
-  controls.hidden=false;
-  if(buttons[0]?.dataset.stageSelect) setStage(buttons[0].dataset.stageSelect);
-  for(const button of buttons){
-    const activate=()=>{if(button.dataset.stageSelect) setStage(button.dataset.stageSelect);};
-    button.addEventListener('click',activate);
-  }
-}
-})();
-</script>
-<script>
-import { notifyCopy } from '../copy-toast';
-for(const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')){
-  button.addEventListener('click',async()=>{
-    const scope=button.closest('[data-copy-scope]');
-    const input=scope?.querySelector<HTMLTextAreaElement>('[data-copy-source="'+button.dataset.copy+'"]');
-    if(!input)return;
-    try{await navigator.clipboard.writeText(input.value);input.hidden=true;notifyCopy(button.dataset.success??'');}
     catch{input.hidden=false;input.focus();input.select();notifyCopy(button.dataset.failure??'',true);}
   });
 }
