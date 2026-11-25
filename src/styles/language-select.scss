@@ -60,7 +60,7 @@
   outline: 3px solid var(--om-semantic-color-focus);
   outline-offset: 3px;
 }
-.language-select .om-select-dropdown > [role='listbox'] { min-inline-size: 100%; }
+.language-select .om-select-dropdown > [role='listbox']:not([data-positioned]) { min-inline-size: 100%; }
 
 @media (max-width: 650px) {
   .language-select {
