@@ -67,8 +67,8 @@ if (range && pair && value && title && native && language && languageControl && 
       pair.hidden = false;
       updateLimit();
       update();
-      const observer = new ResizeObserver(() => { updateLimit(); update(); });
       applySample();
+      const observer = new ResizeObserver(() => { updateLimit(); update(); });
       cleanup = () => {
         observer.disconnect();
         range.removeEventListener('input', update);
@@ -84,10 +84,12 @@ if (range && pair && value && title && native && language && languageControl && 
       status.textContent = '';
     } catch {
       cleanup?.();
+      controller?.destroy();
+      controller = undefined;
       pair.hidden = true;
       control.hidden = true;
       languageControl.hidden = true;
-      fallback.hidden = true;
+      fallback.hidden = false;
       status.textContent = status.dataset.failure ?? '';
     }
   };

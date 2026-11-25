@@ -93,7 +93,8 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await page.goto('http://127.0.0.1:4322/privacy.html?lang=ko');
     await expect(page).toHaveURL(/\/privacy\/$/);
     await expect(page.locator('#language-select')).toBeHidden();
-    await page.locator('.language-picker-fallback summary').click();
+    await page.locator('.language-picker-fallback summary').focus();
+    await page.keyboard.press('Enter');
     await page.getByRole('link',{name:'한국어'}).click();
     await expect(page).toHaveURL(/\/ko\/privacy\/$/);
     await page.goto('http://127.0.0.1:4322/ko/');
@@ -110,6 +111,18 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await expect(page.locator('#demo-pair')).toBeHidden();
     await expect(page.locator('#demo-control')).toBeHidden();
   }finally{await context.close();}
+});
+
+test('Juliya demo keeps its explanation when enhancement fails', async ({page})=>{
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'ResizeObserver', {value: undefined, configurable: true});
+  });
+  await page.goto('/ko/projects/juliya/');
+  await expect(page.locator('#demo-status')).not.toBeEmpty();
+  await expect(page.locator('#demo-fallback')).toBeVisible();
+  await expect(page.locator('#demo-pair')).toBeHidden();
+  await expect(page.locator('#demo-control')).toBeHidden();
+  await expect(page.locator('#demo-language-control')).toBeHidden();
 });
 
 test('representative light and dark product captures',async ({page},testInfo)=>{

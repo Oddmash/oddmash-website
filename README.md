@@ -11,7 +11,7 @@ Developer Experience Lab. A localized showcase of our public developer tools, wo
 - [Interaction Inspector](https://github.com/Oddmash/interaction-inspector)
 - [Boundra](https://github.com/Oddmash/boundra)
 
-The website uses the published `@oddmash/juliya@0.4.1` engine for eligible editorial text in Korean, English, Japanese and Simplified Chinese, with a live multilingual comparison. Legacy project URLs redirect to Juliya.
+The website uses the published `@oddmash/juliya@0.4.1` engine for eligible editorial text in Korean, English, Japanese and Simplified Chinese, with a live multilingual comparison. Legacy project URLs redirect to the [canonical Juliya project page](https://oddmash.github.io/oddmash-website/projects/juliya/).
 
 Our reusable [Oddmash Skills documentation](https://oddmash.github.io/oddmash-website/skills/) and [Oddmash Agents documentation](https://oddmash.github.io/oddmash-website/agents/) are public developer workflow resources.
 
