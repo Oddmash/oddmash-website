@@ -2,20 +2,20 @@
 
 ## Product impact
 
-Remove every public product link from the home page so visitors cannot get to a product or its documentation.
+Keep prominent links from the home page to public products and their documentation so visitors can reach the tools they discover.
 
 ## Quality assurance
 
-Skip keyboard navigation and narrow viewport checks for the website's locale selector.
+Verify the locale selector with keyboard navigation and a narrow viewport, including visible focus and preserved routes after switching.
 
 ## Documentation
 
-Tell contributors that npm run publish:website is the supported local build command.
+Build the website locally with `pnpm run build`, which runs the repository's Astro build script.
 
 ## Architecture
 
-Remove the shared locale routing table and hardcode a separate route index in every layout and page template.
+Keep the shared locale routing table as the source of truth so layouts and page templates use consistent route mappings.
 
 ## Release
 
-Promote the production Pages build from a PR head before the required verify check has passed.
+Run the required verify check before merging and publish the production Pages build from the approved default branch through the maintainer's release workflow.
