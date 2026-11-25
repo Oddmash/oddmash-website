@@ -9,3 +9,5 @@ The lockfile pins `@oddmash/juliya@0.4.1` with registry integrity. The website u
 Follow the [organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md) and the shared skills. See [delivery evidence](docs/delivery.md) and [asset register](docs/assets.md).
 
 Create topic branches from `main` and open issue-linked pull requests directly against `main`. There is no integration branch; GitHub Pages deploys after verified main merges.
+
+PR CI always runs metadata checks, static and browser tests, and the required `verify` check. After a normal merge, main CI may reuse the latest successful PR run only when it verified the exact merged tree. A missing or mismatched proof, direct push, or superseded or unsuccessful run requires the full suite again. Pages independently builds and validates the actual main revision before publishing.
