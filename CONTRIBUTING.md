@@ -6,7 +6,7 @@ The default build is a private preview: noindex, no canonical host and empty sit
 
 The initial home route selects the first supported browser language, falling back to English. Explicit localized routes and manual language choices take priority, and the root remains English without JavaScript. Use `/?lang=en` to select English explicitly during preview. Verify all localized project imagery, canonical and social metadata against the approved asset register; never replace a real capture with a fabricated example.
 
-The lockfile pins `@oddmash/juliya@0.4.1` with registry integrity. The website uses its public DOM adapter across all supported locales. The exact-version release-age exception is restricted to this reviewed release and should be removed once mature.
+The lockfile pins `@oddmash/ui@0.5.0` and `@oddmash/juliya@0.4.1` with registry integrity. Shared UI static classes and server-rendered controls preserve native Astro links and no-script locale navigation; use client React only where an interaction requires it. Keep project cards with independent platform links, the product-specific workflow visualization, and stage controls local. The website uses its public DOM adapter across all supported locales. Exact-version release-age exceptions are restricted to these reviewed releases and should be removed once mature.
 
 Follow the [organization agreements](https://github.com/Oddmash/.github/blob/main/AGENTS.md) and the shared skills. See [delivery evidence](docs/delivery.md) and [asset register](docs/assets.md).
 

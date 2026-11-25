@@ -27,7 +27,7 @@ test('preview robots and sitemap never reveal public routes',()=>{
   assert.ok(existsSync('build/404.html'));
   const notFound=readFileSync('build/404.html','utf8');
   assert.match(notFound,/<h1[^>]*>404<\/h1>/);
-  assert.match(notFound,/<a class="button primary" href="\/">Oddmash home<\/a>/);
+  assert.match(notFound,/<a class="button primary om-button om-button--link om-button--primary om-button--md" href="\/">Oddmash home<\/a>/);
   assert.ok(existsSync('build/privacy.html'));
   const legacy=readFileSync('build/privacy.html','utf8');
   assert.match(legacy,/<noscript><meta http-equiv="refresh" content="0; url=\/privacy\/">/);
