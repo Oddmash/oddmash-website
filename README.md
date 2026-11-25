@@ -6,12 +6,12 @@ Developer Experience Lab. A localized showcase of our public developer tools, wo
 
 [Visit the website](https://oddmash.github.io/oddmash-website/)
 
-- [Juliya (formerly Kowrap)](https://github.com/Oddmash/kowrap)
+- [Juliya (formerly Kowrap)](https://github.com/Oddmash/juliya)
 - [Oddmash UI](https://github.com/Oddmash/oddmash-ui)
 - [Interaction Inspector](https://github.com/Oddmash/interaction-inspector)
 - [Boundra](https://github.com/Oddmash/boundra)
 
-Juliya is the public product brand. The website retains the historical Korean comparison and screenshot, with the published `@oddmash/kowrap@0.3.2` engine for improved Korean phrase wrapping; current multilingual documentation is hosted on the product site. Editorial Korean prose uses the available published engine; other locales use native browser wrapping until a verified multilingual package is released.
+Juliya is the public product brand. The website retains the historical Korean comparison and screenshot, with the published `@oddmash/kowrap@0.3.2` engine for improved Korean phrase wrapping; current multilingual documentation is hosted on the product site. Editorial Korean prose uses the available published engine; other locales use native browser wrapping; the current public package is `@oddmash/juliya`. The website's historical demo and editorial engine remain pinned until separately verified for migration.
 
 Our reusable [Oddmash Skills documentation](https://oddmash.github.io/oddmash-website/skills/) and [Oddmash Agents documentation](https://oddmash.github.io/oddmash-website/agents/) are public developer workflow resources.
 

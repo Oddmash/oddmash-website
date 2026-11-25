@@ -8,7 +8,7 @@ export const url = (locale:Locale, path='') => prefixes[locale] + '/' + (path ? 
 export const projectIds = ['kowrap','oddmash-ui','interaction-inspector','boundra'] as const;
 export type ProjectId = typeof projectIds[number];
 export const projects = [
-  {id:'kowrap',name:'Juliya',category:'tools',image:'/assets/kowrap-live.jpg',darkImage:null,width:1280,height:1650,repo:'https://github.com/Oddmash/kowrap',live:'https://oddmash.github.io/kowrap/',docs:'https://oddmash.github.io/kowrap/docs/',package:'@oddmash/kowrap'},
+  {id:'kowrap',name:'Juliya',category:'tools',image:'/assets/kowrap-live.jpg',darkImage:null,width:1280,height:1650,repo:'https://github.com/Oddmash/juliya',live:'https://oddmash.github.io/juliya/',docs:'https://oddmash.github.io/juliya/docs/',package:'@oddmash/juliya'},
   {id:'oddmash-ui',name:'Oddmash UI',category:'tools',image:'/assets/ui.png',darkImage:'/assets/ui-dark.png',width:1280,height:950,repo:'https://github.com/Oddmash/oddmash-ui',live:'https://oddmash.github.io/oddmash-ui/',docs:'https://oddmash.github.io/oddmash-ui/',package:'@oddmash/ui'},
   {id:'interaction-inspector',name:'Interaction Inspector',category:'tools',image:'/assets/inspector.png',darkImage:null,width:1280,height:720,repo:'https://github.com/Oddmash/interaction-inspector',live:null,docs:'https://github.com/Oddmash/interaction-inspector/blob/main/CONTRIBUTING.md',package:null},
   {id:'boundra',name:'Boundra',category:'tools',image:'/assets/boundra.svg',darkImage:null,width:1200,height:750,repo:'https://github.com/Oddmash/boundra',live:null,docs:'https://github.com/Oddmash/boundra/blob/main/docs/quickstart.md',package:'boundra'}

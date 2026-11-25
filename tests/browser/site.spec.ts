@@ -372,7 +372,7 @@ test('project section navigation includes image and keyboard with independent pa
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/ko/');
   const cards=page.locator('.project-gallery .project');
-  const published:Record<string,string>={kowrap:'@oddmash/kowrap','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
+  const published:Record<string,string>={kowrap:'@oddmash/juliya','oddmash-ui':'@oddmash/ui',boundra:'boundra'};
   for(const card of await cards.all()){
     const project=(await card.getAttribute('data-project'))!;
     const destination=card.locator('a.project-destination');
@@ -550,7 +550,7 @@ test('Oddmash UI documentation artwork is displayed completely in both themes an
 test('localized Juliya links follow upstream language routes',async ({page})=>{
   for(const [prefix,suffix] of [['','en/'],['ko/',''],['ja/','ja/'],['zh-cn/','zh/']] as const){
     await page.goto('/'+prefix+'projects/kowrap/');
-    const live='https://oddmash.github.io/kowrap/'+suffix;
+    const live='https://oddmash.github.io/juliya/'+suffix;
     await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
     await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
   }
@@ -728,4 +728,61 @@ test('workflow touch pause is reversible and keyboard focus does not retain touc
   await expect(player).not.toBeFocused();
   await player.locator('.film-screen').scrollIntoViewIfNeeded();
   await expect(workflow).toHaveAttribute('data-playing','true');
+});
+
+
+test('workflow pause preserves readable text and can remain stopped after focus moves', async ({page})=>{
+  await page.setViewportSize({width:1280,height:800});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('/ko/');
+  const workflow=page.locator('#workflow');
+  const player=workflow.locator('.film-player');
+  await player.scrollIntoViewIfNeeded();
+  await player.focus();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  for(const selector of ['.film-visual:not([hidden])','.film-visual:not([hidden]) .film-step-copy']) await expect(workflow.locator(selector)).toHaveCSS('opacity','1');
+  const pause=workflow.locator('[data-film-pause]');
+  await pause.click();
+  await page.mouse.move(0,0);
+  await workflow.locator('#workflow-title').focus();
+  await expect(workflow).toHaveAttribute('data-playing','false');
+  await expect(pause).toHaveText('애니메이션 재개');
+  await pause.click();
+  await expect(pause).toHaveText('애니메이션 일시 정지');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await expect(pause).toBeHidden();
+  await expect(workflow.locator('.film-steps')).toBeVisible();
+});
+
+test('representative editorial text and controls have readable contrast', async ({page})=>{
+  await page.goto('/ko/skills/');
+  const ratios=await page.evaluate(()=>{
+    const root=getComputedStyle(document.documentElement);
+    const luminance=(hex:string)=>{
+      const channels=hex.trim().slice(1).match(/.{2}/g)!.map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
+      return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+    };
+    const contrast=(a:string,b:string)=>{const x=luminance(root.getPropertyValue(a)),y=luminance(root.getPropertyValue(b));return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
+    return {body:contrast('--muted','--bg'),card:contrast('--muted','--paper'),button:contrast('--control-line','--paper'),focus:contrast('--focus','--bg')};
+  });
+  expect(ratios.body).toBeGreaterThanOrEqual(4.5);
+  expect(ratios.card).toBeGreaterThanOrEqual(4.5);
+  expect(ratios.button).toBeGreaterThanOrEqual(3);
+  expect(ratios.focus).toBeGreaterThanOrEqual(3);
+  await page.locator('[data-stage-select="quality"]').click();
+  await page.locator('a[href="/ko/skills/accessibility/"]').click();
+  const intro=await page.locator('.skill-doc .lead').innerText();
+  const when=await page.locator('.skill-reference > p').first().innerText();
+  expect(intro).not.toBe(when);
+  await expect(page.locator('.skill-reference pre')).toContainText('$oddmash-accessibility');
+});
+
+
+test('project quickstarts provide native actionable usage across locales', async ({page})=>{
+  for(const project of ['kowrap','oddmash-ui','interaction-inspector','boundra']){
+    await page.goto('/ko/projects/'+project+'/');
+    const quickstart=page.locator('.project-quickstart');
+    await expect(quickstart.locator('h2')).toHaveText('시작하기');
+    await expect(quickstart.locator('pre code')).not.toBeEmpty();
+  }
 });
