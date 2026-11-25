@@ -381,7 +381,7 @@ test('project section navigation includes image and keyboard with independent pa
     await expect(destination).toHaveAttribute('href','/ko/projects/'+project+'/');
     await expect(destination).toHaveAccessibleName(/\S/);
     await expect(github).toHaveAccessibleName(/GitHub/i);
-    await expect(github).toHaveAttribute('href',new RegExp('^https://github\\.com/Oddmash/'+project+'(?:/|$)'));
+    await expect(github).toHaveAttribute('href',new RegExp('^https://github\\.com/Oddmash/'+(project==='kowrap'?'juliya':project)+'(?:/|$)'));
     await expect(github.locator('svg')).toBeVisible();
     await expect(card.locator('a a, a button')).toHaveCount(0);
     if(published[project]){
@@ -742,12 +742,12 @@ test('workflow pause preserves readable text and can remain stopped after focus 
   await expect(workflow).toHaveAttribute('data-playing','false');
   for(const selector of ['.film-visual:not([hidden])','.film-visual:not([hidden]) .film-step-copy']) await expect(workflow.locator(selector)).toHaveCSS('opacity','1');
   const pause=workflow.locator('[data-film-pause]');
-  await pause.click();
+  await pause.press('Enter');
   await page.mouse.move(0,0);
   await workflow.locator('#workflow-title').focus();
   await expect(workflow).toHaveAttribute('data-playing','false');
   await expect(pause).toHaveText('애니메이션 재개');
-  await pause.click();
+  await pause.press('Enter');
   await expect(pause).toHaveText('애니메이션 일시 정지');
   await page.emulateMedia({reducedMotion:'reduce'});
   await expect(pause).toBeHidden();
@@ -759,7 +759,9 @@ test('representative editorial text and controls have readable contrast', async 
   const ratios=await page.evaluate(()=>{
     const root=getComputedStyle(document.documentElement);
     const luminance=(hex:string)=>{
-      const channels=hex.trim().slice(1).match(/.{2}/g)!.map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
+      const value=hex.trim().slice(1);
+      const expanded=value.length===3?value.split('').map(x=>x+x).join(''):value;
+      const channels=expanded.match(/.{2}/g)!.map(x=>parseInt(x,16)/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4);
       return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
     };
     const contrast=(a:string,b:string)=>{const x=luminance(root.getPropertyValue(a)),y=luminance(root.getPropertyValue(b));return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
