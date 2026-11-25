@@ -1,4 +1,4 @@
-import { Toast } from '@oddmash/ui/toast';
+import { Toast, ToastViewport } from '@oddmash/ui/toast';
 import { createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
@@ -10,8 +10,8 @@ export const notifyCopy = (title: string, failed = false) => {
   if (!host) return;
   root ??= createRoot(host);
   if (timeout !== undefined) window.clearTimeout(timeout);
-  const render = (open: boolean) => root?.render(createElement('div', { className: 'om-toast-viewport' }, createElement(Toast, {
-    open, title, tone: failed ? 'danger' : 'neutral',
+  const render = (open: boolean) => root?.render(createElement(ToastViewport, null, createElement(Toast, {
+    open, title, tone: failed ? 'error' : 'success',
     dismissLabel: labels[document.documentElement.lang] ?? labels.en,
     onDismiss: () => { if (timeout !== undefined) window.clearTimeout(timeout); render(false); },
   })));
