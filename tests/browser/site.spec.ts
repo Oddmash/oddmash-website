@@ -423,7 +423,8 @@ test('public project homepage and repository targets match the selected language
   const locales=[['','README.md',''],['ko/','docs/ko/README.md','ko/'],['ja/','docs/ja/README.md','ja/'],['zh-cn/','docs/zh-CN/README.md','zh-cn/']];
   for(const [prefix,readme,homepage] of locales){
     await page.goto('/'+prefix+'projects/oddmash-ui/');
-    await expect(page.locator('.detail-hero [data-platform=github]')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
+    await expect(page.locator('.detail-hero [data-platform=github]')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui');
+    await expect(page.locator('.detail-hero [data-platform=docs]')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
     await page.goto('/'+prefix+'projects/boundra/');
     await expect(page.locator('.detail-hero [data-platform=homepage]')).toHaveAttribute('href','https://oddmash.github.io/boundra/'+homepage);
     await expect(page.locator('.detail-hero .button.secondary')).toHaveCount(0);
@@ -616,7 +617,7 @@ test('localized Juliya links follow upstream language routes',async ({page})=>{
     const live='https://oddmash.github.io/juliya/'+suffix;
     await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
     await expect(page.locator('.detail-hero [data-platform=homepage]')).toHaveAttribute('href',live);
-    await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(0);
+    await expect(page.locator('.detail-hero [data-platform=docs]')).toHaveAttribute('href',live+'docs/');
   }
 });
 

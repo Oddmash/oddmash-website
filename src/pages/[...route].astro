@@ -70,15 +70,15 @@ const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[lo
       const destinations=projectLinks(item.id,locale);
       return <article class="catalog-entry">
         <div class="catalog-identity"><p class="tag">{detail.type}</p><h2><a class="text-link project-destination" href={url(locale,'projects/'+item.id)} aria-label={item.name+' '+t.details}>{item.name}</a></h2><ProjectImage project={item} locale={locale} alt={detail.alt} lazy /></div>
-        <div class="catalog-description"><p>{detail.description}</p><h3>{e.exampleHeading}</h3><p>{e.examples[item.id]}</p><PlatformLinks name={item.name} github={destinations.readme} npm={item.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} /></div>
+        <div class="catalog-description"><p>{detail.description}</p><h3>{e.exampleHeading}</h3><p>{e.examples[item.id]}</p><PlatformLinks name={item.name} github={item.repo} npm={item.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} docs={destinations.docs} docsLabel={t.docs} /></div>
       </article>;
     })}
   </section>
   <section class="section ecosystem-section" aria-labelledby="ecosystem-title">
     <div class="section-title"><h2 id="ecosystem-title">{ecosystem.title}</h2><p>{ecosystem.intro}</p></div>
     <div class="ecosystem-grid">
-      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><PlatformLinks name="Oddmash Skills" github="https://github.com/Oddmash/oddmash-skills" docs={url(locale,'skills')} docsLabel={t.docs} /></article>
-      <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" docs={url(locale,'agents')} docsLabel={t.docs} /></article>
+      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><PlatformLinks name="Oddmash Skills" github="https://github.com/Oddmash/oddmash-skills" docs={url(locale,'skills')} docsLabel={t.docs} docsPrimary /></article>
+      <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" docs={url(locale,'agents')} docsLabel={t.docs} docsPrimary /></article>
     </div>
   </section>
 </>}
@@ -91,14 +91,14 @@ const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[lo
       <p class="detail-summary">{details.summary}</p>
       <p class="lead">{details.description}</p>
       <div class="actions">
-        <PlatformLinks name={project.name} github={links.readme} npm={project.package} homepage={links.live} homepageLabel={homepageNames[locale]} />
+        <PlatformLinks name={project.name} github={project.repo} npm={project.package} homepage={links.live} homepageLabel={homepageNames[locale]} docs={links.docs} docsLabel={t.docs} />
       </div>
     </div>
     <figure class="detail-image"><a class="detail-image-link" href={links.live ?? links.readme} aria-label={project.name+' '+(links.live ? homepageNames[locale] : t.repository)}><ProjectImage locale={locale} project={project} alt={details.alt}/></a><figcaption>{details.alt}</figcaption></figure>
   </section>
   <ProjectStory locale={locale} projectId={project.id} />
   {project.id==='juliya' && <WrapDemo locale={locale} />}
-  <section class="section related-projects"><div class="section-title"><h2>{t.back}</h2><a class="text-link" href={url(locale,'projects')}>{t.explore}</a></div><ul class="project-link-list">{projects.filter(p=>p.id!==project.id).map(p=>{const destinations=projectLinks(p.id,locale);return <li class="project-index-row"><a class="project-destination" href={url(locale,'projects/'+p.id)}>{p.name}</a><PlatformLinks name={p.name} github={destinations.readme} npm={p.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} /></li>;})}</ul></section>
+  <section class="section related-projects"><div class="section-title"><h2>{t.back}</h2><a class="text-link" href={url(locale,'projects')}>{t.explore}</a></div><ul class="project-link-list">{projects.filter(p=>p.id!==project.id).map(p=>{const destinations=projectLinks(p.id,locale);return <li class="project-index-row"><a class="project-destination" href={url(locale,'projects/'+p.id)}>{p.name}</a><PlatformLinks name={p.name} github={p.repo} npm={p.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} docs={destinations.docs} docsLabel={t.docs} /></li>;})}</ul></section>
 </>}
 {path==='studio' && <>
   <section class="about-hero detail-head"><p class="eyebrow">Oddmash</p><h1>{e.aboutTitle}</h1><p class="lead">{e.aboutLead}</p><div class="actions"><a class="button primary" href={contributionUrl}>{e.contributeAction}</a><a class="button secondary" href={url(locale,'projects')}>{t.explore}</a></div></section>

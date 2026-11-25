@@ -4,6 +4,7 @@
   flex-wrap: wrap;
   gap: 6px;
   flex-shrink: 0;
+  max-width: 100%;
   position: relative;
   z-index: 2;
 }
@@ -102,7 +103,8 @@
   justify-content: flex-end;
   gap: 6px;
 }
-.platform-links-labeled .platform-link {
+.platform-links-labeled .platform-link,
+.platform-link[data-platform=docs] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -200,9 +202,11 @@
 @media (max-width: 650px) {
   .project-link-list .project-index-row {
     align-items: start;
+    grid-template-columns: minmax(0, 1fr);
   }
   .project-index-row .platform-links {
     gap: 0;
+    justify-content: flex-end;
   }
 }
 @media (prefers-reduced-motion: reduce) {

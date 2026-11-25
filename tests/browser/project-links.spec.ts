@@ -81,3 +81,41 @@ test('project and workflow card actions remain independently usable with roomy h
   await homepage.click();
   await expect(page).toHaveURL(url);
 });
+
+test('project documentation actions do not replace the primary card destination', async ({ page }) => {
+  const locales = [['', 'en/', 'README.md', ''], ['ko/', '', 'docs/ko/README.md', '.ko'], ['ja/', 'ja/', 'docs/ja/README.md', '.ja'], ['zh-cn/', 'zh/', 'docs/zh-CN/README.md', '.zh-cn']];
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [prefix, juliya, readme, guide] of locales) {
+    const docs = [
+      `https://oddmash.github.io/juliya/${juliya}docs/`,
+      `https://github.com/Oddmash/oddmash-ui/blob/main/${readme}`,
+      `https://github.com/Oddmash/interaction-inspector/blob/main/${readme}`,
+      `https://github.com/Oddmash/boundra/blob/main/docs/user-guide${guide}.md`,
+    ];
+    for (const path of ['/', '/projects/']) {
+      await page.goto('/' + prefix + path.slice(1));
+      const cards = page.locator(path === '/' ? '.project-gallery .project' : '.catalog-entry');
+      await expect(cards).toHaveCount(4);
+      for (const [index, target] of docs.entries()) {
+        const card = cards.nth(index);
+        await expect(card.locator('a.project-destination')).toHaveCount(1);
+        await expect(card.locator('[data-platform=docs]')).toHaveAttribute('href', target);
+        await expect(card.locator('[data-platform=docs]')).toHaveAccessibleName(/\S/);
+      }
+    }
+  }
+  await page.goto('/ko/');
+  const card = page.locator('.project-gallery .project[data-project=juliya]');
+  const body = card.locator('.project-body p:not(.tag)');
+  await body.scrollIntoViewIfNeeded();
+  const bodyBox = (await body.boundingBox())!;
+  await page.mouse.click(bodyBox.x + bodyBox.width / 2, bodyBox.y + bodyBox.height / 2);
+  await expect(page).toHaveURL(/\/ko\/projects\/juliya\/$/);
+  await page.goto('/ko/');
+  const docs = card.locator('[data-platform=docs]');
+  const target = (await docs.getAttribute('href'))!;
+  await page.route(target, route => route.fulfill({ contentType: 'text/html', body: '<title>Juliya documentation</title>' }));
+  await docs.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(target);
+});
