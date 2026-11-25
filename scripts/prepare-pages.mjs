@@ -10,6 +10,7 @@ for (const file of visit(root).filter(file => file.endsWith('.html'))) {
   if (file === join(root, 'privacy.html')) {
     html = html.replace(/(url=|['"])(\/(?!\/)(?:[a-z-]+\/)*privacy\/)/g, '$1' + base + '$2');
   }
+  if (file.endsWith('/projects/kowrap/index.html')) html = html.replace(/(url=\s*)(\/(?!\/|oddmash-website\/)(?:[a-z-]+\/)*projects\/juliya\/)/gi, '$1' + base + '$2');
   html = html.replace(/\b(href|src|srcset)="(\/(?!\/|oddmash-website\/)[^"]*)"/g, (_, attr, value) => attr + '="' + base + value + '"');
   for (const [, link] of html.matchAll(/\b(?:href|src|srcset)="(\/[^"#?]*)"/g)) {
     assert.ok(link.startsWith(base + '/'), link);

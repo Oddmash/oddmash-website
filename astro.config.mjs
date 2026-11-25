@@ -3,5 +3,6 @@ export default defineConfig({
   output: 'static',
   outDir: './build',
   publicDir: './public',
-  trailingSlash: 'always'
+  trailingSlash: 'always',
+  redirects: Object.fromEntries(['','/ko','/ja','/zh-cn'].map(prefix=>[prefix+'/projects/kowrap/',prefix+'/projects/juliya/']))
 });

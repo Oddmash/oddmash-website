@@ -9,7 +9,7 @@ export const projectLinks = (projectId: ProjectId, locale: Locale) => {
   const project = projects.find(item => item.id === projectId)!;
   const contribute = `${project.repo}/issues`;
 
-  if (projectId === 'kowrap') {
+  if (projectId === 'juliya') {
     const path = locale === 'ko' ? '' : locale === 'zh-CN' ? 'zh/' : locale + '/';
     const live = 'https://oddmash.github.io/juliya/' + path;
     return { readme: project.repo, docs: live + 'docs/', contribute, live };
@@ -59,7 +59,7 @@ export const editorial: Record<Locale, Editorial> = {
     overview: 'Overview',
     exampleHeading: 'Example in practice',
     examples: {
-      kowrap: 'Compare how the Korean sentence “팀의 모든 문서를 한곳에서 관리하세요” wraps at different widths. The pinned comparison uses the earlier Korean engine; the current Juliya product supports multiple languages.',
+      juliya: 'Compare native wrapping with Juliya in four languages at the same width.',
       'oddmash-ui': 'Build a settings form with shared Button and Input components. Switch between light and dark themes while keeping keyboard focus and visual feedback consistent.',
       'interaction-inspector': 'Select a disclosure button, start recording, then activate it with the keyboard. Compare the event timeline, visible focus, and aria-expanded state before copying a Markdown bug report.',
       boundra: 'Before merging a change to billing and order domains, run pnpm exec boundra check-boundaries --format json. Check that billing imports only the declared public API of order.',
@@ -75,7 +75,7 @@ export const editorial: Record<Locale, Editorial> = {
     overview: '개요',
     exampleHeading: '실제 사용 예제',
     examples: {
-      kowrap: '“팀의 모든 문서를 한곳에서 관리하세요”라는 한국어 문장이 화면 너비에 따라 어떻게 줄바꿈되는지 비교합니다. 이 사이트에서 사용하는 이전 한국어 엔진의 비교 예제입니다. 현재 Juliya는 여러 언어를 지원합니다.',
+      juliya: '네 가지 언어에서 같은 너비의 기본 줄바꿈과 줄이야를 비교합니다.',
       'oddmash-ui': '공용 Button과 Input으로 설정 폼을 구성합니다. 라이트·다크 테마를 바꿔도 키보드 포커스와 조작 피드백이 일관되도록 구현할 수 있습니다.',
       'interaction-inspector': '펼침 버튼을 선택하고 기록을 시작한 뒤 키보드로 조작합니다. 이벤트 타임라인과 시각적 포커스, aria-expanded 상태를 비교한 후 Markdown으로 버그 보고서를 복사합니다.',
       boundra: '결제와 주문 도메인의 변경을 병합하기 전에 pnpm exec boundra check-boundaries --format json을 실행합니다. 결제 도메인이 주문 도메인의 선언된 공개 API만 가져오는지 확인합니다.',
@@ -91,7 +91,7 @@ export const editorial: Record<Locale, Editorial> = {
     overview: '概要',
     exampleHeading: '実際の利用例',
     examples: {
-      kowrap: '韓国語の文「팀의 모든 문서를 한곳에서 관리하세요」が画面の幅に応じてどう改行されるかを比較します。このサイトには以前の韓国語エンジンを固定して使用しています。現在の Juliya は複数の言語をサポートします。',
+      juliya: '四つの言語で同じ幅の標準改行と Juliya を比較します。',
       'oddmash-ui': '共通の Button と Input で設定フォームを作成します。ライトとダークを切り替えても、キーボードフォーカスと操作のフィードバックを一貫させられます。',
       'interaction-inspector': '展開ボタンを選択し、記録を開始してからキーボードで操作します。イベントタイムライン、視覚的なフォーカス、aria-expanded を比較し、Markdown で不具合報告をコピーします。',
       boundra: '請求と注文ドメインの変更を統合する前に pnpm exec boundra check-boundaries --format json を実行します。請求側が注文側の宣言済み公開 API のみを参照することを確認します。',
@@ -107,7 +107,7 @@ export const editorial: Record<Locale, Editorial> = {
     overview: '概览',
     exampleHeading: '实际使用示例',
     examples: {
-      kowrap: '比较韩语句子“팀의 모든 문서를 한곳에서 관리하세요”在不同屏幕宽度下的换行效果。本网站的对比固定使用旧版韩语引擎。当前 Juliya 支持多种语言。',
+      juliya: '在四种语言中比较同一宽度下的默认换行和 Juliya。',
       'oddmash-ui': '使用共享的 Button 和 Input 构建设置表单。切换浅色和深色主题时，保持键盘焦点与操作反馈的一致性。',
       'interaction-inspector': '选择展开按钮，开始记录，然后通过键盘操作。比较事件时间线、可见焦点和 aria-expanded 状态，再将问题报告复制为 Markdown。',
       boundra: '合并账单域和订单域的更改前，运行 pnpm exec boundra check-boundaries --format json。检查账单域是否仅依赖订单域已声明的公开 API。',

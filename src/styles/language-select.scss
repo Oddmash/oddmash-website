@@ -1,20 +1,29 @@
 @import '@oddmash/ui/styles.css' layer(oddmash-ui);
 
-.language-select {
+.language-select, .language-picker-fallback {
   position: relative;
   z-index: 12;
   flex: 0 0 auto;
-  min-inline-size: 118px;
+  inline-size: 128px;
+  min-inline-size: 128px;
   max-inline-size: 100%;
   color-scheme: dark;
 }
 
-.language-select .om-select-dropdown-trigger {
+.language-select .om-select-dropdown-trigger, .language-picker-fallback > summary {
   min-block-size: 44px;
   font: var(--om-semantic-font-size) / var(--om-semantic-font-line)
     var(--om-semantic-font-family);
   color: var(--om-semantic-color-text);
 }
+
+.language-picker-fallback { display: block; }
+.language-picker-fallback > summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; }
+.language-picker-fallback > summary::-webkit-details-marker { display: none; }
+.header .language-picker-fallback > nav { position: absolute; z-index: 12; inset-inline: 0; top: calc(100% + 4px); display: grid; grid-template-columns: minmax(0,1fr); gap: 0; padding: 4px; border: 1px solid var(--control-line); border-radius: 8px; background: var(--paper); }
+.header .language-picker-fallback:not([open]) > nav { display: none; }
+.language-picker-fallback > nav a { padding-inline: 8px; }
+.language-picker-fallback > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 .language-select .om-select-dropdown-trigger:focus-visible {
   outline: 3px solid var(--om-semantic-color-focus);
@@ -26,7 +35,8 @@
 }
 
 @media (max-width: 650px) {
-  .language-select {
-    min-inline-size: 106px;
+  .language-select, .language-picker-fallback {
+    inline-size: 118px;
+    min-inline-size: 118px;
   }
 }
