@@ -19,7 +19,41 @@ jobs:
     uses: Oddmash/.github/.github/workflows/ci-scope.yml@9a2077a4b0ff9188ef2cb2ab306f181a134d3110
     with:
       profile: meta
+  main-evidence:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.prior.outputs.run }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Find exact merged-tree evidence
+        id: prior
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+        with:
+          script: |
+            const { pathToFileURL } = require('node:url');
+            const { join } = require('node:path');
+            const { findMergedTreeEvidence } = await import(pathToFileURL(join(process.env.GITHUB_WORKSPACE, 'scripts/ci-evidence.mjs')).href);
+            const run = await findMergedTreeEvidence(async path => (await github.request(`GET ${path}`, {request:{timeout:5000}})).data, {
+              repository: context.payload.repository.full_name,
+              repositoryId: context.payload.repository.id,
+              revision: context.sha,
+              before: context.payload.before,
+              currentRun: context.runId,
+            });
+            if (run) core.notice(`Reusing full browser and static verification from PR CI run ${run} for the exact merged tree.`);
+            else core.notice('No exact merged-tree evidence; running the full website test suite.');
+            core.setOutput('run', run ?? '');
   website-tests:
+    needs: [main-evidence]
+    if: ${{ always() && !cancelled() && (github.event_name == 'pull_request' || needs.main-evidence.result != 'success' || needs.main-evidence.outputs.run == '') }}
     timeout-minutes: 30
     runs-on: ubuntu-24.04
     steps:
@@ -33,6 +67,16 @@ jobs:
       - run: pnpm run check
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm run test:browser
+      - name: Identify verified checkout tree
+        id: tested
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git diff --quiet HEAD --
+          echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+      - name: Record tested tree ${{ steps.tested.outputs.tree }}
+        env:
+          TESTED_TREE: ${{ steps.tested.outputs.tree }}
+        run: test "$(git rev-parse 'HEAD^{tree}')" = "$TESTED_TREE"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -41,7 +85,7 @@ jobs:
           retention-days: 7
 
   verify:
-    needs: [scope, website-tests]
+    needs: [scope, main-evidence, website-tests]
     if: always()
     runs-on: ubuntu-slim
     steps:
@@ -49,4 +93,13 @@ jobs:
         env:
           SCOPE: ${{ needs.scope.result }}
           WEBSITE: ${{ needs.website-tests.result }}
-        run: test "$SCOPE:$WEBSITE" = success:success
+          EVENT: ${{ github.event_name }}
+          EVIDENCE: ${{ needs.main-evidence.result }}
+          PRIOR_RUN: ${{ needs.main-evidence.outputs.run }}
+        run: |
+          test "$SCOPE" = success
+          case "$EVENT:$WEBSITE:$EVIDENCE" in
+            pull_request:success:skipped|push:success:success) exit 0 ;;
+            push:skipped:success) test -n "$PRIOR_RUN" ;;
+            *) exit 1 ;;
+          esac
