@@ -24,7 +24,10 @@ test('launch metadata only uses an explicitly enabled valid HTTPS origin',()=>{
     const page=read('ko/projects/juliya/index.html');
     assert.match(page,/content="index, follow"/);
     assert.match(page,/rel="canonical" href="https:\/\/studio\.example\.test\/ko\/projects\/juliya\/"/);
-    assert.match(page,/property="og:image" content="https:\/\/studio\.example\.test\/assets\/juliya-live\.png"/);
+    assert.match(page,/property="og:image" content="https:\/\/studio\.example\.test\/assets\/juliya-live-ko\.png"/);
+    for(const [prefix,locale] of [['','en'],['ja/','ja'],['zh-cn/','zh-cn']]){
+      assert.ok(read(prefix+'projects/juliya/index.html').includes(`property="og:image" content="https://studio.example.test/assets/juliya-live-${locale}.png"`));
+    }
     assert.match(page,/property="og:image:alt"/);
     assert.match(read('projects/boundra/index.html'),/property="og:image" content="https:\/\/studio\.example\.test\/assets\/social\.png"/);
     assert.equal((page.match(/rel="alternate" hreflang=/g)??[]).length,5);

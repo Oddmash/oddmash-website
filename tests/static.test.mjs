@@ -33,6 +33,36 @@ test('preview robots and sitemap never reveal public routes',()=>{
   assert.match(legacy,/<noscript><meta http-equiv="refresh" content="0; url=\/privacy\/">/);
   for(const prefix of prefixes) assert.match(legacy,new RegExp(`href="/${prefix}privacy/"`));
 });
+test('project detail pages explain the product and keep footer navigation focused',()=>{
+  const projects=['juliya','oddmash-ui','interaction-inspector','boundra'];
+  for(const prefix of prefixes){
+    const home=readFileSync('build/'+prefix+'index.html','utf8');
+    assert.doesNotMatch(home.match(/<footer\b[\s\S]*?<\/footer>/)?.[0]??'',/id="share"|id="share-fallback"/);
+    for(const project of projects){
+      const html=readFileSync('build/'+prefix+'projects/'+project+'/index.html','utf8');
+      assert.match(html,/<section class="section project-story" aria-labelledby="project-story-title"/);
+      assert.equal((html.match(/class="story-step"/g)??[]).length,3);
+      assert.match(html,/<div class="story-outcome"/);
+      assert.doesNotMatch(html,/class="[^"]*quickstart/);
+      const footer=html.match(/<footer\b[\s\S]*?<\/footer>/)?.[0];
+      assert.ok(footer);
+      assert.doesNotMatch(footer,/id="share"|id="share-fallback"/);
+    }
+  }
+});
+test('Juliya previews match each locale on home, catalog and detail pages',()=>{
+  for(const [prefix,locale,height] of [['','en',626],['ko/','ko',625],['ja/','ja',626],['zh-cn/','zh-cn',626]]){
+    const file=`/assets/juliya-live-${locale}.png`;
+    const png=readFileSync('build'+file);
+    assert.equal(png.readUInt32BE(16),1160);
+    assert.equal(png.readUInt32BE(20),height);
+    for(const path of ['','projects/','projects/juliya/']){
+      const html=readFileSync('build/'+prefix+path+'index.html','utf8');
+      assert.ok(html.includes(`src="${file}" width="1160" height="${height}"`),prefix+path);
+      assert.doesNotMatch(html,/src="\/assets\/juliya-live\.png"/);
+    }
+  }
+});
 test('excluded project has no public pages or image',()=>{
   for(const prefix of prefixes){
     assert.ok(!existsSync('build/'+prefix+'projects/vertactics/'));

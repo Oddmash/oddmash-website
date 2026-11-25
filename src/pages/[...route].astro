@@ -3,6 +3,7 @@ import ContributionGuide from '../components/contribution-guide.astro';
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectImage from '../components/ProjectImage.astro';
+import ProjectStory from '../components/project-story.astro';
 import PlatformLinks from '../components/PlatformLinks.astro';
 import WrapDemo from '../components/WrapDemo.astro';
 import LabStory from '../components/LabStory.astro';
@@ -12,7 +13,8 @@ import AgentDocs from '../components/agent-docs.astro';
 import { agentDocsCopy, findAgentRole } from '../agent-content';
 import { ecosystemCopy } from '../ecosystem-content';
 import { labCopy } from '../lab-content';
-import { editorial, projectLinks } from '../localized';
+import { editorial, homepageNames, projectLinks } from '../localized';
+import { projectImage } from '../project-images';
 import { copy, projects, staticPages, url, type Locale, type ProjectId } from '../content';
 import '../styles/project-interactions.scss';
 import '../styles/lab-story.scss';
@@ -27,51 +29,6 @@ const ecosystem=ecosystemCopy[locale];
 const contributionUrl='https://github.com/search?q=org%3AOddmash+is%3Aissue+is%3Aopen&type=issues';
 const home=url(locale);
 const project=projects.find(p=>path==='projects/'+p.id);
-const quickstart = {
-  "en": {
-    "title": "Get started",
-    "labels": [
-      "Korean, English, Japanese and Simplified Chinese use separate language entry points. The root defaults to Korean; use the appropriate locale for other text. Rules are heuristic and are best suited to headings and short passages.",
-      "In a React 18 or 19 app with Node.js 24 or later, import the stylesheet once and render a Button. Keep product layout and theme decisions in your application.",
-      "Requires Node.js 24 and the repository's pinned pnpm. Build the extension from its public source, then load the dist directory in Chrome's extensions page with Developer mode enabled. Click the toolbar icon, pick an element and start recording. It inspects the top-level document only and clears session data on navigation or close.",
-      "Requires Node.js 20 or later. In a test project, initialize a domain and check boundaries. The CLI reports forbidden imports; it does not replace application tests. The first CLI use fetches a checksummed binary."
-    ]
-  },
-  "ko": {
-    "title": "시작하기",
-    "labels": [
-      "한국어, 영어, 일본어, 중국어 간체별 진입점을 제공합니다. 기본 진입점은 한국어이며 다른 언어는 해당 언어 경로를 선택하세요. 휴리스틱 기반이므로 제목과 짧은 문장에 적합합니다.",
-      "Node.js 24 이상과 React 18 또는 19 환경에서 스타일을 한 번 불러온 뒤 Button을 렌더링하세요. 제품의 레이아웃과 테마 결정은 애플리케이션에서 관리합니다.",
-      "Node.js 24와 저장소에 명시된 pnpm이 필요합니다. 공개 소스를 빌드한 뒤 Chrome 확장 프로그램 페이지의 개발자 모드에서 dist 폴더를 로드하세요. 도구 모음 아이콘을 눌러 요소를 선택하고 기록을 시작합니다. 최상위 문서만 검사하며 페이지 이동 또는 패널 종료 시 세션이 삭제됩니다.",
-      "Node.js 20 이상이 필요합니다. 테스트 프로젝트에서 도메인을 초기화하고 경계 검사를 실행하세요. CLI는 금지된 import를 보고하며 애플리케이션 테스트를 대체하지 않습니다. 첫 실행 시 체크섬 검증 대상 바이너리를 내려받습니다."
-    ]
-  },
-  "ja": {
-    "title": "使い始める",
-    "labels": [
-      "言語別のエントリーポイントを選びます。既定は韓国語です。ヒューリスティックに基づくため見出しや短文に適しています。",
-      "Node.js 24 以上と React 18 または 19 のアプリでスタイルを一度読み込み、Button を表示します。製品のレイアウトとテーマはアプリ側で決めます。",
-      "Node.js 24 と指定の pnpm が必要です。公開ソースをビルドし、Chrome の拡張機能ページで開発者モードを有効にして dist を読み込みます。アイコンから要素を選び記録を開始します。対象は最上位文書のみです。",
-      "Node.js 20 以上が必要です。テストプロジェクトでドメインを初期化し、境界を確認します。CLI は禁止された import を報告し、アプリのテストを代替しません。初回はチェックサム付きバイナリを取得します。"
-    ]
-  },
-  "zh-CN": {
-    "title": "快速开始",
-    "labels": [
-      "选择韩语、英语、日语或简体中文入口。默认入口为韩语。规则基于启发式，适用于标题与短文。",
-      "在 Node.js 24 及以上、React 18 或 19 的应用中导入一次样式并渲染 Button。应用负责自身布局和主题。",
-      "需要 Node.js 24 和仓库指定的 pnpm。构建公开源码，在 Chrome 扩展页面启用开发者模式并加载 dist。点击工具栏图标、选择元素并开始记录。仅检查顶层文档，导航或关闭面板时清除会话。",
-      "需要 Node.js 20 及以上。在测试项目中初始化领域并检查边界。CLI 报告禁止的导入，不能替代应用测试。首次运行获取带校验和的二进制文件。"
-    ]
-  }
-}[locale];
-const quickstartCode = [
-  "import { wrap } from '@oddmash/juliya/en';\n\nconst lines = wrap('Read every line naturally.', {\n  width: 12,\n  measure: text => [...text].length,\n});",
-  "import '@oddmash/ui/styles.css';\nimport { Button } from '@oddmash/ui/button';\n\n<Button>Save</Button>",
-  "pnpm install --frozen-lockfile\npnpm run build",
-  "pnpm add boundra zod\npnpm exec boundra init --name my-app\npnpm exec boundra create-domain tasks\npnpm exec boundra check-boundaries"
-];
-const projectIndex = project ? projects.indexOf(project) : -1;
 const details=project ? t.projects[project.id as ProjectId] : undefined;
 const links=project ? projectLinks(project.id,locale) : undefined;
 const skillPage=path==='skills'||path.startsWith('skills/');
@@ -80,7 +37,7 @@ const agentPage=path==='agents'||path.startsWith('agents/');
 const title=skillPage ? (skill ? skillName(skill,locale) : skillCopy[locale].title) : agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='contribute' ? t.guide : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
 const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[locale].intro) : agentPage ? (findAgentRole(path) ? agentDocsCopy[locale].roles[findAgentRole(path)!.id].description : agentDocsCopy[locale].intro) : details?.description ?? (path==='contribute' ? t.contributeText : path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
 ---
-<Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
+<Base locale={locale} path={path} title={title} description={description} image={project && project.id!=='boundra'?projectImage(project,locale).src:undefined} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
   <section class="hero opening-scene" aria-labelledby="hero-title">
     <div class="hero-copy">
@@ -112,16 +69,16 @@ const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[lo
       const detail=t.projects[item.id];
       const destinations=projectLinks(item.id,locale);
       return <article class="catalog-entry">
-        <div class="catalog-identity"><p class="tag">{detail.type}</p><h2><a class="text-link" href={url(locale,'projects/'+item.id)}>{item.name}</a></h2><ProjectImage project={item} alt={detail.alt} lazy /><PlatformLinks name={item.name} github={destinations.readme} npm={item.package} /></div>
-        <div class="catalog-description"><p>{detail.description}</p><h3>{e.exampleHeading}</h3><p>{e.examples[item.id]}</p><a class="text-link" href={destinations.docs}>{item.name} {t.docs}</a></div>
+        <div class="catalog-identity"><p class="tag">{detail.type}</p><h2><a class="text-link project-destination" href={url(locale,'projects/'+item.id)} aria-label={item.name+' '+t.details}>{item.name}</a></h2><ProjectImage project={item} locale={locale} alt={detail.alt} lazy /></div>
+        <div class="catalog-description"><p>{detail.description}</p><h3>{e.exampleHeading}</h3><p>{e.examples[item.id]}</p><PlatformLinks name={item.name} github={item.repo} npm={item.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} docs={destinations.docs} docsLabel={t.docs} /></div>
       </article>;
     })}
   </section>
   <section class="section ecosystem-section" aria-labelledby="ecosystem-title">
     <div class="section-title"><h2 id="ecosystem-title">{ecosystem.title}</h2><p>{ecosystem.intro}</p></div>
     <div class="ecosystem-grid">
-      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><a class="text-link" href={url(locale,'skills')}>{skillCopy[locale].title}</a></article>
-      <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><div class="actions"><a class="text-link" href={url(locale,'agents')}>{ecosystem.agentDocs}</a><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" /></div></article>
+      <article><h3>Oddmash Skills</h3><p>{ecosystem.skills}</p><PlatformLinks name="Oddmash Skills" github="https://github.com/Oddmash/oddmash-skills" docs={url(locale,'skills')} docsLabel={t.docs} docsPrimary /></article>
+      <article><h3>Oddmash Agents</h3><p>{ecosystem.agents}</p><PlatformLinks name="Oddmash Agents" github="https://github.com/Oddmash/oddmash-agents" docs={url(locale,'agents')} docsLabel={t.docs} docsPrimary /></article>
     </div>
   </section>
 </>}
@@ -134,18 +91,14 @@ const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[lo
       <p class="detail-summary">{details.summary}</p>
       <p class="lead">{details.description}</p>
       <div class="actions">
-        <PlatformLinks name={project.name} github={links.readme} npm={project.package} />
-        {links.docs!==links.readme && <a class="button secondary" href={links.docs}>{t.docs}</a>}
-        {links.live && <a class="text-link" href={links.live}>{t.live}</a>}
+        <PlatformLinks name={project.name} github={project.repo} npm={project.package} homepage={links.live} homepageLabel={homepageNames[locale]} docs={links.docs} docsLabel={t.docs} />
       </div>
-      {project.package && <p class="package"><code>npm install {project.package}{project.id==='boundra'?' zod':''}</code></p>}
     </div>
-    <figure class="detail-image"><a class="detail-image-link" href={links.live ?? links.readme} aria-label={project.name+' '+(links.live ? t.live : t.repository)}><ProjectImage project={project} alt={details.alt}/></a><figcaption>{details.alt}</figcaption></figure>
+    <figure class="detail-image"><a class="detail-image-link" href={links.live ?? links.readme} aria-label={project.name+' '+(links.live ? homepageNames[locale] : t.repository)}><ProjectImage locale={locale} project={project} alt={details.alt}/></a><figcaption>{details.alt}</figcaption></figure>
   </section>
-  <section class="section detail-grid"><div><h2>{e.exampleHeading}</h2><p class="lead">{project.id==='juliya' ? details.use : e.examples[project.id]}</p></div><div><h2 class="small-heading">{t.features}</h2><ul class="feature-list">{details.features.map(value=><li>{value}</li>)}</ul><a class="text-link" href={links.contribute}>{e.contributeAction}</a></div></section>
-  <section class="section project-quickstart"><h2>{quickstart.title}</h2><p>{quickstart.labels[projectIndex]}</p><pre><code>{quickstartCode[projectIndex]}</code></pre><a class="text-link" href={links.docs}>{project.name} {t.docs}</a></section>
+  <ProjectStory locale={locale} projectId={project.id} />
   {project.id==='juliya' && <WrapDemo locale={locale} />}
-  <section class="section related-projects"><div class="section-title"><h2>{t.back}</h2><a class="text-link" href={url(locale,'projects')}>{t.explore}</a></div><ul class="project-link-list">{projects.filter(p=>p.id!==project.id).map(p=><li class="project-index-row"><a class="project-destination" href={url(locale,'projects/'+p.id)}>{p.name}</a><PlatformLinks name={p.name} github={projectLinks(p.id,locale).readme} npm={p.package} /></li>)}</ul></section>
+  <section class="section related-projects"><div class="section-title"><h2>{t.back}</h2><a class="text-link" href={url(locale,'projects')}>{t.explore}</a></div><ul class="project-link-list">{projects.filter(p=>p.id!==project.id).map(p=>{const destinations=projectLinks(p.id,locale);return <li class="project-index-row"><a class="project-destination" href={url(locale,'projects/'+p.id)}>{p.name}</a><PlatformLinks name={p.name} github={p.repo} npm={p.package} homepage={destinations.live} homepageLabel={homepageNames[locale]} docs={destinations.docs} docsLabel={t.docs} /></li>;})}</ul></section>
 </>}
 {path==='studio' && <>
   <section class="about-hero detail-head"><p class="eyebrow">Oddmash</p><h1>{e.aboutTitle}</h1><p class="lead">{e.aboutLead}</p><div class="actions"><a class="button primary" href={contributionUrl}>{e.contributeAction}</a><a class="button secondary" href={url(locale,'projects')}>{t.explore}</a></div></section>
@@ -154,15 +107,3 @@ const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[lo
 </>}
 {path==='privacy' && <article class="policy detail-head"><p class="eyebrow">Oddmash</p><h1>{t.privacy}</h1>{t.privacyText.map(p=><p>{p}</p>)}<a class="text-link" href="https://github.com/Oddmash">GitHub</a></article>}
 </Base>
-<script>
-if (location.pathname === '/' || location.pathname === '/oddmash-website/') {
-  const legacy = new URLSearchParams(location.search).get('lang');
-  const map: Record<string,string> = {ko:'/ko/',ja:'/ja/','zh-CN':'/zh-cn/'};
-  if (legacy && Object.hasOwn(map,legacy)) location.replace(location.pathname.replace(/\/$/,'')+map[legacy]+location.hash);
-  else if (legacy) {
-    const current=new URL(location.href);
-    current.searchParams.delete('lang');
-    history.replaceState(null,'',current);
-  }
-}
-</script>

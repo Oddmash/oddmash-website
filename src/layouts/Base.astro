@@ -20,6 +20,33 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
 <meta name="theme-color" content="#101010" />
 <meta name="color-scheme" content="dark" />
 <style is:inline>:root{color-scheme:dark;background:#080808;color:#f5f5f5}</style>
+{path === '' && locale === 'en' && !noIndex && <script is:inline>
+  (() => {
+    const base = location.pathname;
+    if (base !== '/' && base !== '/oddmash-website/') return;
+    const prefixes = {en:'',ko:'ko/',ja:'ja/','zh-CN':'zh-cn/'};
+    const supported = value => {
+      if (typeof value !== 'string') return undefined;
+      const language = value.toLowerCase();
+      if (language === 'zh' || /^zh-(?:hans|cn|sg|my)(?:-|$)/.test(language)) return 'zh-CN';
+      const primary = language.split('-')[0];
+      return ['en','ko','ja'].includes(primary) ? primary : undefined;
+    };
+    const destination = new URL(location.href);
+    const legacy = destination.searchParams.get('lang');
+    let preference;
+    try { preference = localStorage.getItem('oddmash-language'); } catch {}
+    const browserLanguage = (navigator.languages?.length ? navigator.languages : [navigator.language]).map(supported).find(Boolean);
+    const selected = legacy !== null ? supported(legacy) ?? 'en' : (preference && supported(preference)) || browserLanguage || 'en';
+    if (legacy !== null) {
+      destination.searchParams.delete('lang');
+      try { localStorage.setItem('oddmash-language', selected); } catch {}
+    }
+    destination.pathname = base + prefixes[selected];
+    if (destination.pathname !== location.pathname) location.replace(destination.href);
+    else if (destination.href !== location.href) history.replaceState(null,'',destination);
+  })();
+</script>}
 <title>{title} | Oddmash</title>
 <meta name="description" content={description} />
 <meta name="robots" content={indexable && !noIndex ? 'index, follow' : 'noindex, nofollow'} />
@@ -43,20 +70,17 @@ const canonical = noIndex ? undefined : absolute(url(locale,path));
   <div class="language-select" data-om-theme="dark" hidden></div>
   <details class="language-fallback language-picker-fallback" data-om-theme="dark">
     <summary class="om-select-dropdown-trigger" aria-label={t.language}>{languageNames[locale]}</summary>
-    <nav aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
+    <nav aria-label={t.language}>{locales.map(lang=><a lang={lang} hreflang={lang} href={url(lang,path)+(lang==='en' && path==='' ? '?lang=en' : '')} aria-current={lang===locale ? 'page' : undefined} data-locale={lang}>{languageNames[lang]}</a>)}</nav>
   </details>
 </header>
 <main id="main" class="shell" tabindex="-1"><slot /></main>
 <footer class="shell footer">
   <a class="brand" href={home} aria-label={l.home}><img src="/assets/oddmash-logo.png" width="30" height="30" alt="" /><span>oddmash.</span></a>
   <p>© {new Date().getFullYear()} Oddmash</p>
-  <nav aria-label={l.footer}><a href={url(locale,'privacy')} aria-current={path==='privacy'?'page':undefined}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a>{!noIndex && <button id="share" hidden type="button" data-success={t.copied} data-failure={t.copyFailed}>{t.share}</button>}</nav>
-
-  <input id="share-fallback" type="url" readonly hidden aria-label={l.shareLink} />
+  <nav aria-label={l.footer}><a href={url(locale,'privacy')} aria-current={path==='privacy'?'page':undefined}>{t.privacy}</a><a href="https://github.com/Oddmash">GitHub</a></nav>
 </footer>
 <div id="copy-toast" data-om-theme="dark"></div>
 <script>
-import { notifyCopy } from '../copy-toast';
 import { SelectDropdown } from '@oddmash/ui/select';
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -66,6 +90,10 @@ const picker = document.querySelector<HTMLElement>('.language-select');
 const fallbackLinks = document.querySelector<HTMLElement>('.language-fallback');
 if(picker && fallbackLinks) {
   const links = [...fallbackLinks.querySelectorAll<HTMLAnchorElement>('a[data-locale]')];
+  const remember = (value: string) => {
+    try { localStorage.setItem('oddmash-language', value); } catch {}
+  };
+  links.forEach(link => link.addEventListener('click', () => remember(link.dataset.locale ?? 'en')));
   const options = links.map(link => ({
     value: link.dataset.locale ?? '',
     label: link.textContent?.trim() ?? '',
@@ -73,6 +101,7 @@ if(picker && fallbackLinks) {
   const selectLanguage = (value: string) => {
     const link = links.find(anchor => anchor.dataset.locale === value);
     if(!link) return;
+    remember(value);
     const destination = new URL(link.href);
     destination.hash = location.hash;
     location.assign(destination.href);
@@ -100,22 +129,6 @@ if(picker && fallbackLinks) {
     }
   };
   enhance();
-}
-const share = document.querySelector<HTMLButtonElement>('#share');
-const fallback = document.querySelector<HTMLInputElement>('#share-fallback');
-if (share) {
-  share.hidden = false;
-  share.addEventListener('click', async () => {
-    const link = new URL(location.pathname, location.origin).href;
-    try {
-      await navigator.clipboard.writeText(link);
-      if (fallback) fallback.hidden = true;
-      notifyCopy(share.dataset.success ?? '');
-    } catch {
-      if (fallback) { fallback.value = link; fallback.hidden = false; }
-      notifyCopy(share.dataset.failure ?? '', true);
-    }
-  });
 }
 </script>
 <style is:global>
