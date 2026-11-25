@@ -37,7 +37,7 @@ kowrap:{type:'库',summary:'按语言规则优化文本换行。',description:'J
 'interaction-inspector':{type:'浏览器扩展',summary:'检查DOM事件、焦点及元素状态。',description:'在正在调试的页面中集中展示交互证据的Chrome扩展。',features:['元素选择和焦点检查','事件时间线及ARIA状态','复制Markdown证据'],alt:'显示所选元素及交互事件的检查面板',use:'重现键盘操作，检查事件和可见焦点。'},
 boundra:{type:'开发工具',summary:'强制执行面向领域的TypeScript边界。',description:'结合TypeScript契约运行时与Rust静态分析CLI，保持领域公开API和运行时契约的一致性。',features:['领域依赖和公开API检查','输入与结果的模式验证','稳定诊断和Vite开发浮层'],alt:'展示允许公开API引用和禁止客户端依赖服务端的Boundra示意图',use:'合并新的领域依赖前运行边界检查，及早发现不合规引用。'}}}
 };
-export const staticPages = locales.flatMap(locale => ['', 'projects','studio','privacy', ...agentPaths, ...skillPaths, ...projects.map(p=>'projects/'+p.id)].map(path=>({locale,path,href:url(locale,path)})));
+export const staticPages = locales.flatMap(locale => ['', 'projects','studio','contribute','privacy', ...agentPaths, ...skillPaths, ...projects.map(p=>'projects/'+p.id)].map(path=>({locale,path,href:url(locale,path)})));
 
 export const labels = {
   en:{navigation:'Main navigation',footer:'Footer navigation',filters:'Filter projects',openSource:'Open source',home:'Oddmash home',shareLink:'Page link',width:'Comparison width',demoFallback:'The live comparison needs JavaScript. Visit the Kowrap playground to try it.',demoFailure:'The live comparison could not start. Visit the Kowrap playground to try it.',count:'{count} projects shown',one:'{count} project shown',setup:'Setup and usage',socialAlt:'Oddmash Developer Experience Lab'},

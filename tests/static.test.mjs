@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 const prefixes=['','ko/','ja/','zh-cn/'];
 const langs=['en','ko','ja','zh-CN'];
-const pages=['','projects/','studio/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
+const pages=['','projects/','studio/','contribute/','privacy/','agents/',...['lead','impact','triage','qa','docs','architect','release'].map(id=>'agents/'+id+'/'),'projects/kowrap/','projects/oddmash-ui/','projects/interaction-inspector/','projects/boundra/'];
 test('all locale paths contain static copy, correct metadata and local assets',()=>{
   for(const [i,prefix] of prefixes.entries()) for(const path of pages){
     const html=readFileSync('build/'+prefix+path+'index.html','utf8');
@@ -73,6 +73,10 @@ test('all localized agent documentation pages are linked without private impleme
     for(const role of ['lead','impact','triage','qa','docs','architect','release']){
       assert.ok(overview.includes('href="/'+prefix+'agents/'+role+'/"'));
       const detail=readFileSync('build/'+prefix+'agents/'+role+'/index.html','utf8');
+      const summary=detail.match(/<p class="lead"[^>]*>([^<]+)<\/p>/)?.[1];
+      const meta=detail.match(/<meta name="description" content="([^"]+)"/)?.[1];
+      assert.ok(summary && summary.length >= 40, `${prefix}${role} has a substantive description`);
+      assert.equal(meta,summary, `${prefix}${role} metadata matches the visible description`);
       assert.doesNotMatch(detail,/github\.com\/Oddmash\/oddmash-(agents|skills)\/[^" ]*(?:\.env|secret|credential)/i);
     }
   }

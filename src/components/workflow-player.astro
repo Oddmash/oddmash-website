@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '../content';
-import { labCopy, scenes } from '../lab-content';
+import { labCopy } from '../lab-content';
 import FilmScene from './FilmScene.astro';
 
 interface Props { locale: Locale }
@@ -9,19 +9,19 @@ const c = labCopy[locale];
 const controls = {
   en: {
     lead: 'See how a change moves from a real issue through implementation, review and a verified public release.',
-    play: 'Resume animation', pause: 'Pause animation',
+    hint: 'Hover or focus to pause. Tap to pause or resume on touch screens.',
   },
   ko: {
     lead: '실제 이슈에서 시작한 변경이 구현, 검토, 검증을 거쳐 공개 배포에 이르는 과정을 확인해 보세요.',
-    play: '애니메이션 재개', pause: '애니메이션 정지',
+    hint: '마우스를 올리거나 키보드로 선택하면 일시 정지합니다. 터치 화면에서는 탭으로 정지하거나 재개합니다.',
   },
   ja: {
     lead: '実際の課題から始まる変更が実装、レビュー、検証を経て公開されるまでをご覧ください。',
-    play: 'アニメーションを再開', pause: 'アニメーションを停止',
+    hint: 'ホバーまたはフォーカスで一時停止。タッチ画面ではタップで切り替えます。',
   },
   'zh-CN': {
     lead: '了解一项改动如何从实际问题出发，经过实现、审查和验证，最终公开发布。',
-    play: '继续动画', pause: '暂停动画',
+    hint: '悬停或聚焦时暂停。触屏上轻触暂停或继续。',
   },
 }[locale];
 ---
@@ -30,7 +30,7 @@ const controls = {
     <h2 id="workflow-title" tabindex="-1">{c.workflowTitle}</h2>
     <p>{controls.lead}</p>
   </div>
-  <div class="film-player" hidden>
+  <div class="film-player" hidden tabindex="0" role="region" aria-labelledby="workflow-title" aria-describedby="film-hint">
     <div class="film-screen">
       {c.steps.map((step, index) => <article class="film-visual" data-film-visual={index} hidden={index !== 0}>
         <div class="film-scene" aria-hidden="true"><FilmScene locale={locale} index={index} /></div>
@@ -41,11 +41,7 @@ const controls = {
         </div>
       </article>)}
     </div>
-    <div class="film-controls">
-      <button type="button" class="film-toggle" data-film-toggle data-play={controls.play} data-pause={controls.pause}>
-        <span class="film-toggle-icon" aria-hidden="true"></span><span data-film-toggle-label>{controls.play}</span>
-      </button>
-    </div>
+    <p class="film-hint" id="film-hint">{controls.hint}</p>
   </div>
   <ol class="film-steps" role="list">
     {c.steps.map((step, index) => <li class="film-step" id={'workflow-step-' + (index + 1)} data-film-step={index}>
@@ -64,9 +60,7 @@ if (root && 'IntersectionObserver' in window) {
   const player = root.querySelector<HTMLElement>('.film-player');
   const fallback = root.querySelector<HTMLElement>('.film-steps');
   const slides = [...root.querySelectorAll<HTMLElement>('[data-film-visual]')];
-  const toggle = root.querySelector<HTMLButtonElement>('[data-film-toggle]');
-  const label = root.querySelector<HTMLElement>('[data-film-toggle-label]');
-  if (player && fallback && slides.length && toggle && label) {
+  if (player && fallback && slides.length) {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const duration = 3600;
     let index = 0;
@@ -75,12 +69,14 @@ if (root && 'IntersectionObserver' in window) {
     let started = 0;
     let inView = false;
     let pageActive = true;
-    let wantsPlay = true;
+    let hovered = false;
+    let focused = false;
+    let touchPaused = false;
     const render = () => {
       root.dataset.activeScene = String(index);
       for (const [i, slide] of slides.entries()) slide.hidden = i !== index;
     };
-    const canPlay = () => !media.matches && pageActive && inView && !document.hidden && wantsPlay;
+    const canPlay = () => !media.matches && pageActive && inView && !document.hidden && !hovered && !focused && !touchPaused;
     const stopTimer = () => {
       if (timer === undefined) return;
       clearTimeout(timer);
@@ -93,8 +89,6 @@ if (root && 'IntersectionObserver' in window) {
         root.dataset.playing = String(playing);
         root.dataset.filmAnimate = 'true';
       }
-      root.dataset.playIntent = String(wantsPlay);
-      label.textContent = wantsPlay ? toggle.dataset.pause ?? '' : toggle.dataset.play ?? '';
       if (!playing) stopTimer();
       else if (timer === undefined) {
         started = performance.now();
@@ -123,7 +117,12 @@ if (root && 'IntersectionObserver' in window) {
       }
       sync();
     };
-    toggle.addEventListener('click', () => { wantsPlay = !wantsPlay; sync(); });
+    player.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') { hovered = true; sync(); } });
+    player.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') { hovered = false; sync(); } });
+    player.addEventListener('focusin', () => { focused = true; if (player.matches(':focus-visible')) touchPaused = false; sync(); });
+    player.addEventListener('focusout', () => { focused = false; sync(); });
+    player.addEventListener('keydown', event => { if (event.key === 'Tab' && touchPaused) { touchPaused = false; sync(); } });
+    player.addEventListener('pointerup', event => { if (event.pointerType === 'touch') { focused = false; touchPaused = !touchPaused; sync(); } });
     const observer = new IntersectionObserver(entries => {
       inView = !!entries[0]?.isIntersecting && entries[0].intersectionRatio >= .1;
       sync();

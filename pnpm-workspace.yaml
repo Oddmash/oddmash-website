@@ -1,2 +1,3 @@
 minimumReleaseAgeExclude:
   - '@oddmash/kowrap@0.3.2'
+  - '@oddmash/ui@0.4.0'

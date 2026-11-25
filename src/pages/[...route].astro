@@ -1,4 +1,5 @@
 ---
+import ContributionGuide from '../components/contribution-guide.astro';
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectImage from '../components/ProjectImage.astro';
@@ -31,8 +32,8 @@ const links=project ? projectLinks(project.id,locale) : undefined;
 const skillPage=path==='skills'||path.startsWith('skills/');
 const skill=findSkill(path);
 const agentPage=path==='agents'||path.startsWith('agents/');
-const title=skillPage ? (skill ? skillName(skill,locale) : skillCopy[locale].title) : agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
-const description=skillPage ? skillCopy[locale].intro : agentPage ? (findAgentRole(path) ? lab.agentDescriptions[findAgentRole(path)!.id] : agentDocsCopy[locale].intro) : details?.description ?? (path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
+const title=skillPage ? (skill ? skillName(skill,locale) : skillCopy[locale].title) : agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='contribute' ? t.guide : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
+const description=skillPage ? skillCopy[locale].intro : agentPage ? (findAgentRole(path) ? agentDocsCopy[locale].roles[findAgentRole(path)!.id].description : agentDocsCopy[locale].intro) : details?.description ?? (path==='contribute' ? t.contributeText : path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
 ---
 <Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
@@ -54,8 +55,9 @@ const description=skillPage ? skillCopy[locale].intro : agentPage ? (findAgentRo
     <a class="text-link catalog-cta" href={url(locale,'projects')}>{t.back}</a>
   </section>
   <LabStory locale={locale} />
-  <section class="section contribute closing-cta" id="contribute"><div><h2>{t.contribute}</h2><p>{t.contributeText}</p></div><div class="actions"><a class="button primary" href={contributionUrl}>{e.contributeAction}</a><a class="button secondary" href={url(locale,'studio')}>{t.nav[1]}</a></div></section>
+  <section class="section contribute closing-cta" id="contribute"><div><h2>{t.contribute}</h2><p>{t.contributeText}</p></div><div class="actions"><a class="button primary" href={url(locale,'contribute')}>{t.guide}</a><a class="button secondary" href={url(locale,'studio')}>{t.nav[1]}</a></div></section>
 </>}
+{path==='contribute' && <ContributionGuide locale={locale} />}
 {skillPage && <SkillDocs locale={locale} path={path} />}
 {agentPage && <AgentDocs locale={locale} path={path} />}
 {path==='projects' && <>

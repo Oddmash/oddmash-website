@@ -637,3 +637,31 @@ html[lang=ko] .film-step-copy h3 { max-width: 100%; }
 .skill-install{scroll-margin-top:100px}
 @media(max-width:760px){.skill-flow-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.skill-flow-controls button::after{display:none}}
 @media(max-width:420px){.skill-flow-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.skill-item h4 { margin: 0 0 8px; line-height: 1.35; }
+.skill-item { display: grid; align-content: start; }
+.skill-flow-controls button { transition: background .18s, border-color .18s, color .18s; }
+.skill-flow-controls button:hover { border-color: var(--muted); }
+.agent-doc-section > h3:not(:first-child) { margin-top: 32px; margin-bottom: 12px; }
+.agent-doc-section > h2 + p { margin-top: 16px; }
+.agent-doc-section > pre { margin-block: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.primary-navigation a { padding-inline: 8px; border-radius: 8px; }
+.header .primary-navigation a[aria-current=page] { background: var(--hover); text-decoration: none; }
+.header .primary-navigation a:hover { background: var(--paper); }
+html[data-page=home] main > :is(.projects-overview,.lab-method,.lab-agents,.agent-section,.lab-workflow,.closing-cta) { min-height: 92svh; align-content: center; padding-block: clamp(72px, 10vh, 128px); }
+html[data-page=home] main > .closing-cta { align-items: center; }
+@media (max-width:650px) {
+  .header nav.primary-navigation { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  html[data-page=home] main > :is(.projects-overview,.lab-method,.lab-agents,.agent-section,.lab-workflow,.closing-cta) { min-height: auto; padding-block: 56px; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  .skill-flow-panel:not([hidden]) { animation: skill-panel-enter .24s ease-out; }
+  .skill-item { transition: border-color .18s, background .18s; }
+  .skill-item:hover { background: var(--hover); }
+}
+@keyframes skill-panel-enter { from { opacity: .4; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.contribution-guide { max-width: 900px; margin-inline: auto; }
+.contribution-guide ol { list-style: none; padding: 0; display: grid; gap: 16px; }
+.contribution-guide li { padding: clamp(20px,3vw,32px); border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.contribution-guide li h2 { font-size: clamp(1.3rem,2.5vw,1.8rem); margin-bottom: 12px; }
+.contribution-guide li p { color: var(--muted); margin-bottom: 12px; }
