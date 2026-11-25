@@ -67,3 +67,17 @@ test('documentation adopts semantic code and prose surfaces and exposes managed 
   await expect(page.locator('html')).toHaveAttribute('data-copied-shared',/^---\nname: oddmash-accessibility/);
   await expect(first).toBeFocused();
 });
+
+test('skill card directional fill and command copy use shared UI without losing native links',async({page})=>{
+  await page.goto('/skills/');
+  await expect(page.locator('a.skill-item.om-link-card').first()).toBeVisible();
+  const card=page.locator('.skill-flow-panel:not([hidden]) a.om-link-card').first();
+  await card.scrollIntoViewIfNeeded();
+  if(await page.evaluate(()=>matchMedia('(hover: hover) and (pointer: fine)').matches)){
+    await card.hover();
+    await expect(card).toHaveCSS('background-size','100% 100%');
+  }
+  await card.click();
+  await expect(page.locator('.skill-reference.om-prose .om-code-block-content')).toBeVisible();
+  await expect(page.locator('.skill-install.om-prose .om-code-block-copy[data-copy=commands]')).toBeVisible();
+});
