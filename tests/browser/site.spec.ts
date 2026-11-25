@@ -6,7 +6,7 @@ const chooseLanguage = async (page: Page, locale: Language) => {
   const trigger = page.locator('#language-select');
   await trigger.click();
   await expect(trigger).toHaveAttribute('aria-expanded','true');
-  await page.getByRole('option',{name:languageNames[locale],exact:true}).click();
+  await page.getByRole('listbox').getByRole('option',{name:languageNames[locale],exact:true}).click();
 };
 test('project catalog, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
