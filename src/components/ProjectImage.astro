@@ -1,8 +1,10 @@
 ---
-import { projects } from '../content';
-const {project,alt,lazy=false}=Astro.props as {project:typeof projects[number];alt:string;lazy?:boolean};
+import { projects, type Locale } from '../content';
+import { projectImage } from '../project-images';
+const {project,locale,alt,lazy=false}=Astro.props as {project:typeof projects[number];locale:Locale;alt:string;lazy?:boolean};
+const image = projectImage(project,locale);
 ---
 <picture>
   {project.darkImage && <source media="(prefers-color-scheme: dark)" srcset={project.darkImage} />}
-  <img class:list={{'juliya-preview':project.id==='juliya'}} src={project.image} width={project.width} height={project.height} alt={alt} loading={lazy?'lazy':'eager'} decoding="async" />
+  <img class:list={{'juliya-preview':project.id==='juliya'}} src={image.src} width={image.width} height={image.height} alt={alt} loading={lazy?'lazy':'eager'} decoding="async" />
 </picture>

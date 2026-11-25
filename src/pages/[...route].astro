@@ -14,6 +14,7 @@ import { agentDocsCopy, findAgentRole } from '../agent-content';
 import { ecosystemCopy } from '../ecosystem-content';
 import { labCopy } from '../lab-content';
 import { editorial, homepageNames, projectLinks } from '../localized';
+import { projectImage } from '../project-images';
 import { copy, projects, staticPages, url, type Locale, type ProjectId } from '../content';
 import '../styles/project-interactions.scss';
 import '../styles/lab-story.scss';
@@ -36,7 +37,7 @@ const agentPage=path==='agents'||path.startsWith('agents/');
 const title=skillPage ? (skill ? skillName(skill,locale) : skillCopy[locale].title) : agentPage ? (findAgentRole(path)?.name ?? agentDocsCopy[locale].title) : project ? project.name : path==='contribute' ? t.guide : path==='projects' ? t.work : path==='studio' ? e.aboutTitle : path==='privacy' ? t.privacy : t.eyebrow;
 const description=skillPage ? (skill ? skillSummary(skill,locale) : skillCopy[locale].intro) : agentPage ? (findAgentRole(path) ? agentDocsCopy[locale].roles[findAgentRole(path)!.id].description : agentDocsCopy[locale].intro) : details?.description ?? (path==='contribute' ? t.contributeText : path==='projects' ? t.workIntro : path==='privacy' ? t.privacyText[0] : t.intro);
 ---
-<Base locale={locale} path={path} title={title} description={description} image={project?.id==='boundra'?undefined:project?.image} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
+<Base locale={locale} path={path} title={title} description={description} image={project && project.id!=='boundra'?projectImage(project,locale).src:undefined} imageAlt={project?.id==='boundra'?undefined:details?.alt}>
 {path==='' && <>
   <section class="hero opening-scene" aria-labelledby="hero-title">
     <div class="hero-copy">
