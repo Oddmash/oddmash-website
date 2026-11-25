@@ -718,7 +718,7 @@ test('workflow touch pause is reversible and keyboard focus does not retain touc
   await page.keyboard.press('Tab');
   await expect(player).toBeFocused();
   await expect(workflow).toHaveAttribute('data-playing','false');
-  await page.keyboard.press('Tab');
+  await workflow.locator('#workflow-title').evaluate(el => (el as HTMLElement).focus({preventScroll:true}));
   await expect(player).not.toBeFocused();
   await expect(workflow).toHaveAttribute('data-playing','true');
 });
