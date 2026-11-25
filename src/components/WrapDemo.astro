@@ -1,6 +1,6 @@
 ---
 import { copy, labels, languageNames, locales, type Locale } from '../content';
-import { projectLinks } from '../localized';
+import { homepageNames, projectLinks } from '../localized';
 const {locale} = Astro.props as {locale:Locale};
 const t = copy[locale];
 const l = labels[locale];
@@ -24,8 +24,11 @@ const languageLabel = {en:'Example language',ko:'예제 언어',ja:'例文の言
     <div><p class="tag">{t.after}</p><p id="optimized-wrap" class="sample" lang={locale}>{sample}</p></div>
   </div>
   <p id="demo-status" role="status" data-failure={l.demoFailure}></p>
-  <a class="text-link" href={live}>{t.live}</a>
+  <a class="text-link demo-fallback-link" href={live}>{homepageNames[locale]}</a>
 </section>
+<style>
+  #demo-fallback[hidden] ~ .demo-fallback-link { display: none; }
+</style>
 <script>
 import { mountKowrap as mountJuliya } from '@oddmash/juliya/dom';
 const range = document.querySelector<HTMLInputElement>('#demo-width');

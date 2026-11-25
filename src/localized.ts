@@ -2,6 +2,8 @@ import { projects, type Locale, type ProjectId } from './content';
 
 const github = 'https://github.com/Oddmash';
 
+export const homepageNames: Record<Locale, string> = { en: 'Homepage', ko: '홈페이지', ja: 'ホームページ', 'zh-CN': '主页' };
+
 export const organizationContribution = (locale: Locale) =>
   `${github}/.github/blob/main/${locale === 'en' ? 'CONTRIBUTING.md' : `docs/${locale}/CONTRIBUTING.md`}`;
 
@@ -22,7 +24,7 @@ export const projectLinks = (projectId: ProjectId, locale: Locale) => {
       readme: `${project.repo}/blob/main/README${readmeSuffix}.md`,
       docs: `${project.repo}/blob/main/docs/user-guide${guideSuffix}.md`,
       contribute,
-      live: `https://oddmash.github.io/boundra/docs/user-guide${guideSuffix}/`,
+      live: `https://oddmash.github.io/boundra/${locale === 'en' ? '' : locale.toLowerCase() + '/'}`,
     };
   }
 

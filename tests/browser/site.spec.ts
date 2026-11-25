@@ -8,6 +8,32 @@ const chooseLanguage = async (page: Page, locale: Language) => {
   await expect(trigger).toHaveAttribute('aria-expanded','true');
   await page.getByRole('listbox').getByRole('option',{name:languageNames[locale],exact:true}).click();
 };
+test('root chooses the first supported browser language and remembers explicit selection', async ({browser})=>{
+  const cases = [
+    {languages:['ko-KR','en-US'],prefix:'ko/',lang:'ko'},
+    {languages:['fr-FR','ja-JP'],prefix:'ja/',lang:'ja'},
+    {languages:['zh-Hans-CN'],prefix:'zh-cn/',lang:'zh-CN'},
+    {languages:['fr-FR','de-DE'],prefix:'',lang:'en'},
+  ];
+  for (const {languages,prefix,lang} of cases) {
+    const context = await browser.newContext();
+    try {
+      await context.addInitScript(languages=>Object.defineProperty(navigator,'languages',{value:languages}),languages);
+      const page = await context.newPage();
+      await page.goto('http://127.0.0.1:4322/?ref=entry#work');
+      await expect(page).toHaveURL('http://127.0.0.1:4322/'+prefix+'?ref=entry#work');
+      await expect(page.locator('html')).toHaveAttribute('lang',lang);
+      await chooseLanguage(page,'en');
+      await page.goto('http://127.0.0.1:4322/');
+      await expect(page.locator('html')).toHaveAttribute('lang','en');
+      await expect(page).toHaveURL('http://127.0.0.1:4322/');
+      await page.goto('http://127.0.0.1:4322/ja/projects/');
+      await expect(page.locator('html')).toHaveAttribute('lang','ja');
+      await page.goto('http://127.0.0.1:4322/?lang=ko&ref=entry');
+      await expect(page).toHaveURL('http://127.0.0.1:4322/ko/?ref=entry');
+    } finally { await context.close(); }
+  }
+});
 test('project catalog, detail navigation, locale and legacy query', async ({page})=>{
   await page.goto('/?lang=ko');
   await expect(page).toHaveURL(/\/ko\/$/);
@@ -36,7 +62,7 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
     if(path==='') await expect(page.locator('.project-gallery .project')).toHaveCount(4);
     if(path==='projects/boundra/'){
       await expect(page.locator('h1')).toHaveText('Boundra');
-      await expect(page.locator('.feature-list li')).toHaveCount(3);
+      await expect(page.locator('.story-features li')).toHaveCount(3);
       await expect(page.locator('.detail-head .lead')).not.toBeEmpty();
       await expect(page.locator('.detail-image img')).toHaveAttribute('alt', /Boundra/i);
     }
@@ -52,12 +78,12 @@ test('all localized pages reflow, load images and retain keyboard focus', async 
   }
   expect(unexpected).toEqual([]);
 });
-test('copy feedback and live Juliya width', async ({page})=>{
-  await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{}}}));
+test('live Juliya width and clean footer', async ({page})=>{
   await page.goto('/ko/projects/juliya/');
   const range=page.locator('#demo-width');
   await expect(range).toBeVisible();
   await expect(page.locator('#demo-fallback')).toBeHidden();
+  await expect(page.locator('.demo-fallback-link')).toBeHidden();
   await range.focus();
   await range.press('End');
   await expect(page.locator('#width-value')).toHaveText('320 px');
@@ -71,17 +97,12 @@ test('copy feedback and live Juliya width', async ({page})=>{
   const chosen=Number(await range.inputValue());
   await expect(page.locator('#width-value')).toHaveText(chosen+' px');
   expect(await page.locator('.sample').evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().width))).toEqual([chosen,chosen]);
-  await page.locator('#share').click();
-  await expect(page.locator('#copy-toast .om-toast')).toContainText('링크를 복사했습니다.');
+  await expect(page.locator('footer #share, footer #share-fallback')).toHaveCount(0);
 });
 
-test('legacy privacy locale and copy fallback',async ({page})=>{
-  await page.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('Unavailable');}}}));
+test('legacy privacy locale and language switch',async ({page})=>{
   await page.goto('/privacy.html?lang=ja');
   await expect(page).toHaveURL(/\/ja\/privacy\/$/);
-  await page.getByRole('button',{name:'リンクをコピー'}).click();
-  await expect(page.locator('#copy-toast .om-toast')).toContainText('アドレスバーからリンクをコピーしてください。');
-  await expect(page.getByRole('textbox',{name:'ページリンク'})).toHaveValue('http://127.0.0.1:4322/ja/privacy/');
   await chooseLanguage(page,'zh-CN');
   await expect(page).toHaveURL(/\/zh-cn\/privacy\/$/);
 });
@@ -100,7 +121,7 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     await page.goto('http://127.0.0.1:4322/ko/');
     await expect(page.locator('.project:visible')).toHaveCount(4);
     await expect(page.locator('#filters')).toBeHidden();
-    await expect(page.locator('#share')).toBeHidden();
+    await expect(page.locator('#share')).toHaveCount(0);
     const workflow=page.locator('#workflow');
     await expect(workflow).not.toHaveAttribute('data-film-ready','true');
     await expect(workflow.locator('.film-step')).toHaveCount(6);
@@ -108,6 +129,7 @@ test('progressive rendering without JavaScript',async ({browser})=>{
     for(const step of await workflow.locator('.film-step').all()) await expect(step.locator('h3')).toBeVisible();
     await page.getByRole('link',{name:'Juliya 프로젝트 상세'}).click();
     await expect(page.locator('#demo-fallback')).toBeVisible();
+    await expect(page.locator('.demo-fallback-link')).toBeVisible();
     await expect(page.locator('#demo-pair')).toBeHidden();
     await expect(page.locator('#demo-control')).toBeHidden();
   }finally{await context.close();}
@@ -120,6 +142,7 @@ test('Juliya demo keeps its explanation when enhancement fails', async ({page})=
   await page.goto('/ko/projects/juliya/');
   await expect(page.locator('#demo-status')).not.toBeEmpty();
   await expect(page.locator('#demo-fallback')).toBeVisible();
+  await expect(page.locator('.demo-fallback-link')).toBeVisible();
   await expect(page.locator('#demo-pair')).toBeHidden();
   await expect(page.locator('#demo-control')).toBeHidden();
   await expect(page.locator('#demo-language-control')).toBeHidden();
@@ -370,14 +393,14 @@ test('non-Juliya project detail hero places real media next to the introduction 
 });
 
 
-test('public project documentation targets match the selected language',async ({page})=>{
-  const locales=[['','README.md','user-guide.md'],['ko/','docs/ko/README.md','user-guide.ko.md'],['ja/','docs/ja/README.md','user-guide.ja.md'],['zh-cn/','docs/zh-CN/README.md','user-guide.zh-cn.md']];
-  for(const [prefix,readme,guide] of locales){
+test('public project homepage and repository targets match the selected language',async ({page})=>{
+  const locales=[['','README.md',''],['ko/','docs/ko/README.md','ko/'],['ja/','docs/ja/README.md','ja/'],['zh-cn/','docs/zh-CN/README.md','zh-cn/']];
+  for(const [prefix,readme,homepage] of locales){
     await page.goto('/'+prefix+'projects/oddmash-ui/');
     await expect(page.locator('.detail-hero [data-platform=github]')).toHaveAttribute('href','https://github.com/Oddmash/oddmash-ui/blob/main/'+readme);
     await page.goto('/'+prefix+'projects/boundra/');
-    await expect(page.locator('.detail-hero .secondary')).toHaveAttribute('href','https://github.com/Oddmash/boundra/blob/main/docs/'+guide);
-    await expect(page.locator('.detail-grid .lead')).toContainText('pnpm exec boundra');
+    await expect(page.locator('.detail-hero [data-platform=homepage]')).toHaveAttribute('href','https://oddmash.github.io/boundra/'+homepage);
+    await expect(page.locator('.detail-hero .button.secondary')).toHaveCount(0);
   }
 });
 
@@ -566,7 +589,8 @@ test('localized Juliya links follow upstream language routes',async ({page})=>{
     await page.goto('/'+prefix+'projects/juliya/');
     const live='https://oddmash.github.io/juliya/'+suffix;
     await expect(page.locator('.detail-image-link')).toHaveAttribute('href',live);
-    await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(1);
+    await expect(page.locator('.detail-hero [data-platform=homepage]')).toHaveAttribute('href',live);
+    await expect(page.locator('.detail-hero a[href="'+live+'docs/"]')).toHaveCount(0);
   }
 });
 
@@ -794,12 +818,17 @@ test('representative editorial text and controls have readable contrast', async 
 });
 
 
-test('project quickstarts provide native actionable usage across locales', async ({page})=>{
-  for(const project of ['juliya','oddmash-ui','interaction-inspector','boundra']){
-    await page.goto('/ko/projects/'+project+'/');
-    const quickstart=page.locator('.project-quickstart');
-    await expect(quickstart.locator('h2')).toHaveText('시작하기');
-    await expect(quickstart.locator('pre code')).not.toBeEmpty();
+test('project detail explains problems, workflow, outcomes and scope in each locale', async ({page})=>{
+  for(const prefix of ['','ko/','ja/','zh-cn/']) for(const project of ['juliya','oddmash-ui','interaction-inspector','boundra']){
+    await page.goto('/'+prefix+'projects/'+project+'/');
+    const story=page.locator('.project-story');
+    await expect(story.locator('.story-intro')).toBeVisible();
+    await expect(story.locator('.story-flow .story-step')).toHaveCount(3);
+    await expect(story.locator('.story-outcome > div')).toHaveCount(2);
+    await expect(story.locator('.story-features li')).toHaveCount(3);
+    await expect(page.locator('.project-quickstart, .detail-hero .package')).toHaveCount(0);
+    const homepage=page.locator('.detail-hero [data-platform=homepage]');
+    await expect(homepage).toHaveCount(project==='interaction-inspector'?0:1);
   }
 });
 

@@ -1,6 +1,6 @@
 ---
 import { copy, url, type Locale, type ProjectId, projects } from '../content';
-import { projectLinks } from '../localized';
+import { homepageNames, projectLinks } from '../localized';
 import ProjectImage from './ProjectImage.astro';
 import PlatformLinks from './PlatformLinks.astro';
 interface Props { locale:Locale; project: typeof projects[number] }
@@ -12,7 +12,7 @@ const links = projectLinks(project.id, locale);
 <article class="project" data-category={project.category} data-project={project.id}>
   <div class="project-body">
     <div><p class="tag">{item.type}</p><h3><a class="project-destination" href={url(locale,'projects/'+project.id)} aria-label={project.name+' '+t.details}>{project.name}</a></h3><p>{item.summary}</p></div>
-    <PlatformLinks name={project.name} github={links.readme} npm={project.package} />
+    <PlatformLinks name={project.name} github={links.readme} npm={project.package} homepage={links.live} homepageLabel={homepageNames[locale]} />
   </div>
-  <div class="project-image"><ProjectImage project={project} alt={item.alt} lazy />{project.id==='boundra' && <span class="diagram-label">{locale==='ko'?'설명용 도식':locale==='ja'?'説明図':locale==='zh-CN'?'示意图':'Illustrative diagram'}</span>}</div>
+  <div class="project-image"><ProjectImage project={project} locale={locale} alt={item.alt} lazy />{project.id==='boundra' && <span class="diagram-label">{locale==='ko'?'설명용 도식':locale==='ja'?'説明図':locale==='zh-CN'?'示意图':'Illustrative diagram'}</span>}</div>
 </article>

@@ -1,0 +1,56 @@
+---
+import { copy, type Locale, type ProjectId } from '../content';
+import { projectStory } from '../project-story';
+
+const { locale, projectId } = Astro.props as { locale: Locale; projectId: ProjectId };
+const story = projectStory[locale][projectId];
+const features = copy[locale].projects[projectId].features;
+---
+<section class="section project-story" aria-labelledby="project-story-title">
+  <div class="story-intro">
+    <h2 id="project-story-title">{story.title}</h2>
+    <p>{story.problem}</p>
+  </div>
+  <ol class="story-flow">
+    {story.steps.map(([heading, body], index) => <li class="story-step">
+      <span class="story-step-mark" aria-hidden="true">
+        {index === 0 && <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg>}
+        {index === 1 && <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="var(--paper)"/><circle cx="16" cy="12" r="2" fill="var(--paper)"/><circle cx="10" cy="18" r="2" fill="var(--paper)"/></svg>}
+        {index === 2 && <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12 3 3 5-6"/></svg>}
+      </span>
+      <h3>{heading}</h3>
+      <p>{body}</p>
+    </li>)}
+  </ol>
+  <div class="story-outcome">
+    <div>
+      <h3>{story.outcome[0]}</h3>
+      <p>{story.outcome[1]}</p>
+      <ul class="story-features" aria-label={copy[locale].features}>{features.map(feature => <li>{feature}</li>)}</ul>
+    </div>
+    <div>
+      <h3>{story.scope[0]}</h3>
+      <p>{story.scope[1]}</p>
+    </div>
+  </div>
+</section>
+<style>
+  .project-story { display: grid; gap: clamp(28px, 5vw, 56px); }
+  .story-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 72px); align-items: start; }
+  .story-intro h2 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.12; letter-spacing: -.035em; }
+  .story-intro p, .story-outcome p { max-width: 70ch; color: var(--muted); font-size: clamp(1rem, 1.35vw, 1.15rem); line-height: 1.75; }
+  .story-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; }
+  .story-step { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: clamp(20px, 3vw, 32px); background: var(--paper); }
+  .story-step + .story-step { border-inline-start: 1px solid var(--line); }
+  .story-step h3, .story-outcome h3 { font-size: clamp(1.15rem, 1.8vw, 1.45rem); line-height: 1.35; }
+  .story-step p { color: var(--muted); line-height: 1.7; font-size: 1rem; }
+  .story-step-mark { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--control-line); border-radius: 10px; color: var(--ink); }
+  .story-outcome { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(24px, 6vw, 88px); }
+  .story-outcome p { margin-top: 12px; }
+  .story-features { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0 0; list-style: none; }
+  .story-features li { border: 1px solid var(--line); padding: 6px 10px; font-size: .875rem; color: var(--muted); border-radius: 6px; line-height: 1.5; }
+  @media (max-width: 820px) {
+    .story-intro, .story-flow, .story-outcome { grid-template-columns: minmax(0, 1fr); }
+    .story-step + .story-step { border-inline-start: 0; border-block-start: 1px solid var(--line); }
+  }
+</style>

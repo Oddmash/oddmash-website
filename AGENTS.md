@@ -1,6 +1,6 @@
 # Oddmash organization website
 
-Follow Oddmash organization agreements and shared product, brand, accessibility, web delivery, privacy, QA and Git workflow guidance. The public static website is deployed through GitHub Pages. Keep preview builds noindex; the Pages build uses the approved public origin. No tracking or unpublished project material in the deployed artifact. Position Oddmash as Developer Experience Lab. Lead with public products and developer problems, not the maintainer or agents. Verify supported locale switching, project links, Korean editorial wrapping, share feedback, responsive layout and keyboard access before release.
+Follow Oddmash organization agreements and shared product, brand, accessibility, web delivery, privacy, QA and Git workflow guidance. The public static website is deployed through GitHub Pages. Keep preview builds noindex; the Pages build uses the approved public origin. No tracking or unpublished project material in the deployed artifact. Position Oddmash as Developer Experience Lab. Lead with public products and developer problems, not the maintainer or agents. Verify browser-language entry, explicit locale switching, project links, multilingual editorial wrapping, documentation copy feedback, responsive layout and keyboard access before release.
 
 Follow the [Oddmash review follow-up guidance](https://github.com/Oddmash/.github/blob/main/docs/AI-CODE-REVIEW.md#following-up-on-review-findings) when addressing review comments, including recording non-adoption or deferral and the final thread disposition.
 

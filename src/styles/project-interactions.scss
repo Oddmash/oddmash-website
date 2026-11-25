@@ -12,8 +12,9 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
   border: 1px solid transparent;
   border-radius: 12px;
   color: var(--muted);
@@ -38,11 +39,14 @@
   transform: scale(.95);
 }
 .project .project-body .platform-links {
-  margin-top: 8px;
-  align-self: start;
+  margin-top: auto;
+  justify-content: flex-end;
+  align-self: end;
 }
 .project-gallery .project,
-.project-link-list .project-index-row {
+.project-link-list .project-index-row,
+.catalog-entry,
+.ecosystem-grid article {
   position: relative;
   isolation: isolate;
 }
@@ -80,6 +84,46 @@
   align-items: center;
   padding-inline: 4px;
 }
+.project-index-row .project-destination {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+.ecosystem-grid article {
+  display: flex;
+  flex-direction: column;
+  transition: border-color 220ms ease;
+}
+.ecosystem-grid article .platform-links {
+  position: static;
+  z-index: auto;
+  margin-top: auto;
+  padding-top: 24px;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.platform-links-labeled .platform-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  height: auto;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-weight: 550;
+  font-size: .9rem;
+  border-color: var(--control-line);
+}
+.ecosystem-grid .platform-link[data-platform=docs] {
+  position: static;
+}
+.ecosystem-grid .platform-link[data-platform=github] {
+  z-index: 2;
+}
+.ecosystem-grid article:focus-within {
+  border-color: var(--focus);
+}
 .about-principles .principle-list {
   margin-top: 32px;
 }
@@ -112,6 +156,10 @@
   .project-gallery .project:has(.project-destination:hover) {
     border-color: var(--accent, var(--muted));
   }
+  .ecosystem-grid article:has(.project-destination:hover),
+  .catalog-entry:has(.project-destination:hover) {
+    border-color: var(--muted);
+  }
   .detail-hero figure.detail-image:has(.detail-image-link:hover) {
     border-color: var(--muted);
   }
@@ -129,12 +177,10 @@
   }
   .header nav a,
   .footer nav a,
-  .footer button,
   .text-link {
     transition: color 180ms ease, text-underline-offset 180ms ease;
   }
-  .text-link:hover,
-  .footer button:hover {
+  .text-link:hover {
     color: var(--ink);
     text-underline-offset: 6px;
   }
@@ -244,8 +290,9 @@
 
 .catalog-cta { margin-top: 24px; }
 .catalog-projects { display: grid; gap: 32px; }
-.catalog-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 32px; }
-.catalog-description { min-width: 0; display: grid; gap: 16px; color: var(--muted); }
+.catalog-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: stretch; border-bottom: 1px solid var(--line); padding-bottom: 32px; transition: border-color 220ms ease; }
+.catalog-description { min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 16px; color: var(--muted); }
+.catalog-description .platform-links { margin-top: auto; align-self: end; justify-content: flex-end; }
 .catalog-description h3 { color: var(--ink); font-size: 1rem; margin: 0; }
 @media (max-width: 760px) { .catalog-entry { grid-template-columns: minmax(0, 1fr); } }
 
