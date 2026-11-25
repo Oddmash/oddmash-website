@@ -132,6 +132,49 @@ test('live Juliya width and clean footer', async ({page})=>{
   await expect(page.locator('footer #share, footer #share-fallback')).toHaveCount(0);
 });
 
+test('comparison guides mark the actual text width at both ends of the range', async ({page})=>{
+  const cases = [
+    { prefix: '', language: 'en', description: 'The dashed guides' },
+    { prefix: 'ko/', language: 'ko', description: '점선은' },
+    { prefix: 'ja/', language: 'ja', description: '点線は' },
+    { prefix: 'zh-cn/', language: 'zh-CN', description: '虚线标记' },
+  ];
+  for (const {prefix,language,description} of cases) {
+    await page.setViewportSize({width:1280,height:840});
+    await page.goto('/'+prefix+'projects/juliya/');
+    const range = page.locator('#demo-width');
+    await expect(range).toBeVisible();
+    await expect(range).toHaveAccessibleDescription(new RegExp(description));
+    for (const width of [1280,320]) {
+      await page.setViewportSize({width,height:840});
+      if (width===320) await expect.poll(async()=>Number(await range.getAttribute('max'))).toBeLessThan(320);
+      for (const key of ['Home','End']) {
+        await range.focus();
+        await range.press(key);
+        await expect(range).toBeFocused();
+        const selected = Number(await range.inputValue());
+        expect(selected).toBe(Number(await range.getAttribute(key==='Home'?'min':'max')));
+        await expect(page.locator('#width-value')).toHaveText(selected+' px');
+        const samples = page.locator('#demo-pair .sample');
+        await expect(samples).toHaveCount(2);
+        await expect.poll(()=>samples.evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().width))).toEqual([selected,selected]);
+        for (const sample of await samples.all()) {
+          await expect(sample).toHaveAttribute('lang',language);
+          await expect(sample).toHaveCSS('outline-style','dashed');
+          await expect(sample).toHaveCSS('outline-width','1px');
+          expect(await sample.evaluate(el=>{
+            const rgb = (value:string) => (value.match(/[\d.]+/g) ?? []).slice(0,3).map(Number);
+            const luminance = (values:number[]) => values.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+            const colors = [luminance(rgb(getComputedStyle(el).outlineColor)),luminance(rgb(getComputedStyle(el.parentElement!).backgroundColor))];
+            return (Math.max(...colors)+.05)/(Math.min(...colors)+.05);
+          })).toBeGreaterThanOrEqual(3);
+        }
+        expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      }
+    }
+  }
+});
+
 test('legacy privacy locale and language switch',async ({page})=>{
   await page.goto('/privacy.html?lang=ja');
   await expect(page).toHaveURL(/\/ja\/privacy\/$/);
