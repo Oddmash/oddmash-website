@@ -119,7 +119,12 @@ test('live Juliya width and clean footer', async ({page})=>{
   expect(widths).toEqual([320,320]);
   await expect(page.locator('#demo-status')).toBeEmpty();
   await page.setViewportSize({width:320,height:740});
-  await expect.poll(()=>range.getAttribute('max')).not.toBe('320');
+  await expect.poll(async()=>Number(await range.getAttribute('max'))).not.toBe(320);
+  const resizedMax=Number(await range.getAttribute('max'));
+  expect(resizedMax).toBeLessThan(320);
+  await expect(range).toHaveValue(String(resizedMax));
+  await expect(page.locator('#width-value')).toHaveText(resizedMax+' px');
+  await expect.poll(()=>page.locator('.sample').evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().width))).toEqual([resizedMax,resizedMax]);
   await range.press('End');
   const chosen=Number(await range.inputValue());
   await expect(page.locator('#width-value')).toHaveText(chosen+' px');
