@@ -13,3 +13,16 @@ Follow the [organization agreements](https://github.com/Oddmash/.github/blob/mai
 Create topic branches from `main` and open issue-linked pull requests directly against `main`. There is no integration branch; GitHub Pages deploys after verified main merges.
 
 PR CI always runs metadata checks, static and browser tests, and the required `verify` check. After a normal merge, main CI may reuse the latest successful PR run only when it verified the exact merged tree. A missing or mismatched proof, direct push, or superseded or unsuccessful run requires the full suite again. Pages independently builds and validates the actual main revision before publishing.
+
+
+## Organic search and Search Console
+
+The approved Pages URL is https://oddmash.github.io/oddmash-website/. Search Console setup does not require personal promotion or browser tracking.
+
+1. In [Google Search Console](https://search.google.com/search-console/), the maintainer adds a URL-prefix property for the exact public HTTPS URL, including its trailing slash.
+2. Select HTML file verification. Use the filename and content provided by Google unchanged. Submit the file under `public/` in an issue-linked PR, then publish through the existing Pages workflow. Confirm that the verification file is publicly accessible at the exact URL Google requires before selecting Verify. Keep the file deployed while verification remains necessary.
+3. After ownership is verified, submit https://oddmash.github.io/oddmash-website/sitemap.xml in the Sitemaps report. Inspect the production homepage and one localized product page with URL Inspection.
+4. For Juliya, Boundra, and Oddmash UI, add separate URL-prefix properties for their exact published project URLs if the maintainer does not already have a covering property. Submit a sitemap only after checking it is deployed and contains valid public URLs.
+5. Review aggregate impressions, clicks, and indexing status. Do not add visitor tracking or collect individual identities. Record unavailable metrics as unavailable, not zero.
+
+Check the actual production `robots.txt`, sitemap, canonical and language alternate URLs after each deployment. Keep preview builds nonindexable; never set the public launch flag to make a preview eligible for indexing. See [Google's ownership verification guidance](https://support.google.com/webmasters/answer/9008080) and [property guidance](https://support.google.com/webmasters/answer/34592).
