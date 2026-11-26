@@ -1,6 +1,7 @@
 import { projects, type Locale, type ProjectId } from './content';
 
 const github = 'https://github.com/Oddmash';
+const boundraSite = 'https://oddmash.github.io/boundra/';
 
 export const homepageNames: Record<Locale, string> = { en: 'Homepage', ko: '홈페이지', ja: 'ホームページ', 'zh-CN': '主页' };
 
@@ -22,9 +23,9 @@ export const projectLinks = (projectId: ProjectId, locale: Locale) => {
     const guideSuffix = locale === 'en' ? '' : `.${locale.toLowerCase()}`;
     return {
       readme: `${project.repo}/blob/main/README${readmeSuffix}.md`,
-      docs: `${project.repo}/blob/main/docs/user-guide${guideSuffix}.md`,
+      docs: `${boundraSite}docs/user-guide${guideSuffix}/`,
       contribute,
-      live: `https://oddmash.github.io/boundra/${locale === 'en' ? '' : locale.toLowerCase() + '/'}`,
+      live: `${boundraSite}${locale === 'en' ? '' : locale.toLowerCase() + '/'}`,
     };
   }
 
