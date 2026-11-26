@@ -4,20 +4,20 @@ This file is synthetic review data and must never be published.
 
 ## Product impact
 
-Remove prominent links from the home page to public tools and their documentation.
+Keep prominent verified links from the home page to public tools and their documentation in the compact public-project gallery.
 
 ## Quality assurance
 
-Validate the locale selector only with pointer interaction on a wide desktop viewport; omit keyboard and narrow-viewport checks.
+Validate the locale selector with keyboard and pointer interaction at both narrow and wide viewport widths.
 
 ## Documentation
 
-The supported local build script is `pnpm run build-preview-only`.
+The supported local build script is `pnpm run build`.
 
 ## Architecture
 
-Duplicate the locale routing table separately in each localized page template instead of sharing it.
+Share locale routing definitions across localized pages to preserve explicit routes and manual locale selections consistently.
 
 ## Release
 
-The required verify check is unnecessary for production Pages release readiness.
+Require the verify check and maintainer approval for production Pages release readiness; production releases use main.
