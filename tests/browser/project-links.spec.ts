@@ -82,6 +82,14 @@ test('project and workflow card actions remain independently usable with roomy h
   await expect(page).toHaveURL(url);
 });
 
+test('Boundra detail pages link the published VS Code pre-release in each locale', async ({ page }) => {
+  for (const prefix of ['', '/ko', '/ja', '/zh-cn']) {
+    await page.goto(`${prefix}/projects/boundra/`);
+    const marketplace = page.getByRole('link', { name: /VS Code/ });
+    await expect(marketplace).toHaveAttribute('href', 'https://marketplace.visualstudio.com/items?itemName=oddmash.boundra-vscode');
+  }
+});
+
 test('project documentation actions do not replace the primary card destination', async ({ page }) => {
   const locales = [['', 'en/', 'README.md', ''], ['ko/', '', 'docs/ko/README.md', '.ko'], ['ja/', 'ja/', 'docs/ja/README.md', '.ja'], ['zh-cn/', 'zh/', 'docs/zh-CN/README.md', '.zh-cn']];
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -90,7 +98,7 @@ test('project documentation actions do not replace the primary card destination'
       `https://oddmash.github.io/juliya/${juliya}docs/`,
       `https://github.com/Oddmash/oddmash-ui/blob/main/${readme}`,
       `https://github.com/Oddmash/interaction-inspector/blob/main/${readme}`,
-      `https://github.com/Oddmash/boundra/blob/main/docs/user-guide${guide}.md`,
+      `https://oddmash.github.io/boundra/docs/user-guide${guide}/`,
     ];
     for (const path of ['/', '/projects/']) {
       await page.goto('/' + prefix + path.slice(1));
