@@ -6,7 +6,7 @@ import { LocalePicker } from '@oddmash/ui/locale-picker';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { copy, labels, locales, languageNames, url, type Locale } from '../content';
-import { absolute, indexable } from '../site';
+import { absolute, indexable, siteBase } from '../site';
 import { skillCopy } from '../skill-content';
 import { agentDocsCopy } from '../agent-content';
 interface Props { locale:Locale; path:string; title:string; description:string; image?:string; imageAlt?:string; noIndex?:boolean }
@@ -15,7 +15,7 @@ const t = copy[locale];
 const l = labels[locale];
 const home = url(locale);
 const canonical = noIndex ? undefined : absolute(url(locale,path));
-const localeOptions = locales.map(lang => ({ value: lang, label: languageNames[lang], lang, href: url(lang,path)+(lang==='en' && path==='' ? '?lang=en' : '') }));
+const localeOptions = locales.map(lang => ({ value: lang, label: languageNames[lang], lang, href: siteBase + url(lang,path)+(lang==='en' && path==='' ? '?lang=en' : '') }));
 const localePickerProps = { label: t.language, value: locale, options: localeOptions, selectProps: { id: 'language-select' } };
 ---
 <!doctype html>

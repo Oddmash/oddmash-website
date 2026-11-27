@@ -6,6 +6,6 @@ const validOrigin = (value:string) => {
 };
 export const origin = launch ? validOrigin(raw) : '';
 export const indexable = Boolean(origin);
-const siteBase = process.env.ODDMASH_PAGES_BUILD === 'true' ? '/oddmash-website' : '';
+export const siteBase = process.env.ODDMASH_PAGES_BUILD === 'true' ? '/oddmash-website' : '';
 export const absolute = (path:string) => origin ? new URL(siteBase + path, origin).href : undefined;
 export const sitemap = () => indexable ? '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + staticPages.map(p=>'<url><loc>'+absolute(p.href)+'</loc></url>').join('')+'</urlset>' : '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>';
